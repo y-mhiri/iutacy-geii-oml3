@@ -1,0 +1,350 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\theoremstyle{definition}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+\usepackage{enumerate}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta}
+
+\geometry{a4paper, scale=0.8}
+
+%% ─── Header / footer ─────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{2025-2026}
+\fancyhead[C]{\textbf{\courseName}}
+\fancyhead[R]{\large GEII -- BUT2}
+\fancyfoot[C]{\thepage}
+\fancyfoot[L]{\includegraphics[height=3em]{../../common/logos_couleurs/IUTA.png}}
+\fancyfoot[R]{\href{mailto:prenom.nom@univ-smb.fr}{prenom.nom@univ-smb.fr}}
+
+%% ─── Course metadata ─────────────────────────────────────────────
+\newcommand{\courseName}{Outils Mathématiques et Logiciel --- OML3}
+\newcommand{\chapterTitle}{TD 2 -- Série de Fourier}
+
+%% ─── Custom title ────────────────────────────────────────────────
+\makeatletter
+\renewcommand\maketitle{{\raggedright\begin{center}
+    {\Huge\bfseries\@title}
+\end{center}}}
+\makeatother
+
+%% ─── Solution toggle ─────────────────────────────────────────────
+%% Compile with \showsolutionstrue for the teacher version.
+\newif\ifshowsolutions
+\showsolutionsfalse
+
+\ifshowsolutions
+    \newtcolorbox{solution}{
+        colback=red!5!white, colframe=red!50!white,
+        breakable, title=\textbf{Solution :}
+    }
+\else
+    \NewEnviron{solution}{}{}
+\fi
+
+%% ─── Theorem / exercise environments ─────────────────────────────
+\newtheorem{definition}{Définition}[section]
+\newtheorem{proposition}{Propriété}[section]
+\newtheorem{theorem}{Théorème}[section]
+\newtheorem{exemple}{Exemple}[section]
+\newtheorem{remark}{Remarque}[section]
+
+%% Exercice : affiche "Exercice N (titre)." et referme aussitôt le
+%% paragraphe avec \par. Volontairement PAS un \newtheorem : amsthm
+%% reporte l'affichage du titre via \everypar, qui ne se déclenche
+%% qu'au démarrage d'un paragraphe. Si le corps commence directement
+%% par une liste (\begin{enumerate}), aucun paragraphe ne démarre
+%% avant le premier \item, et le titre se retrouve collé au "1." de
+%% la liste -- même avec une ligne vide dans la source. Cet
+%% environnement affiche le titre immédiatement, donc ne dépend pas
+%% de ce mécanisme et fonctionne quel que soit le contenu qui suit.
+\newcounter{exercice}   % global counter — do not add [section]
+\newenvironment{exercice}[1][]{%
+  \refstepcounter{exercice}%
+  \par\noindent\textbf{Exercice \theexercice}\if\relax\detokenize{#1}\relax\else\ (#1)\fi.\par\noindent\ignorespaces
+}{\par}
+
+%% ─── Section numbering ───────────────────────────────────────────
+\renewcommand{\thesection}{{\arabic{section}}}
+
+%% ─── Helpers ─────────────────────────────────────────────────────
+\definecolor{niceblue}{RGB}{0,128,172}
+\newcommand{\highlight}[1]{{\color{niceblue}\emph{#1}}}
+
+\input{../../common/macros.tex}
+
+\title{\chapterTitle}
+\author{}
+\date{}
+
+%% ─────────────────────────────────────────────────────────────────
+\begin{document}
+\fontfamily{bch}\selectfont
+\fontsize{12pt}{14pt}\selectfont
+
+\maketitle
+\thispagestyle{fancy}
+\setcounter{exercice}{0}
+
+
+\vspace{2em}
+\textit{Tous les exercices ne seront pas abordés lors des séances de TD. Pour vos révisions il est recommandé de revoir précisément les 3 premiers exercices de chaque TD et de vous confronter au moins une fois à chaque exercice. La correction des TD sera mise en ligne sur le Moodle du cours dans la semaine qui suit le TD.}
+\vspace{2em}
+
+%% ── Ex 1 : CLASSIFY / DEFINE ────────────────────────────────────
+%% Purpose: activate vocabulary from the CM.
+%% No computation harder than substituting into a definition.
+%% At least one positive, one negative, one boundary case.
+\begin{exercice}
+        Préciser si la fonction suivante est périodique, paire ou impaire puis calculer l'expression des coefficients complexes de sa série de Fourier,
+        $$f(t) = \cos(2\pi f_0 t + \varphi),$$ où $f_0$ et $\varphi$ sont deux réels.
+\end{exercice}
+
+
+%% ── Ex 2–3 : PROVE ───────────────────────────────────────────────
+%% Purpose: make students re-derive a theorem stated in the CM.
+%% Structure: easy direction → hard direction → verify on an example.
+
+
+
+
+\begin{exercice}[Décalage dans le temps]
+
+    Soit $f$ une fonction $T$-périodique, de coefficients de Fourier complexes $c_n$. Pour $\varphi\in\R$, on considère le signal décalé $g(t) = f(t+\varphi)$.
+
+    \begin{enumerate}[\bfseries 1.]
+        \item Montrer que $g$ est $T$-périodique.
+        \begin{solution}
+            $g(t+T) = f(t+T+\varphi) = f(t+\varphi) = g(t)$ car $f$ est $T$-périodique : $g$ est donc $T$-périodique, de même période que $f$.
+        \end{solution}
+
+        \item En notant $d_n$ les coefficients de Fourier complexes de $g$, montrer que $d_n = c_n\,e^{jn\omega_0\varphi}$.
+        \begin{solution}
+            $$
+                d_n = \frac1T\int_0^T g(t)e^{-jn\omega_0t}\,\d t = \frac1T\int_0^T f(t+\varphi)e^{-jn\omega_0t}\,\d t.
+            $$
+            On pose $u=t+\varphi$ (donc $\d u=\d t$) :
+            $$
+                d_n = \frac1T\int_\varphi^{T+\varphi} f(u)e^{-jn\omega_0(u-\varphi)}\,\d u = e^{jn\omega_0\varphi}\cdot\frac1T\int_\varphi^{T+\varphi} f(u)e^{-jn\omega_0u}\,\d u.
+            $$
+            La fonction $u\mapsto f(u)e^{-jn\omega_0u}$ est $T$-périodique (produit de $f$, $T$-périodique, et de $u\mapsto e^{-jn\omega_0u}$, $T$-périodique puisque $\omega_0T=2\pi$). D'après le TD1 (Exercice~5), son intégrale sur $[\varphi,T+\varphi]$ vaut la même chose que sur $[0,T]$, donc
+            $$
+                d_n = e^{jn\omega_0\varphi}\cdot\frac1T\int_0^T f(u)e^{-jn\omega_0u}\,\d u = c_n\,e^{jn\omega_0\varphi}.
+            $$
+        \end{solution}
+
+        % \item En utilisant la formule d'Euler, calculer les coefficients $c_n$ de $h(t)=\cos(\omega_0t)$ et tracer son spectre bilatéral.
+        % \begin{solution}
+        %     $\cos(\omega_0t) = \dfrac{e^{j\omega_0t}+e^{-j\omega_0t}}{2}$ (Propriété~2.6). Par identification avec $\sum_n c_n e^{jn\omega_0t}$,
+        %     $$
+        %         c_1 = c_{-1} = \frac12, \qquad c_n = 0 \text{ pour } n\notin\{-1,1\}.
+        %     $$
+        %     Le spectre bilatéral ne comporte donc que deux bâtons, de hauteur $|c_1|=|c_{-1}|=\frac12$, aux fréquences $\pm f_0$ :
+        %     \begin{center}
+        %     \begin{tikzpicture}
+        %         \begin{axis}[
+        %             width=7cm, height=3.5cm,
+        %             xlabel={fréquence}, ylabel={$|c_n|$},
+        %             xtick={-1,0,1}, xticklabels={$-f_0$,$0$,$f_0$},
+        %             ytick={0.5}, yticklabels={$\frac12$},
+        %             ymin=0, ymax=0.7,
+        %             axis lines=left,
+        %         ]
+        %         \addplot+[ycomb, niceblue, thick, mark=*, mark options={fill=niceblue}] coordinates {(-1,0.5) (0,0) (1,0.5)};
+        %         \end{axis}
+        %     \end{tikzpicture}
+        %     \end{center}
+        \item En déduire l'expression des coefficients $c_n$ de la fonction périodique définie par 
+        $$
+        g(t) = 3f_{\rm carre}(t) + f_{\rm carre}(t-2)
+        $$
+        et tracer son spectre bilatéral pour $-8 \leq n \leq 8$.
+
+
+        % \item En déduire les coefficients de $\sin(\omega_0t)$ à l'aide de la question 2 puis tracer son spectre bilatéral.
+        % \begin{solution}
+        %     $\sin(\omega_0t) = \cos\!\left(\omega_0t-\dfrac\pi2\right) = h\!\left(t+\varphi\right)$ avec $\varphi = -\dfrac{\pi}{2\omega_0}$. D'après la question 2, les coefficients de $\sin(\omega_0t)$ sont $d_n=c_n e^{jn\omega_0\varphi}$ :
+        %     $$
+        %         d_1 = \frac12 e^{j\omega_0\times(-\pi/(2\omega_0))} = \frac12 e^{-j\pi/2} = -\frac{j}2, \qquad d_{-1} = \frac12 e^{j\pi/2} = \frac{j}2, \qquad d_n=0 \text{ sinon.}
+        %     $$
+        %     On retrouve bien, via la formule d'Euler, $\sin(\omega_0t) = \dfrac{e^{j\omega_0t}-e^{-j\omega_0t}}{2j} = -\dfrac{j}{2}e^{j\omega_0t} + \dfrac{j}{2}e^{-j\omega_0t}$.
+
+        %     Ici $|d_1|=|d_{-1}|=\frac12$ : le spectre bilatéral de $\sin(\omega_0t)$ est donc \emph{identique} à celui de $\cos(\omega_0t)$ (deux bâtons de hauteur $\frac12$ en $\pm f_0$). Le spectre d'amplitude ne conserve que le module des $c_n$ : il ne distingue pas $\cos$ et $\sin$, seule leur phase (l'argument de $d_n$) diffère.
+        % \end{solution}
+    \end{enumerate}
+\end{exercice}
+
+
+\begin{exercice}[Série de Fourier complexe d'un signal réel]
+
+    Soit $f$ une fonction $T$-périodique à valeurs réelles, vérifiant les conditions de Dirichlet, de coefficients de Fourier complexes $c_n$. On veut montrer que, bien que les $c_n$ soient a priori complexes, la série $\displaystyle\sum_{n=-\infty}^{+\infty} c_n e^{jn\omega_0 t}$ est réelle pour tout $t$.
+
+    \begin{enumerate}[\bfseries 1.]
+        \item Pour $n\in\N$, écrire l'expression intégrale de $c_{-n}$.
+        \begin{solution}
+            Il suffit de remplacer $n$ par $-n$ dans la définition :
+            $$
+                c_{-n} = \frac1T\int_0^T f(t)e^{jn\omega_0t}\,\d t.
+            $$
+        \end{solution}
+
+        \item Calculer $\overline{c_n}$ en utilisant le fait que $f$ est à valeurs réelles ($\overline{f(t)}=f(t)$) et conclure que $c_{-n}=\overline{c_n}$.
+        \begin{solution}
+            $$
+                \overline{c_n} = \overline{\frac1T\int_0^T f(t)e^{-jn\omega_0t}\,\d t} = \frac1T\int_0^T \overline{f(t)}\,\overline{e^{-jn\omega_0t}}\,\d t = \frac1T\int_0^T f(t)e^{jn\omega_0t}\,\d t.
+            $$
+            On reconnaît exactement l'expression de $c_{-n}$ trouvée à la question précédente : $\overline{c_n} = c_{-n}$.
+        \end{solution}
+
+        \item Montrer que $c_n e^{jn\omega_0t} + c_{-n}e^{-jn\omega_0t}$ est un nombre réel.
+        \par \textbf{Rappel :} $\overline{e^{\complexj t}} = e^{-\complexj t}$ et pour tout complexe $z\in\C$, $z + \overline{z} = 2\,\mathrm{Re}(z) \in \R$.
+        \begin{solution}
+            D'après la question précédente, en posant $z=c_ne^{jn\omega_0t}$,
+            $$
+                c_n e^{jn\omega_0t} + c_{-n}e^{-jn\omega_0t} = z + \overline{z}.
+            $$
+            Or pour tout $z\in\C$, $z+\overline{z}=2\,\mathrm{Re}(z)\in\R$. La somme est donc réelle.
+        \end{solution}
+
+        \item Conclure que $\displaystyle\sum_{n=-\infty}^{+\infty} c_n e^{jn\omega_0 t} \in \R$ pour tout $t\in\R$.
+        \begin{solution}
+            On regroupe les termes d'indices $n$ et $-n$ ($n\geq1$) :
+            $$
+                \sum_{n=-\infty}^{+\infty} c_n e^{jn\omega_0 t} = c_0 + \sum_{n=1}^{+\infty}\left(c_n e^{jn\omega_0t} + c_{-n}e^{-jn\omega_0t}\right).
+            $$
+            Le terme $c_0=\frac1T\int_0^T f(t)\,\d t$ est réel ($f$ à valeurs réelles), et chaque terme groupé est réel (question précédente) : la série est une somme de nombres réels, donc réelle.
+        \end{solution}
+
+    \end{enumerate}
+
+    On applique maintenant ce résultat pour démontrer le Corollaire~3.1 du cours : si $f$ est paire, $b_n=0$ pour tout $n$ (série de cosinus) ; si $f$ est impaire, $a_0=0$ et $a_n=0$ pour tout $n$ (série de sinus).
+
+    \begin{enumerate}[\bfseries 1.]
+        \setcounter{enumi}{4}
+        \item Justifier que l'on peut calculer $a_0$, $a_n$ et $b_n$ en intégrant sur $[-\frac{T}{2},\frac{T}{2}]$ plutôt que sur $[0,T]$.
+        \begin{solution}
+            L'intégrale d'une fonction $T$-périodique ne dépend pas du choix de l'intervalle d'intégration, pourvu qu'il soit de longueur $T$. L'intervalle $[-\frac{T}{2},\frac{T}{2}]$ est de longueur $T$, donc convient.
+        \end{solution}
+
+        \item On suppose $f$ paire. Montrer que $t\mapsto f(t)\sin(n\omega_0 t)$ est impaire, puis en déduire que $b_n=0$ et que $c_n$ est réel pour tout $n$.
+        \begin{solution}
+            $f(-t)\sin(-n\omega_0 t) = f(t)\times\left(-\sin(n\omega_0 t)\right) = -f(t)\sin(n\omega_0 t)$ : produit d'une fonction paire ($f$) par une fonction impaire ($\sin$), donc impair. D'après la Propriété~1.3 et la question précédente,
+            $$
+                b_n = \frac{2}{T}\int_{-T/2}^{T/2} f(t)\sin(n\omega_0 t)\,\d t = 0.
+            $$
+            Or $c_n = \dfrac{a_n-\complexj b_n}{2}$ (cours) ; avec $b_n=0$, $c_n=\dfrac{a_n}{2}$, qui est réel puisque $a_n$ est une intégrale d'une fonction réelle.
+        \end{solution}
+
+        \item On suppose maintenant $f$ impaire. Montrer que $a_0=0$, puis que $t\mapsto f(t)\cos(n\omega_0 t)$ est impaire pour en déduire que $a_n=0$ et que $c_n$ est imaginaire pur pour tout $n\geq1$.
+        \begin{solution}
+            $a_0=\dfrac1T\displaystyle\int_{-T/2}^{T/2} f(t)\,\d t = 0$ directement par la Propriété~1.3 ($f$ impaire sur un intervalle symétrique). Ensuite $f(-t)\cos(-n\omega_0 t) = -f(t)\cos(n\omega_0 t)$ : produit d'une fonction impaire ($f$) par une fonction paire ($\cos$), donc impair. D'après la Propriété~1.3,
+            $$
+                a_n = \frac{2}{T}\int_{-T/2}^{T/2} f(t)\cos(n\omega_0 t)\,\d t = 0.
+            $$
+            Or $c_n = \dfrac{a_n-\complexj b_n}{2}$ (cours) ; avec $a_n=0$, $c_n=-\dfrac{\complexj b_n}{2}$, qui est imaginaire pur puisque $b_n$ est réel.
+        \end{solution}
+    \end{enumerate}
+\end{exercice}
+
+
+
+
+%% ── Ex 4–5 : APPLY ───────────────────────────────────────────────
+%% Purpose: numerical problem with real or realistic GEII data.
+%% Ends with an engineer's conclusion, not just a number.
+\begin{exercice}[Impulsion périodique étroite --- approfondissement]
+    Soit $0<\theta<T$ et $f_\theta$ la fonction $T$-périodique telle que
+    $$
+        f_\theta(t) = \begin{cases} \dfrac{1}{\theta} & \text{si } |t|\leq\dfrac{\theta}{2} \\ 0 & \text{si } \dfrac{\theta}{2} < |t| \leq \dfrac{T}{2} \end{cases}
+    $$
+    (un motif d'aire $1$ par période, concentré sur une largeur $\theta$).
+
+    \begin{center}
+    \begin{tikzpicture}[x=0.9cm,y=1.2cm]
+        \draw[-Latex] (-1,0) -- (13,0) node[right] {$t$};
+        \draw[-Latex] (0,-0.3) -- (0,3.3) node[above] {$f_\theta(t)$};
+        \draw[niceblue,thick] (-1,0) -- (13,0);
+        \foreach \c in {0,6,12} {
+            \draw[niceblue,thick] (\c-0.5,0) -- (\c-0.5,2.5) -- (\c+0.5,2.5) -- (\c+0.5,0);
+        }
+        \draw[dashed] (5.5,0) -- (5.5,2.9);
+        \draw[dashed] (6.5,0) -- (6.5,2.9);
+        \draw[latex-latex] (5.5,2.9) -- (6.5,2.9) node[midway,above] {\small $\theta$};
+        \node[left] at (0,2.5) {$\dfrac1\theta$};
+        \node[below] at (6,0) {$T$};
+        \node[below] at (12,0) {$2T$};
+    \end{tikzpicture}
+    \end{center}
+
+    \begin{enumerate}[\bfseries 1.]
+        \item Quelle est la période de $f_\theta$ ?
+        \begin{solution}
+            $T$, par construction.
+        \end{solution}
+
+        \item Calculer $a_0$.
+        \begin{solution}
+            $$
+                a_0 = \frac1T\int_{-\theta/2}^{\theta/2} \frac{1}{\theta}\,\d t = \frac{1}{T\theta}\times\theta = \frac1T.
+            $$
+        \end{solution}
+
+        \item Calculer les coefficients de la série de Fourier $a_n$ et $b_n$, puis en déduire les valeurs du spectre $A_n$ en fonction de $\theta$.
+        \begin{solution}
+            $f_\theta$ est paire, donc $b_n=0$ pour tout $n$ (Exercice~3). Pour $a_n$ :
+            $$
+                a_n = \frac{2}{T}\int_{-\theta/2}^{\theta/2} \frac{1}{\theta}\cos(n\omega_0 t)\,\d t = \frac{2}{T\theta}\left[\frac{\sin(n\omega_0 t)}{n\omega_0}\right]_{-\theta/2}^{\theta/2} = \frac{2\sin\left(n\omega_0\theta/2\right)}{Tn\omega_0\theta/2}.
+            $$
+            En notant $\sinc(x) = \dfrac{\sin(x)}{x}$, et puisque $\omega_0\theta/2 = \pi\theta/T$,
+            $$
+                a_n = \frac{2}{T}\sinc\!\left(\frac{n\pi\theta}{T}\right), \qquad A_n = |a_n| = \frac{2}{T}\left|\sinc\!\left(\frac{n\pi\theta}{T}\right)\right|.
+            $$
+        \end{solution}
+
+        \item Calculer les coefficients de la représentation complexe $c_n$ en fonction de $\theta$.
+        \begin{solution}
+            $b_n=0$ donc $c_n = a_n/2$ pour $n\geq1$, et $c_0=a_0$. En remarquant que $\sinc(0)=1$, on peut écrire une seule formule valable pour tout $n\in\Z$ :
+            $$
+                c_n = \frac1T\sinc\!\left(\frac{n\pi\theta}{T}\right).
+            $$
+        \end{solution}
+
+        \item On fait maintenant tendre $\theta$ vers $0$, en gardant la hauteur $1/\theta$ (donc l'aire du motif reste égale à $1$). Que devient $c_n$ pour un $n$ fixé ?
+        \begin{solution}
+            Quand $\theta\to0$, $\dfrac{n\pi\theta}{T}\to0$ donc $\sinc\!\left(\dfrac{n\pi\theta}{T}\right)\to1$, et
+            $$
+                c_n \longrightarrow \frac1T \quad \text{pour tout } n\in\Z.
+            $$
+            Le spectre devient plat : toutes les fréquences $nf_0$ contribuent avec le même poids $1/T$, sans décroissance. C'est l'inverse de $f_{\rm carr\acute{e}}$, dont le spectre décroît en $1/n$ (énergie concentrée sur les basses fréquences) : une impulsion infiniment brève (mais d'aire finie) répartit son énergie sur toutes les fréquences à parts égales. On retrouvera ce résultat en échantillonnage.
+        \end{solution}
+    \end{enumerate}
+\end{exercice}
+
+
+
+%% ── Ex 6–7 (optional) : EXTEND ───────────────────────────────────
+%% Purpose: harder result not in the CM, for strong students.
+%% Mark clearly as optional difficulty.
+%
+% \begin{exercice}[Approfondissement]
+%     \begin{enumerate}[\bfseries 1.]
+%         \item ...
+%         \begin{solution}
+%         \end{solution}
+%     \end{enumerate}
+% \end{exercice}
+
+\end{document}

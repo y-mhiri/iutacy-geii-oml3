@@ -1,0 +1,628 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{amsthm}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+\usepackage{enumerate}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta,positioning,calc}
+\usepgfplotslibrary{groupplots}
+
+\geometry{a4paper, scale=0.8}
+
+%% ─── Colors ──────────────────────────────────────────────────────
+\definecolor{niceblue}{RGB}{0,128,172}
+
+%% ─── Header / footer ─────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{2025-2026}
+\fancyhead[C]{\textbf{\courseName}}
+\fancyhead[R]{\large GEII -- BUT2}
+\fancyfoot[C]{\thepage}
+\fancyfoot[L]{\includegraphics[height=3em]{../../../common/logos_couleurs/IUTA.png}}
+\fancyfoot[R]{\href{mailto:yassine.mhiri@univ-smb.fr}{yassine.mhiri@univ-smb.fr}}
+
+%% ─── Course metadata ─────────────────────────────────────────────
+\newcommand{\courseName}{Outils Mathématiques et Logiciel --- OML3}
+\newcommand{\chapterTitle}{Chapitre 1 --- Série de Fourier}
+
+%% ─── Custom title ────────────────────────────────────────────────
+\makeatletter
+\renewcommand\maketitle{{\raggedright\begin{center}
+    {\Huge\bfseries\@title}
+\end{center}}}
+\makeatother
+
+%% ─── Theorem environments ────────────────────────────────────────
+\theoremstyle{definition}
+\newtheorem{definition}{Définition}[section]
+\newtheorem{proposition}{Propriété}[section]
+\newtheorem{theorem}{Théorème}[section]
+\newtheorem{corollary}{Corollaire}[section]
+\newtheorem{lemma}{Lemme}[section]
+\newtheorem{exemple}{Exemple}[section]
+\newtheorem{remark}{Remarque}[section]
+
+%% ─── Helpers ─────────────────────────────────────────────────────
+\newcommand{\highlight}[1]{{\color{niceblue}\emph{#1}}}
+
+\input{../../../common/macros.tex}
+
+\title{\chapterTitle}
+\author{}
+\date{}
+
+%% ─────────────────────────────────────────────────────────────────
+\begin{document}
+\fontfamily{bch}\selectfont
+\fontsize{12pt}{14pt}\selectfont
+
+\maketitle
+\thispagestyle{fancy}
+
+% ═══════════════════════════════════════════════════════════════════
+% SÉANCE 1 (CM1) : sections 1-3
+% SÉANCE 2 (CM2) : section 4
+% Grounding: cours-iro CM1-OML3-2024.docx / CM2-OML3-2024.docx ;
+%            cours-reda TD1-2-MA3, TD3-MA3, TD4-MA3.
+% Running example carried through the whole chapter: signal créneau
+% (rectangulaire), the one exercised in Iro's CM1 exercise and in
+% reda TD1-2 Ex.1 / TD3 Ex.1 / TD4 Ex.2-3. Triangle / dents de scie
+% appear only as secondary examples (Section 2).
+% ═══════════════════════════════════════════════════════════════════
+
+% ─── INTRODUCTION ─────────────────────────────────────────────────
+% One paragraph: why periodic signals matter in GEII (secteur 50Hz,
+% horloge/PWM numérique, son) — framing, not sourced verbatim.
+% One sentence: the central object of the chapter is the Fourier
+% series (a periodic signal seen as a sum of sinusoids).
+
+\section{Introduction et contexte}
+
+% Motivation paragraph (GEII scenarios) — no math yet.
+
+\subsection{Rappels mathématiques}
+% Compact prerequisites, pulled from cours-iro CM1 "RAPPELS" blocks:
+%   - Notations : \R, \N, \Z, \C, fonction f : \R \to \R (ou \C)
+%   - Propriétés des intégrales (relation de Chasles, linéarité,
+%     intégration par parties)
+%   - Parité d'une fonction et conséquences sur son intégrale
+%   - Nombres complexes : forme algébrique, module/argument,
+%     formules d'Euler
+% Presented as a terse reference list (\begin{itemize} of
+% \highlight{} terms), not full definitions — students have seen
+% this before, this is a refresher, not new content.
+
+\rappelhead{Notations}
+
+    \begin{tabular}{cl}
+        $\R$ & Ensemble des nombres réels \\
+        $\C$ & Ensemble des nombres complexes \\
+        $\N$ & Ensemble des entiers naturels \\
+        $\Z$ & Ensemble des nombres entiers relatifs \\
+        $\forall x\in\R$ & "Pour tout nombre réel $x$" \\
+        $\exists T\in\N$ & "Il existe un nombre entier $T$" \\
+        $E^*$ & $E\setminus\{0\}$, pour un ensemble de nombres $E$ (ex. $\N^*,\R^*,\Z^*$) \\
+
+    \end{tabular}
+
+\rappelhead{Le symbole $\sum$}
+
+Pour une suite de nombres $(u_k)$ et deux entiers $m\leq n$, on note
+$$
+    \sum_{k=m}^{n} u_k = u_m + u_{m+1} + \cdots + u_n,
+$$
+où $k$ est l'\highlight{indice de sommation} (une variable muette : elle n'apparaît pas dans le résultat) et $m,n$ les bornes. Par exemple, $\sum_{k=1}^{4} k^2 = 1^2+2^2+3^2+4^2 = 1+4+9+16 = 30$.
+
+\rappelhead{Calcul intégral}
+
+\begin{definition}
+    Soit une fonction $f$ définie sur un intervalle réel $[a,b]$ et une primitive $F$ de $f$, c'est-à-dire telle que
+    $F^\prime = f$. L'intégrale de $f$ entre $a$ et $b$ s'écrit alors
+    $$
+    \int_{a}^{b} f(t)\d t = \left[\ F(t)\ \right]_b^a = F(b) - F(a).
+    $$
+\end{definition}
+
+\begin{proposition}[Relation de Chasles]
+    Soit $f$ une fonction définie sur $\R$ et trois réels $a,b,c$, alors
+    $$
+    \int_{a}^{c} f(t)\d t = \int_{a}^{b} f(t)\d t + \int_{b}^{c} f(t)\d t
+    $$
+\end{proposition}
+
+\begin{proposition}[Linéarité de l'intégrale]
+    Soit $f$ et $g$ deux fonctions définies sur $\R$, $a,b, \lambda\in\R$, alors
+    $$
+    \begin{aligned}
+        \int_a^b \left(f(t) + g(t)\right)\d t &= \int_a^b f(t) \d t + \int_{a}^{b} g(t) \d t \\
+        \int_a^b \lambda f(t)\d t &= \lambda \int_a^b f(t) \d t.
+    \end{aligned}
+    $$
+\end{proposition}
+
+\begin{remark}
+    \red{ATTENTION :} Dans le cas général le produit des intégrales n'est pas égale à l'intégral du produit,
+    $$
+        \int_a^b f(t)g(t) \d t \neq \left(\int_a^b f(t) \d t\right)\left(\int_a^b g(t)\d t\right).
+    $$
+\end{remark}
+
+\begin{proposition}[Parité et intégrale]
+    Soit $f$ une fonction définie sur $[-a,a]$ ($a>0$).
+    \begin{itemize}
+        \item Si $f$ est \highlight{paire}, c'est à dire $f(-t) = f(t)$, alors
+        $$
+            \int_{-a}^{a} f(t)\d t = 2\int_{0}^{a} f(t)\d t.
+        $$
+        \item Si $f$ est \highlight{impaire}, $f(-t) = -f(t)$, alors
+        $$
+            \int_{-a}^{a} f(t)\d t = 0.
+        $$
+    \end{itemize}
+\end{proposition}
+
+\begin{remark}
+   La propriété précédente illustre le fait que pour une fonction impaire les aires algébriques de part et d'autre de $0$ s'annulent exactement. Pour une fonction paire, elles se dupliquent.
+\end{remark}
+
+
+% \end{center}
+
+
+\section{Fonctions périodiques}
+
+\begin{definition}[Fonction périodique]
+    Soit une fonction $f : \R \to \R$ (ou $\C$). On dit que $f$ est \highlight{$T$-périodique}, ou périodique de période $T$, s'il existe un réel $T > 0$ tel que
+    $$
+        \forall x\in\R,\ f(x+T) = f(x).
+    $$
+    La plus petite valeur de $T$ vérifiant cette propriété est appelée la \highlight{période} de $f$. On appelle \highlight{fréquence} $f_0 = 1/T$ (en Hz) et \highlight{pulsation} $\omega_0 = 2\pi f_0 = 2\pi/T$ (en rad/s) les grandeurs associées.
+\end{definition}
+
+\begin{proposition}
+    Soit $T>0$ et $f$ une fonction $T$-périodique, alors pour tout $n\in \N$, $nT$ est aussi une période de $f$,
+    $$
+      \forall x\in\R,\  f(x + nT) = f(x)
+    $$
+\end{proposition}
+
+\begin{proposition}[Somme de fonctions périodiques]
+    Soit $f$ une fonction $T$-périodique et $g$ une fonction $T^\prime$-périodique, avec $T$ et $T^\prime$ tels qu'il existe $p,q\in\N^*$ de sorte que
+    $$
+        pT = qT^\prime.
+    $$
+    Alors $f+g$ est périodique de période le plus petit commun multiple de $T$ et $T^\prime$.
+\end{proposition}
+
+\begin{remark}
+    Si le rapport $T/T^\prime$ est irrationnel, $f+g$ n'est en général pas périodique.
+\end{remark}
+
+
+\subsection{Cas des fonctions trigonométriques}
+% sin, cos comme fonctions périodiques canoniques. Rappel des
+% formules usuelles (linéarisation, parité) — cours-iro CM1 rappels
+% trigonométrie.
+
+
+\begin{proposition}
+    Les fonctions $\cos(\cdot)$ et $\sin(\cdot)$ définissent des fonctions $2\pi$-périodiques.
+\end{proposition}
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[x=0.7cm,y=1cm]
+        \draw[-Latex] (-0.3,0) -- (4*pi+0.5,0) node[right] {$t$};
+        \draw[-Latex] (0,-1.6) -- (0,1.6);
+        \draw[niceblue,thick,domain=0:4*pi,smooth,variable=\t,samples=150]
+            plot ({\t},{1.3*sin(\t r)});
+        \draw[red,thick,domain=0:4*pi,smooth,variable=\t,samples=150]
+            plot ({\t},{1.3*cos(\t r)});
+        \node[niceblue] at (1.6,1.48) {$\sin(t)$};
+        \node[red] at (2*pi,1.48) {$\cos(t)$};
+        \draw[dashed] (2*pi,-1.4) -- (2*pi,1.4);
+        \draw[latex-latex] (0,-1.45) -- (2*pi,-1.45) node[midway,below] {$2\pi$};
+    \end{tikzpicture}
+    \caption{$\cos$ et $\sin$ sont une seule et même fonction, décalée d'un quart de période : $\cos(t) = \sin(t+\pi/2)$.}
+\end{figure}
+
+\begin{proposition}[Formules trigonométriques]
+
+    $$
+    \begin{aligned}
+        \cos(a+b) &= \cos(a)\cos(b) - \sin(a)\sin(b)\\
+        \sin(a+b) &= \cos(a)\sin(b) + \cos(b)\sin(a)\\
+        \cos^2(t) + \sin^2(t) &= 1
+    \end{aligned}
+    $$
+
+\end{proposition}
+
+\begin{proposition}[Transformation somme-produit]
+    Pour tous réels $p,q$,
+    $$
+    \begin{aligned}
+        \cos(p) + \cos(q) &= 2\cos\!\left(\frac{p+q}{2}\right)\cos\!\left(\frac{p-q}{2}\right) \\
+        \sin(p) + \sin(q) &= 2\sin\!\left(\frac{p+q}{2}\right)\cos\!\left(\frac{p-q}{2}\right)
+    \end{aligned}
+    $$
+\end{proposition}
+
+\begin{remark}
+    Ces formules s'obtiennent en sommant les formules d'addition de $\cos(a+b)$ et $\cos(a-b)$ (resp. $\sin(a+b)$ et $\sin(a-b)$) avec $a=\frac{p+q}{2}$, $b=\frac{p-q}{2}$.
+\end{remark}
+
+\begin{proposition}[Formules d'Euler]
+    Pour tout réel $\theta$,
+    $$
+        e^{\complexj\theta} = \cos(\theta) + \complexj\sin(\theta),
+        \qquad
+        \cos(\theta) = \frac{e^{\complexj\theta} + e^{-\complexj\theta}}{2},
+        \qquad
+        \sin(\theta) = \frac{e^{\complexj\theta} - e^{-\complexj\theta}}{2\complexj}.
+    $$
+\end{proposition}
+
+\begin{proposition}[Exponentielle complexe]
+    Pour tous réels $\theta_1,\theta_2$ et tout $n\in\Z$,
+    $$
+        e^{\complexj\theta_1}\,e^{\complexj\theta_2} = e^{\complexj(\theta_1+\theta_2)},
+        \qquad
+        \left(e^{\complexj\theta_1}\right)^n = e^{\complexj n\theta_1},
+        \qquad
+        \overline{e^{\complexj\theta_1}} = e^{-\complexj\theta_1},
+        \qquad
+        \left|e^{\complexj\theta_1}\right| = 1.
+    $$
+    $$
+        e^{-\complexj\theta} = e^{\complexj \theta \times (-1)} = (e^{
+            \complexj\theta})^{-1} = \frac{1}{e^{\complexj\theta}}
+    $$
+\end{proposition}
+
+\begin{proposition}
+    Les fonctions $\cos$, $\sin$ et $e^{\complexj t}$ sont dérivables et
+    $$
+        \begin{aligned}
+            \cos^\prime(t) &= -\sin(t) \\
+            \sin^\prime(t) &= \cos(t) \\
+            (e^{\complexj t})^\prime &= \complexj e^{\complexj t} =e^{\complexj (t+\frac{\pi}{2})} 
+        \end{aligned}
+    $$
+\end{proposition}
+
+\subsection{Signaux périodiques usuels}
+% Signal créneau (rectangulaire) — objet central, défini ici avec
+% son chronogramme, réutilisé dans toute la suite du chapitre.
+% Mention secondaire : triangle, dents de scie.
+
+\begin{definition}[La fonction carré]
+
+    La fonction carré est la fonction $T$-périodique telle que
+    $$
+        f_{\rm carr\acute{e}}(t) = \begin{cases} 1 & \text{pour} \ t \in [0,\frac{T}{2}[\\ -1 & \text{pour} \ t \in [\frac{T}{2},T[ \end{cases}
+    $$
+\end{definition}
+
+\begin{center}
+\begin{tikzpicture}[x=0.7cm,y=1cm]
+    \draw[-Latex] (-0.3,0) -- (13,0) node[right] {$t$};
+    \draw[-Latex] (0,-1.6) -- (0,1.6) node[above] {$f_{\rm carr\acute{e}}(t)$};
+    \draw[niceblue,thick]
+        (0,1) -- (3,1) -- (3,-1) -- (6,-1) -- (6,1)
+        -- (9,1) -- (9,-1) -- (12,-1);
+    \draw[dashed] (3,0) -- (3,-1) (6,0) -- (6,1) (9,0) -- (9,-1);
+    \node[below] at (3,0) {$\frac{T}{2}$};
+    \node[below] at (6,0) {$T$};
+    \node[below] at (9,0) {$\frac{3T}{2}$};
+    \node[left] at (0,1) {$1$};
+    \node[left] at (0,-1) {$-1$};
+\end{tikzpicture}
+\end{center}
+
+\begin{definition}[La fonction triangle]
+
+    La fonction triangle est la fonction $T$-périodique telle que
+    $$
+    f_{\rm triangle}(t) = \begin{cases} t & \text{pour} \ t \in [0,\frac{T}{2}]\\ T - t & \text{pour} \ t \in [\frac{T}{2},T] \end{cases}
+    $$
+\end{definition}
+
+\begin{center}
+\begin{tikzpicture}[x=0.7cm,y=0.7cm]
+    \draw[-Latex] (-0.3,0) -- (13,0) node[right] {$t$};
+    \draw[-Latex] (0,-0.3) -- (0,3.6) node[above] {$f_{\rm triangle}(t)$};
+    \draw[niceblue,thick]
+        (0,0) -- (3,3) -- (6,0) -- (9,3) -- (12,0);
+    \draw[dashed] (3,0) -- (3,3) (9,0) -- (9,3);
+    \draw[dashed] (0,3) -- (3,3);
+    \node[below] at (3,0) {$\frac{T}{2}$};
+    \node[below] at (6,0) {$T$};
+    \node[below] at (9,0) {$3\frac{T}{2}$};
+    \node[left] at (0,3) {$\frac{T}{2}$};
+\end{tikzpicture}
+\end{center}
+
+\begin{definition}[La fonction dents de scie]
+
+    La fonction dents de scie est la fonction $T$-périodique définie sur $[0,T[$ par $f_{\rm scie}(t) = t$, prolongée par périodicité en dehors de cet intervalle.
+\end{definition}
+
+\begin{center}
+\begin{tikzpicture}[x=0.7cm,y=0.5cm]
+    \draw[-Latex] (-0.3,0) -- (13,0) node[right] {$t$};
+    \draw[-Latex] (0,-0.3) -- (0,7.5) node[above] {$f_{\rm scie}(t)$};
+    \draw[niceblue,thick] (0,0) -- (6,6);
+    \draw[niceblue,thick] (6,0) -- (12,6);
+    \draw[dashed] (6,0) -- (6,6);
+    \node[below] at (6,0) {$T$};
+    \node[below] at (12,0) {$2T$};
+    \node[left] at (0,6) {$T$};
+\end{tikzpicture}
+\end{center}
+
+\begin{remark}
+    Les discontinuités qui apparaissent sur les représentations graphiques des fonctions carré et dents de scie sont appelées discontinuités de première espèce (ou sauts).
+\end{remark}
+
+
+
+\section{Série de Fourier}
+
+\subsection{Séries}
+
+Une \highlight{série} est une généralisation de la notion de somme à une succession infinie de termes. Étant donnée une suite $(u_n)_{n\in\N}$, on appelle \highlight{somme partielle} d'ordre $N$ la quantité
+$$
+    S_N = \sum_{n=0}^{N} u_n = u_0 + u_1 + \dots + u_N.
+$$
+On dit que la série $\sum u_n$ \highlight{converge} vers une limite $S$ si la suite $(S_N)_{N\in\N}$ converge vers $S$. On note alors
+$$
+    \sum_{n=0}^{+\infty} u_n = \lim_{N\to+\infty} S_N = S.
+$$
+Si $(S_N)$ ne converge pas, on dit que la série \highlight{diverge} : la somme infinie n'a alors pas de valeur finie.
+
+\begin{remark}
+    Toutes les séries ne convergent pas. Ce n'est pas parce qu'une somme comporte une infinité de termes, chacun de plus en plus petit, qu'elle converge nécessairement vers une valeur finie.
+\end{remark}
+
+\begin{exemple}[Série harmonique --- exemple de divergence]
+    La série de terme général $u_n = \dfrac{1}{n}$ diverge :
+    $$
+        \sum_{n=1}^{+\infty} \frac{1}{n} = 1 + \frac12 + \frac13 + \cdots = +\infty,
+    $$
+    bien que $u_n \to 0$ quand $n\to+\infty$. La convergence vers $0$ du terme général est donc nécessaire, mais pas suffisante, pour que la série converge.
+\end{exemple}
+
+\begin{exemple}[Une série convergente]
+    La série de terme général $u_n = \dfrac{1}{n^2}$ converge, et on peut montrer que
+    $$
+        \sum_{n=1}^{+\infty} \frac{1}{n^2} = \frac{\pi^2}{6}.
+    $$
+\end{exemple}
+
+\begin{definition}[Série trigonométrique]
+    Une série trigonométrique de pulsation $\omega_0$ est une série de fonctions
+    $$
+        a_0 + \sum_{n=1}^{+\infty} \left(a_n\cos(n\omega_0 t) + b_n\sin(n\omega_0 t)\right).
+    $$
+    Pour $t\in\R$ fixé, c'est une série numérique au sens de la définition précédente : elle converge, ou diverge, selon que la suite de ses sommes partielles $S_N(t)$ admet une limite finie quand $N\to+\infty$.
+\end{definition}
+
+\begin{remark}
+    Rien ne garantit a priori qu'une série trigonométrique converge, pour un $t$ donné. Même lorsqu'elle converge pour tout $t$, rien ne garantit que la fonction obtenue coïncide avec la fonction $f$ dont les coefficients $a_n,b_n$ sont issus. Les conditions de Dirichlet, introduites ci-dessous, répondent à ces deux questions.
+\end{remark}
+
+
+\subsection{Forme trigonométrique}
+% (fin de la séance 1 / CM1)
+
+Joseph Fourier a établi, en 1807, que sous certaines conditions, une fonction périodique peut s'écrire comme une somme infinie de sinusoïdes.
+
+\begin{definition}[Conditions de Dirichlet]
+    Soit $f$ une fonction $T$-périodique. On dit que $f$ vérifie les conditions de Dirichlet si, sur une période :
+    \begin{itemize}
+        \item $f$ a un nombre fini de discontinuités, toutes de première espèce (saut fini) ;
+        \item $f$ a un nombre fini d'extrema (maxima et minima) ;
+        \item $f$ est bornée.
+    \end{itemize}
+\end{definition}
+
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \begin{tikzpicture}[x=0.55cm,y=0.8cm]
+            \draw[-Latex] (-0.3,0) -- (13,0) node[right] {$t$};
+            \draw[-Latex] (0,-1.5) -- (0,1.5);
+            \draw[niceblue,thick]
+                (0,1) -- (3,1) -- (3,-1) -- (6,-1) -- (6,1)
+                -- (9,1) -- (9,-1) -- (12,-1);
+        \end{tikzpicture}
+        \small $f_{\rm carr\acute{e}}$ : discontinue, mais vérifie Dirichlet (sauts finis, en nombre fini).
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \begin{tikzpicture}[x=0.9cm,y=0.4cm]
+            \draw[-Latex] (-2.6,0) -- (5.2,0) node[right] {$t$};
+            \draw[-Latex] (0,-3.3) -- (0,3.3);
+            \draw[dashed] (-1.5708,-3.3) -- (-1.5708,3.3);
+            \draw[dashed] (1.5708,-3.3) -- (1.5708,3.3);
+            \draw[dashed] (4.7124,-3.3) -- (4.7124,3.3);
+            \begin{scope}
+                \clip (-2.6,-3.3) rectangle (5.2,3.3);
+                \draw[red,thick,domain=-2.6:-1.45,samples=60,variable=\t] plot ({\t},{tan(\t r)});
+                \draw[red,thick,domain=-1.45:1.45,samples=100,variable=\t] plot ({\t},{tan(\t r)});
+                \draw[red,thick,domain=1.69:4.59,samples=100,variable=\t] plot ({\t},{tan(\t r)});
+                \draw[red,thick,domain=4.87:5.2,samples=40,variable=\t] plot ({\t},{tan(\t r)});
+            \end{scope}
+        \end{tikzpicture}
+        \small $\tan$ : périodique, mais ne vérifie pas Dirichlet (discontinuités non bornées).
+    \end{minipage}
+    \caption{Deux fonctions périodiques et discontinues : seule la première admet un développement en série de Fourier.}
+\end{figure}
+
+\begin{theorem}[Développement en série de Fourier --- forme réelle]
+    Si $f$ est $T$-périodique et vérifie les conditions de Dirichlet, alors
+    $$
+        f(t) = a_0 + \sum_{n=1}^{+\infty} \left(a_n\cos(n\omega_0 t) + b_n\sin(n\omega_0 t)\right), \qquad \omega_0 = \frac{2\pi}{T},
+    $$
+    avec
+    $$
+        a_0 = \frac1T\int_0^T f(t)\,\d t, \qquad
+        a_n = \frac2T\int_0^T f(t)\cos(n\omega_0 t)\,\d t, \qquad
+        b_n = \frac2T\int_0^T f(t)\sin(n\omega_0 t)\,\d t.
+    $$
+    % En un point de discontinuité, la série converge vers la moyenne des limites à gauche et à droite de $f$.
+\end{theorem}
+
+\begin{remark}
+    Le coefficient $a_0$ est la valeur moyenne de $f$ sur une période, c'est ce que mesurerait un voltmètre en position DC.
+\end{remark}
+
+\begin{proposition}[Linéarité]
+    Si $f$ et $g$ sont $T$-périodiques, de coefficients de Fourier respectifs $(a_n,b_n)$ et $(a'_n,b'_n)$, alors pour tous réels $\lambda,\mu$, la fonction $\lambda f+\mu g$ est $T$-périodique.
+    
+    Ses coefficients de Fourier sont $(\lambda a_n+\mu a'_n,\ \lambda b_n+\mu b'_n)$ (conséquence directe de la linéarité de l'intégrale, Propriété~1.2).
+\end{proposition}
+
+\begin{corollary}[Parité]
+    Soit $f$ une fonction $T$-périodique vérifiant les conditions de Dirichlet.
+    \begin{itemize}
+        \item
+        Si $f$ est paire, alors $b_n=0$ pour tout $n$ : sa série de Fourier est une série de cosinus.
+        \item
+        Si $f$ est impaire, alors $a_0=0$ et $a_n=0$ pour tout $n$ : sa série de Fourier est une série de sinus.
+    \end{itemize}
+\end{corollary}
+
+% \begin{proof}
+%     L'intégrale d'une fonction périodique ne dépend pas du choix de l'intervalle d'intégration, pourvu qu'il soit de longueur $T$ : on peut donc calculer $a_n$ et $b_n$ sur $[-\frac T2,\frac T2]$ plutôt que sur $[0,T]$. Le produit d'une fonction paire par $\cos$ est pair, par $\sin$ est impair (et réciproquement si $f$ est impaire) ; on conclut avec la Propriété~1.3.
+% \end{proof}
+
+\begin{exemple}[Coefficients du signal créneau]
+    Pour $f_{\rm carr\acute{e}}$, la valeur moyenne est nulle par symétrie (autant de temps à $+1$ qu'à $-1$), donc $a_0=0$. La fonction est impaire, donc $a_n=0$ pour tout $n$ (Corollaire~3.1). Il reste
+    $$
+        b_n = \frac2T\int_0^T f_{\rm carr\acute{e}}(t)\sin(n\omega_0 t)\,\d t = \frac{2\left(1-(-1)^n\right)}{n\pi} = \begin{cases} \dfrac{4}{n\pi} & n \text{ impair} \\ 0 & n \text{ pair.} \end{cases}
+    $$
+    Jusqu'à l'ordre 5 : $b_1 = \frac{4}{\pi}$, $b_3 = \frac{4}{3\pi}$, $b_5 = \frac{4}{5\pi}$.
+\end{exemple}
+
+Les coefficients $a_n$ et $b_n$ mélangent, pour chaque harmonique, une information d'amplitude et une information de phase, ce qui les rend peu lisibles isolément. On préfère souvent une seule grandeur par harmonique, montrant directement quelles fréquences composent le signal et avec quel poids.
+
+\begin{definition}[Spectre d'amplitude]
+    Pour $n\geq1$, on pose $A_n = \sqrt{a_n^2+b_n^2}$, de sorte que $a_n\cos(n\omega_0 t) + b_n\sin(n\omega_0 t)$ s'écrit $A_n\cos(n\omega_0 t - \varphi_n)$ pour une certaine phase $\varphi_n$. Le \highlight{spectre d'amplitude} de $f$ est le diagramme en bâtons représentant $A_n$ en fonction de la fréquence $nf_0$ : un trait vertical de hauteur $A_n$ à chaque harmonique $n\geq1$, et rien entre deux harmoniques.
+\end{definition}
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=12cm, height=6.5cm,
+            xlabel={fréquence}, ylabel={$A_n$},
+            xtick={1,2,...,9},
+            xticklabels={$f_0$,$2f_0$,$3f_0$,$4f_0$,$5f_0$,$6f_0$,$7f_0$,$8f_0$,$9f_0$},
+            ytick=\empty,
+            ymin=0, ymax=1.5,
+            axis lines=left,
+        ]
+        \addplot+[ycomb, niceblue, thick, mark=*, mark options={fill=niceblue}] coordinates {
+            (1,1.273) (2,0) (3,0.424) (4,0) (5,0.255) (6,0) (7,0.182) (8,0) (9,0.141)
+        };
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Spectre d'amplitude de $f_{\rm carr\acute{e}}$. Seules les harmoniques impaires sont présentes, avec une amplitude qui décroît en $1/n$.}
+\end{figure}
+
+\begin{exemple}
+    En reprenant les coefficients de l'Exemple~3.3, $A_n=|b_n|$ puisque $a_n=0$ : le spectre de $f_{\rm carr\acute{e}}$ est donc celui de la Figure~3.
+\end{exemple}
+
+% ─── FIN SÉANCE 1 (CM1) ────────────────────────────────────────────
+% ─── DÉBUT SÉANCE 2 (CM2) ──────────────────────────────────────────
+
+\subsection{Forme complexe}
+
+La forme réelle demande de manipuler trois familles de coefficients $a_0, a_n, b_n$. Les formules d'Euler permettent de n'en garder qu'une seule.
+
+\begin{theorem}[Développement en série de Fourier --- forme complexe]
+    Sous les mêmes conditions que le Théorème~3.1, on peut écrire toute fonction $T$-périodique $f$,
+    $$
+        f(t) = \sum_{n=-\infty}^{+\infty} c_n\, e^{\complexj n\omega_0 t}, \qquad c_n = \frac1T\int_0^T f(t)\,e^{-\complexj n\omega_0 t}\,\d t.
+    $$
+\end{theorem}
+
+\begin{proof}
+    En remplaçant $\cos(n\omega_0 t)$ et $\sin(n\omega_0 t)$ par leur expression en exponentielles complexes (Propriété~2.6) dans la forme réelle, puis en regroupant les termes en $e^{\complexj n\omega_0 t}$, on obtient $c_0 = a_0$ et, pour $n\geq1$,
+    $$
+        c_n = \frac{a_n - \complexj b_n}{2}, \qquad c_{-n} = \overline{c_n}.
+    $$
+\end{proof}
+
+\begin{remark}
+    Pour $n\geq1$, $|c_n| = |c_{-n}| = \frac{A_n}{2}$ : l'amplitude de chaque harmonique se répartit pour moitié sur la fréquence $nf_0$ et pour moitié sur $-nf_0$.
+\end{remark}
+
+\begin{exemple}[Coefficients complexes du signal créneau]
+    Pour $f_{\rm carr\acute{e}}$, $a_n=0$ donc $c_n = -\complexj b_n/2$. Pour $n$ impair, $c_n = -\dfrac{2\complexj}{n\pi}$ et $c_{-n} = \dfrac{2\complexj}{n\pi}$ ; pour $n$ pair (et $n=0$), $c_n=0$.
+\end{exemple}
+
+Le spectre d'amplitude défini plus haut n'est indexé que par $n\geq1$. La forme complexe en donne naturellement une version indexée par $n\in\Z$, qui inclut les fréquences négatives introduites par l'écriture en exponentielles.
+
+\begin{definition}[Spectre d'amplitude bilatéral]
+    Le \highlight{spectre d'amplitude bilatéral} de $f$ est le diagramme en bâtons représentant $|c_n|$ en fonction de la fréquence $nf_0$, pour $n\in\Z$.
+\end{definition}
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=12cm, height=6.5cm,
+            xlabel={fréquence}, ylabel={$|c_n|$},
+            xtick={-9,-8,...,9},
+            xticklabels={$-9f_0$,,$-7f_0$,,$-5f_0$,,$-3f_0$,,$-f_0$,,$f_0$,,$3f_0$,,$5f_0$,,$7f_0$,,$9f_0$},
+            ytick=\empty,
+            ymin=0, ymax=0.8,
+            axis lines=left,
+        ]
+        \addplot+[ycomb, niceblue, thick, mark=*, mark options={fill=niceblue}] coordinates {
+            (-9,0.0707) (-8,0) (-7,0.0909) (-6,0) (-5,0.1273) (-4,0) (-3,0.2122) (-2,0) (-1,0.6366)
+            (0,0)
+            (1,0.6366) (2,0) (3,0.2122) (4,0) (5,0.1273) (6,0) (7,0.0909) (8,0) (9,0.0707)
+        };
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Spectre bilatéral de $f_{\rm carr\acute{e}}$. Chaque bâton du spectre unilatéral (Figure~3) se scinde en deux, de moitié moins haut, en $+nf_0$ et $-nf_0$.}
+\end{figure}
+
+\begin{exemple}
+    D'après l'Exemple~3.5, $|c_n|=2/(n\pi)$ pour $n$ impair (et son symétrique en $-n$), $0$ sinon. On retrouve $|c_1|=|c_{-1}|\approx0{,}64$, soit la moitié de $A_1$ (Remarque~3.4).
+\end{exemple}
+
+\begin{remark}
+    Les fréquences négatives n'ont pas de sens physique : elles proviennent uniquement de l'écriture complexe, qui combine des termes en $e^{\complexj n\omega_0 t}$ et $e^{-\complexj n\omega_0 t}$ pour reconstituer un signal réel.
+\end{remark}
+
+\begin{theorem}[Égalité de Parseval]
+    $$
+        \frac1T\int_0^T |f(t)|^2\,\d t = \sum_{n=-\infty}^{+\infty} |c_n|^2 = a_0^2 + \frac12\sum_{n=1}^{+\infty}\left(a_n^2+b_n^2\right).
+    $$
+\end{theorem}
+
+\begin{proof}
+    En écrivant $f(t) = \sum_n c_n e^{\complexj n\omega_0 t}$, on a $|f(t)|^2 = \sum_{n,m} c_n\overline{c_m}\,e^{\complexj(n-m)\omega_0 t}$. Or $\frac1T\int_0^T e^{\complexj(n-m)\omega_0 t}\,\d t$ vaut $1$ si $n=m$ et $0$ sinon. Les termes croisés ($n\neq m$) s'annulent donc à l'intégration, et il reste $\frac1T\int_0^T |f(t)|^2\,\d t = \sum_n |c_n|^2$.
+\end{proof}
+
+
+\end{document}

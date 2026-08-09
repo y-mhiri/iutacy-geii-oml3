@@ -1,0 +1,49 @@
+\usepackage{amsmath,amsfonts,bm}
+
+%% ─── Operators ───────────────────────────────────────────────────
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator{\MSE}{MSE}
+\DeclareMathOperator{\sign}{sign}
+\DeclareMathOperator{\sinc}{sinc}
+\DeclareMathOperator{\tr}{tr}
+
+%% ─── Number sets ─────────────────────────────────────────────────
+\def\R{{\mathbb{R}}}
+\def\C{{\mathbb{C}}}
+\def\N{{\mathbb{N}}}
+\def\Z{{\mathbb{Z}}}
+
+%% ─── Infinitesimal and units ────────────────────────────────────
+\def\d{{\rm d}}
+\def\Hz{{\mbox{Hz}}}
+\def\m{{\mbox{m}}}
+
+%% ─── Complex / signal ───────────────────────────────────────────
+\DeclareMathOperator{\complexj}{\mathsf{j}}   % imaginary unit
+
+%% ─── Probability ─────────────────────────────────────────────────
+\newcommand{\Esp}[2]{\mathbb{E}_{#1}\!\left[#2\right]}
+\renewcommand{\Pr}{\mathbb{P}}
+
+%% ─── Linear algebra ──────────────────────────────────────────────
+\newcommand{\abs}[1]{\left|{#1}\right|}
+\newcommand{\norm}[1]{\left\|#1\right\|}
+\newcommand{\inner}[2]{\left\langle#1,\,#2\right\rangle}
+
+%% ─── Logic ───────────────────────────────────────────────────────
+\newcommand{\then}{\Rightarrow}
+\newcommand{\iif}{\Leftrightarrow}
+
+%% ─── Draft annotation ────────────────────────────────────────────
+\newcommand{\red}[1]{{\color{red}#1}}
+
+%% ─── Rappel header (styled subtitle for reference-card asides) ───
+%% Requires \definecolor{niceblue}{...} to be defined by the including document.
+\newcommand{\rappelhead}[1]{%
+    \bigskip
+    {\color{niceblue}\bfseries #1}\\[-0.4em]
+    {\color{niceblue!35}\rule{\linewidth}{0.6pt}}
+    \smallskip
+
+}

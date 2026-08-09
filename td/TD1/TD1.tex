@@ -1,0 +1,320 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\theoremstyle{definition}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+\usepackage{enumerate}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta}
+
+\geometry{a4paper, scale=0.8}
+
+%% ─── Header / footer ─────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{2025-2026}
+\fancyhead[C]{\textbf{\courseName}}
+\fancyhead[R]{\large GEII -- BUT2}
+\fancyfoot[C]{\thepage}
+\fancyfoot[L]{\includegraphics[height=3em]{../../common/logos_couleurs/IUTA.png}}
+\fancyfoot[R]{\href{mailto:prenom.nom@univ-smb.fr}{prenom.nom@univ-smb.fr}}
+
+%% ─── Course metadata ─────────────────────────────────────────────
+\newcommand{\courseName}{Outils Mathématiques et Logiciel --- OML3}
+\newcommand{\chapterTitle}{TD 1 -- Série de Fourier}
+
+%% ─── Custom title ────────────────────────────────────────────────
+\makeatletter
+\renewcommand\maketitle{{\raggedright\begin{center}
+    {\Huge\bfseries\@title}
+\end{center}}}
+\makeatother
+
+%% ─── Solution toggle ─────────────────────────────────────────────
+%% Compile with \showsolutionstrue for the teacher version.
+\newif\ifshowsolutions
+\showsolutionsfalse
+
+\ifshowsolutions
+    \newtcolorbox{solution}{
+        colback=red!5!white, colframe=red!50!white,
+        breakable, title=\textbf{Solution :}
+    }
+\else
+    \NewEnviron{solution}{}{}
+\fi
+
+%% ─── Theorem / exercise environments ─────────────────────────────
+\newtheorem{definition}{Définition}[section]
+\newtheorem{proposition}{Propriété}[section]
+\newtheorem{theorem}{Théorème}[section]
+\newtheorem{exemple}{Exemple}[section]
+\newtheorem{remark}{Remarque}[section]
+
+%% Exercice : affiche "Exercice N (titre)." et referme aussitôt le
+%% paragraphe avec \par. Volontairement PAS un \newtheorem : amsthm
+%% reporte l'affichage du titre via \everypar, qui ne se déclenche
+%% qu'au démarrage d'un paragraphe. Si le corps commence directement
+%% par une liste (\begin{enumerate}), aucun paragraphe ne démarre
+%% avant le premier \item, et le titre se retrouve collé au "1." de
+%% la liste -- même avec une ligne vide dans la source. Cet
+%% environnement affiche le titre immédiatement, donc ne dépend pas
+%% de ce mécanisme et fonctionne quel que soit le contenu qui suit.
+\newcounter{exercice}   % global counter — do not add [section]
+\newenvironment{exercice}[1][]{%
+  \refstepcounter{exercice}%
+  \par\noindent\textbf{Exercice \theexercice}\if\relax\detokenize{#1}\relax\else\ (#1)\fi.\par\noindent\ignorespaces\vspace{1em}
+}{\par\vspace{1em}}
+
+%% ─── Section numbering ───────────────────────────────────────────
+\renewcommand{\thesection}{{\arabic{section}}}
+
+%% ─── Helpers ─────────────────────────────────────────────────────
+\definecolor{niceblue}{RGB}{0,128,172}
+\newcommand{\highlight}[1]{{\color{niceblue}\emph{#1}}}
+
+\input{../../common/macros.tex}
+
+\title{\chapterTitle}
+\author{}
+\date{}
+
+%% ─────────────────────────────────────────────────────────────────
+\begin{document}
+\fontfamily{bch}\selectfont
+\fontsize{12pt}{14pt}\selectfont
+
+\maketitle
+\thispagestyle{fancy}
+\setcounter{exercice}{0}
+
+\vspace{2em}
+\textit{Tous les exercices ne seront pas abordés lors des séances de TD. Pour vos révisions il est recommandé de revoir précisément les 3 premiers exercices de chaque TD et de vous confronter au moins une fois à chaque exercice de la feuille de TD. Les corrections seront mises en ligne sur le Moodle du cours dans la semaine qui suit le TD.}
+\vspace{2em}
+
+
+%% ── Ex 1 : CLASSIFY / DEFINE ────────────────────────────────────
+%% Purpose: activate vocabulary from the CM.
+%% No computation harder than substituting into a definition.
+%% At least one positive, one negative, one boundary case.
+\begin{exercice}
+    Pour les fonctions suivantes, indiquer si elles sont périodiques et si oui préciser leurs éventuelles périodes.
+    \begin{enumerate}[\bfseries 1.]
+        \item $f(t) = \cos(3t)$
+        \begin{solution}
+            $f$ est périodique : $f(t+T) = f(t) \iff \cos(3t+3T) = \cos(3t) \iff 3T = 2k\pi,\ k\in\Z$. La plus petite valeur positive est $T = \dfrac{2\pi}{3}$.
+        \end{solution}
+
+        \item $g(t) = t^2$
+        \begin{solution}
+            $g$ n'est pas périodique. Si elle l'était de période $T>0$, on aurait $\forall t\in\R,\ (t+T)^2 = t^2$, soit $2tT + T^2 = 0$ pour tout $t$ : impossible pour $T\neq 0$.
+        \end{solution}
+
+        \item $h(t) = \cos(2t) + \sin(3t)$
+        \begin{solution}
+            $\cos(2t)$ est périodique de période $\pi$, $\sin(3t)$ de période $\dfrac{2\pi}{3}$. La somme est périodique, de période le plus petit commun multiple des deux : $T = 2\pi$ (on vérifie $2\pi = 2\times\pi = 3\times\frac{2\pi}{3}$, et aucune valeur plus petite ne convient simultanément pour les deux termes).
+        \end{solution}
+    \end{enumerate}
+\end{exercice}
+
+
+%% ── Ex 2–3 : PROVE ───────────────────────────────────────────────
+%% Purpose: make students re-derive a theorem stated in the CM.
+%% Structure: easy direction → hard direction → verify on an example.
+
+
+\begin{exercice}
+
+    \begin{enumerate}[\bfseries 1.]
+        \item
+        Montrer que
+        $$
+        \cos^2(x) = \frac{\cos(2x) +1}{2}
+        $$
+        \begin{solution}
+            D'après la formule d'addition, $\cos(2x) = \cos(x+x) = \cos^2(x) - \sin^2(x) = \cos^2(x) - (1-\cos^2(x)) = 2\cos^2(x) - 1$, d'où $\cos^2(x) = \dfrac{\cos(2x)+1}{2}$.
+        \end{solution}
+        \item Calculer
+        $$
+        \int_{0}^{2\pi} \cos^2(x) \d x
+        $$
+        \begin{solution}
+            $$
+                \int_0^{2\pi} \cos^2(x)\d x = \int_0^{2\pi} \frac{\cos(2x)+1}{2}\d x = \frac12\left[\frac{\sin(2x)}{2} + x\right]_0^{2\pi} = \frac12(0 + 2\pi - 0) = \pi.
+            $$
+        \end{solution}
+    \end{enumerate}
+\end{exercice}
+
+\begin{exercice}[Calcul de valeurs moyennes]
+    On rappelle que la valeur moyenne d'un signal $T$-périodique $f$ est définie par
+    $$
+        a_0 = \frac{1}{T}\int_0^T f(t)\,\d t.
+    $$
+   \begin{enumerate}[\bfseries 1.]
+        \item Calculer la valeur moyenne de $f(t) = \cos(\omega t)$ ($\omega\neq 0$).
+        \begin{solution}
+            $$
+                \bar{f} = \frac{1}{T}\int_0^T \cos(\omega t)\,\d t = \frac{1}{T}\left[\frac{\sin(\omega t)}{\omega}\right]_0^T = \frac{\sin(\omega T)}{\omega T} = 0
+            $$
+            car $\omega T = 2\pi$ (une période complète), donc $\sin(\omega T) = 0$. Plus généralement, la valeur moyenne d'un cosinus (ou d'un sinus) sur un nombre entier de périodes est toujours nulle.
+        \end{solution}
+
+        \item Calculer la valeur moyenne de $f_{\rm carr\acute{e}}$ (défini en cours, niveaux $-1$ et $1$). Généraliser au cas d'un signal carré prenant les valeurs $a$ et $b$ (chacune pendant une demi-période).
+        \begin{solution}
+            $$
+                \bar{f}_{\rm carr\acute{e}} = \frac{1}{2\pi}\left(\int_0^\pi 1\,\d t + \int_\pi^{2\pi} (-1)\,\d t\right) = \frac{1}{2\pi}(\pi - \pi) = 0.
+            $$
+            Pour un signal prenant la valeur $a$ sur une demi-période et $b$ sur l'autre,
+            $$
+                \bar{f} = \frac{1}{T}\left(a\cdot\frac{T}{2} + b\cdot\frac{T}{2}\right) = \frac{a+b}{2}.
+            $$
+            On retrouve le cas précédent avec $a=1,b=-1$.
+        \end{solution}
+
+        \item Calculer la valeur moyenne de $f_{\rm scie}$ (défini en cours).
+        \begin{solution}
+            $$
+                \bar{f}_{\rm scie} = \frac{1}{2\pi}\int_0^{2\pi} t\,\d t = \frac{1}{2\pi}\left[\frac{t^2}{2}\right]_0^{2\pi} = \frac{1}{2\pi}\cdot 2\pi^2 = \pi.
+            $$
+            C'est cohérent : une rampe linéaire de $0$ à $2\pi$ a pour moyenne le milieu, $\pi$.
+        \end{solution}
+
+        \item Un signal logique TTL vaut $0$~V ou $V_{cc}$, avec un rapport cyclique $\alpha\in[0,1]$ (fraction de la période passée à $V_{cc}$). Calculer sa valeur moyenne.
+        \begin{solution}
+            $$
+                \bar{f} = \frac{1}{T}\left(\alpha T\cdot V_{cc} + (1-\alpha)T \cdot 0\right) = \alpha\, V_{cc}.
+            $$
+            \textbf{Conclusion :} c'est le principe de la commande par modulation de largeur d'impulsion (PWM/MLI) : faire varier $\alpha$ permet de régler la tension moyenne (donc la puissance transmise) sans dissiper d'énergie dans un composant résistif.
+        \end{solution}
+    \end{enumerate}
+\end{exercice}
+
+
+%% ── Ex 4–5 : APPLY ───────────────────────────────────────────────
+%% Purpose: numerical problem with real or realistic GEII data.
+%% Ends with an engineer's conclusion, not just a number.
+\begin{exercice}[Décomposition en série de Fourier du signal carré]
+    \begin{enumerate}[\bfseries 1.]
+        \item En utilisant les formules de la décomposition en série de Fourier (forme réelle) vues en cours, calculer les coefficients $a_0, a_n, b_n$ jusqu'à l'ordre 5 de $f_{\rm carr\acute{e}}$.
+        \begin{solution}
+            Avec $T=2\pi$, $\omega_0 = 1$ :
+            $$
+                a_0 = \frac{1}{2\pi}\left(\int_0^\pi 1\,\d t - \int_\pi^{2\pi} 1\,\d t\right) = 0,
+            $$
+            ce qui est cohérent avec la valeur moyenne nulle calculée à l'exercice précédent.
+            $$
+                a_n = \frac{1}{\pi}\left(\int_0^\pi \cos(nt)\,\d t - \int_\pi^{2\pi}\cos(nt)\,\d t\right) = \frac{1}{\pi}\left(\frac{\sin(n\pi)}{n} - \frac{\sin(2n\pi)-\sin(n\pi)}{n}\right) = 0 \quad \forall n,
+            $$
+            puisque $\sin(n\pi) = \sin(2n\pi) = 0$ pour $n$ entier.
+            $$
+                b_n = \frac{1}{\pi}\left(\int_0^\pi \sin(nt)\,\d t - \int_\pi^{2\pi}\sin(nt)\,\d t\right) = \frac{2\left(1-(-1)^n\right)}{n\pi}.
+            $$
+            Donc $b_n = 0$ si $n$ est pair, et $b_n = \dfrac{4}{n\pi}$ si $n$ est impair. Jusqu'à l'ordre 5 :
+            $$
+                b_1 = \frac{4}{\pi},\quad b_2 = 0,\quad b_3 = \frac{4}{3\pi},\quad b_4 = 0,\quad b_5 = \frac{4}{5\pi}.
+            $$
+        \end{solution}
+
+        \item Montrer, sans calcul d'intégrale, que $a_n = 0$ pour tout $n$.
+        \begin{solution}
+            $f_{\rm carr\acute{e}}$ est une fonction impaire (on vérifie $f_{\rm carr\acute{e}}(-t) = -f_{\rm carr\acute{e}}(t)$ sur une période). Le produit d'une fonction impaire par $\cos(nt)$ (paire) est impair. D'après l'Exercice~5 (invariance de l'intégrale par décalage d'une période), on peut calculer $a_n$ sur l'intervalle symétrique $[-\pi,\pi]$ plutôt que $[0,2\pi]$ ; l'intégrale d'une fonction impaire sur un intervalle symétrique étant nulle (Propriété~1.3 du cours), on obtient directement $a_n=0$.
+        \end{solution}
+    \end{enumerate}
+\end{exercice}
+
+\begin{exercice}
+          Soit $f$ une fonction périodique et $T>0$ une période. 
+            $$
+            \text{Montrer que} \ \forall a\in \R \quad
+            \int_a^{a+T} f(t) \d t = \int_{0}^{T} f(t) \d t.
+            $$
+        \begin{solution}
+            Par la relation de Chasles,
+            $$
+                \int_a^{a+T} f(t)\d t = \int_a^{T} f(t) \d t + \int_T^{a+T} f(t) \d t.
+            $$
+            Dans la seconde intégrale, on pose $u = t - T$ (donc $\d u = \d t$) :
+            $$
+                \int_T^{a+T} f(t)\d t = \int_0^{a} f(u+T)\d u = \int_0^{a} f(u)\d u
+            $$
+            car $f$ est $T$-périodique. Ainsi,
+            $$
+                \int_a^{a+T} f(t)\d t = \int_a^{T} f(t)\d t + \int_0^{a} f(t)\d t = \int_0^{T} f(t)\d t
+            $$
+            en reconnaissant à nouveau la relation de Chasles.
+        \end{solution}
+
+\end{exercice}
+
+
+%% (Preuve du corollaire de parité -- voir TD2, Exercice 3)
+
+%% ── Ex 6 (optional) : EXTEND ─────────────────────────────────────
+%% Purpose: harder result not fully covered in the CM (integration of
+%% a Fourier series term by term) -- guided so students derive the
+%% needed tool themselves (admis, question 2), then apply it.
+%% Optional / approfondissement.
+\begin{exercice}[Du signal carré au signal triangle --- approfondissement]
+    On va retrouver la série de Fourier de $f_{\rm triangle}$ à partir de celle de $f_{\rm carr\acute{e}}$, déjà calculée à l'Exercice~4, plutôt qu'en recalculant les intégrales depuis la définition. Pour rappel,
+    $$
+    f_{\rm carr\acute{e}}(t) = \begin{cases} 1 & \text{pour} \ t \in [0,\frac{T}{2}[\\ -1 & \text{pour} \ t \in [\frac{T}{2},T[ \end{cases},
+    $$
+    $$
+    f_{\rm triangle}(t) = \begin{cases} t & \text{pour} \ t \in [0,\frac{T}{2}]\\ T - t & \text{pour} \ t \in [\frac{T}{2},T] \end{cases}.
+    $$
+    On fixe $T=2\pi$ ($\omega_0=1$).
+
+    \begin{enumerate}[\bfseries 1.]
+        \item Calculer la dérivée de $f_{\rm triangle}$ sur $]0,\pi[$ puis sur $]\pi,2\pi[$. Que remarque-t-on ?
+        \begin{solution}
+            $f_{\rm triangle}(t)=t$ sur $[0,\pi]$ donc $f_{\rm triangle}'(t)=1$ sur $]0,\pi[$ ; $f_{\rm triangle}(t)=2\pi-t$ sur $[\pi,2\pi]$ donc $f_{\rm triangle}'(t)=-1$ sur $]\pi,2\pi[$ ($f_{\rm triangle}$ n'est pas dérivable aux points anguleux $t=0,\pi,2\pi$). On reconnaît exactement $f_{\rm carr\acute{e}}$ : $f_{\rm triangle}$ est une primitive de $f_{\rm carr\acute{e}}$.
+        \end{solution}
+
+        \item On admet que l'on peut intégrer terme à terme une série de Fourier : si $$g(t)=\sum_n^{+\infty} b_n\sin(nt),$$ une primitive de $g$ s'écrit
+        $$
+            G(t) = C - \sum_n^{+\infty} \frac{b_n}{n}\cos(nt), \qquad C\in\R.
+        $$
+        En utilisant les coefficients $b_n$ de $f_{\rm carr\acute{e}}$ (Exercice~4), en déduire qu'il existe $C\in\R$ tel que
+        $$
+            f_{\rm triangle}(t) = C - \sum_{n \text{ impair}} \frac{4}{n^2\pi}\cos(nt).
+        $$
+        \begin{solution}
+            D'après l'Exercice~4, $f_{\rm carr\acute{e}}(t) = \displaystyle\sum_{n\text{ impair}} \frac{4}{n\pi}\sin(nt)$. En intégrant terme à terme (résultat admis) et d'après la question précédente,
+            $$
+                f_{\rm triangle}(t) = C - \sum_{n\text{ impair}} \frac{4}{n\pi\cdot n}\cos(nt) = C - \sum_{n\text{ impair}} \frac{4}{n^2\pi}\cos(nt).
+            $$
+        \end{solution}
+
+        \item Déterminer $C$ en calculant directement la valeur moyenne de $f_{\rm triangle}$.
+        \begin{solution}
+            $$
+                C = \bar{f}_{\rm triangle} = \frac{1}{2\pi}\left(\int_0^\pi t\,\d t + \int_\pi^{2\pi}(2\pi-t)\,\d t\right) = \frac{1}{2\pi}\left(\frac{\pi^2}{2}+\frac{\pi^2}{2}\right) = \frac{\pi}{2}.
+            $$
+        \end{solution}
+
+        \item Conclure : écrire $f_{\rm triangle}(t)$ jusqu'à l'ordre 5, et vérifier que le résultat est cohérent avec le Corollaire~3.1 du cours.
+        \begin{solution}
+            $$
+                f_{\rm triangle}(t) = \frac{\pi}{2} - \frac{4}{\pi}\cos(t) - \frac{4}{9\pi}\cos(3t) - \frac{4}{25\pi}\cos(5t) - \cdots
+            $$
+            La série ne contient que des cosinus, aucun terme en sinus : c'est cohérent avec le Corollaire~3.1, puisque $f_{\rm triangle}$ est une fonction paire.
+        \end{solution}
+    \end{enumerate}
+\end{exercice}
+
+
+%% (Impulsion périodique étroite -- voir TD2, Exercice 4)
+
+\end{document}

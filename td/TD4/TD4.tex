@@ -1,0 +1,279 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\theoremstyle{definition}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+\usepackage{enumerate}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+\geometry{a4paper, scale=0.8}
+
+%% ─── Header / footer ─────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{2025-2026}
+\fancyhead[C]{\textbf{\courseName}}
+\fancyhead[R]{\large GEII -- BUT2}
+\fancyfoot[C]{\thepage}
+\fancyfoot[L]{\includegraphics[height=3em]{../../common/logos_couleurs/IUTA.png}}
+\fancyfoot[R]{\href{mailto:prenom.nom@univ-smb.fr}{prenom.nom@univ-smb.fr}}
+
+%% ─── Course metadata ─────────────────────────────────────────────
+\newcommand{\courseName}{Outils Mathématiques et Logiciel --- OML3}
+\newcommand{\chapterTitle}{TD 4 --- Transformée de Fourier}
+
+%% ─── Custom title ────────────────────────────────────────────────
+\makeatletter
+\renewcommand\maketitle{{\raggedright\begin{center}
+    {\Huge\bfseries\@title}
+\end{center}}}
+\makeatother
+
+%% ─── Solution toggle ─────────────────────────────────────────────
+%% Compile with \showsolutionstrue for the teacher version.
+\newif\ifshowsolutions
+\showsolutionsfalse
+
+\ifshowsolutions
+    \newtcolorbox{solution}{
+        colback=red!5!white, colframe=red!50!white,
+        breakable, title=\textbf{Solution :}
+    }
+\else
+    \NewEnviron{solution}{}{}
+\fi
+
+%% ─── Theorem / exercise environments ─────────────────────────────
+\newtheorem{definition}{Définition}[section]
+\newtheorem{proposition}{Propriété}[section]
+\newtheorem{theorem}{Théorème}[section]
+\newtheorem{exemple}{Exemple}[section]
+\newtheorem{remark}{Remarque}[section]
+
+%% Exercice : affiche "Exercice N (titre)." et referme aussitôt le
+%% paragraphe avec \par. Volontairement PAS un \newtheorem : amsthm
+%% reporte l'affichage du titre via \everypar, qui ne se déclenche
+%% qu'au démarrage d'un paragraphe. Si le corps commence directement
+%% par une liste (\begin{enumerate}), aucun paragraphe ne démarre
+%% avant le premier \item, et le titre se retrouve collé au "1." de
+%% la liste -- même avec une ligne vide dans la source. Cet
+%% environnement affiche le titre immédiatement, donc ne dépend pas
+%% de ce mécanisme et fonctionne quel que soit le contenu qui suit.
+\newcounter{exercice}   % global counter — do not add [section]
+\newenvironment{exercice}[1][]{%
+  \refstepcounter{exercice}%
+  \par\noindent\textbf{Exercice \theexercice}\if\relax\detokenize{#1}\relax\else\ (#1)\fi.\par\noindent\ignorespaces
+}{\par}
+
+%% ─── Section numbering ───────────────────────────────────────────
+\renewcommand{\thesection}{{\arabic{section}}}
+
+%% ─── Helpers ─────────────────────────────────────────────────────
+\definecolor{niceblue}{RGB}{0,128,172}
+\newcommand{\highlight}[1]{{\color{niceblue}\emph{#1}}}
+
+\input{../../common/macros.tex}
+
+\title{\chapterTitle}
+\author{}
+\date{}
+
+%% ─────────────────────────────────────────────────────────────────
+\begin{document}
+\fontfamily{bch}\selectfont
+\fontsize{12pt}{14pt}\selectfont
+
+\maketitle
+\thispagestyle{fancy}
+\setcounter{exercice}{0}
+
+
+%% ── Ex 1 : PROVE ─────────────────────────────────────────────────
+%% Purpose: make students re-derive a theorem stated in the CM.
+\begin{exercice}
+    \label{ex:dualite-conv}
+
+    \textit{Pour deux signaux $x,y:\R\to\R$ (des fonctions du temps $t$) tels que $x(t)\overset{\mathcal F}{\longleftrightarrow}X(f)$ et $y(t)\overset{\mathcal F}{\longleftrightarrow}Y(f)$ :
+    $$
+        X(f) = \int_{-\infty}^{+\infty} x(t)\,e^{-2\complexj\pi ft}\,\d t, \qquad\qquad (x*y)(t) = \int_{-\infty}^{+\infty} x(\tau)\,y(t-\tau)\,\d\tau.
+    $$
+    On admettra que, dans les calculs de cet exercice, l'ordre d'intégration d'une intégrale double peut être échangé, et qu'un changement de variable affine (par exemple $u=t-\tau$, à $\tau$ fixé) ne modifie pas des bornes $-\infty$ à $+\infty$.
+    }
+
+    \bigskip
+    Le cours affirme, sans démonstration, que
+    $$
+    (x*y)(t) \overset{\mathcal F}{\longleftrightarrow} X(f)\,Y(f)
+    $$
+    (propriété de dualité produit/convolution). En utilisant les rappels ci-dessus, le démontrer.
+
+    \medskip
+    \noindent\textbf{Indication.} Pour tous $u,t\in\R$, $t = t+u-u$.
+    \begin{solution}
+        Par définition de la TF et du produit de convolution,
+        $$
+            \mathcal F[x*y](f) = \int_{-\infty}^{+\infty}\left(\int_{-\infty}^{+\infty} x(\tau)\,y(t-\tau)\,\d\tau\right) e^{-2\complexj\pi ft}\,\d t.
+        $$
+        En échangeant l'ordre d'intégration :
+        $$
+            \mathcal F[x*y](f) = \int_{-\infty}^{+\infty} x(\tau) \left(\int_{-\infty}^{+\infty} y(t-\tau)\,e^{-2\complexj\pi ft}\,\d t\right) \d\tau.
+        $$
+        Dans l'intégrale intérieure, on pose $u=t-\tau$ (donc $t=u+\tau$, $\d u=\d t$) : quand $t$ décrit $\R$ tout entier, $u$ aussi (pour tout $u\in\R$, $t=u+\tau$ convient), donc les bornes ne changent pas :
+        $$
+            \int_{-\infty}^{+\infty} y(t-\tau)\,e^{-2\complexj\pi ft}\,\d t = \int_{-\infty}^{+\infty} y(u)\,e^{-2\complexj\pi f(u+\tau)}\,\d u = e^{-2\complexj\pi f\tau}\int_{-\infty}^{+\infty} y(u)\,e^{-2\complexj\pi fu}\,\d u = e^{-2\complexj\pi f\tau}\,Y(f).
+        $$
+        D'où
+        $$
+            \mathcal F[x*y](f) = \int_{-\infty}^{+\infty} x(\tau)\,e^{-2\complexj\pi f\tau}\,Y(f)\,\d\tau = Y(f)\int_{-\infty}^{+\infty} x(\tau)\,e^{-2\complexj\pi f\tau}\,\d\tau = Y(f)\,X(f).
+        $$
+    \end{solution}
+\end{exercice}
+
+
+%% ── Ex 2 : APPLY ─────────────────────────────────────────────────
+\begin{exercice}[Filtrer un signal échantillonné]
+    Soient $f_1,\dots,f_K\in\R$ des fréquences fixées et
+    $$
+        h(t) = \sum_{k=1}^K e^{-2\complexj\pi f_kt}.
+    $$
+    Soient $t_1,\dots,t_N\in\R$ des instants fixés, $a_1,\dots,a_N\in\R$ des coefficients, et
+    $$
+        x(t) = \sum_{n=1}^N a_n\,\delta(t-t_n)
+    $$
+    (un signal \highlight{échantillonné} : une somme pondérée d'impulsions).
+    \begin{enumerate}[\bfseries 1.]
+        \item Calculer $H=\mathcal F[h]$.
+        \begin{solution}
+            D'après le cours (TF de $e^{2\complexj\pi f_0t}$, vue dans l'exemple sur la TF de $\cos$ et $\sin$), $\mathcal F\big[e^{2\complexj\pi f_0t}\big](f) = \delta(f-f_0)$ pour tout $f_0\in\R$. Avec $f_0=-f_k$ : $\mathcal F\big[e^{-2\complexj\pi f_kt}\big](f) = \delta(f+f_k)$. Par linéarité,
+            $$
+                H(f) = \sum_{k=1}^K \delta(f+f_k).
+            $$
+        \end{solution}
+
+        \item Un système $T$ (qui à un signal d'entrée $x$ -- une fonction du temps $t\mapsto x(t)$ -- associe un signal de sortie $T(x)$) est dit \highlight{linéaire invariant dans le temps} (LTI) s'il vérifie :
+        \begin{itemize}
+            \item[--] \highlight{linéarité} : $T(\alpha x_1+\beta x_2) = \alpha\,T(x_1)+\beta\,T(x_2)$ pour tous signaux $x_1,x_2$ et tous $\alpha,\beta\in\R$ ;
+            \item[--] \highlight{invariance temporelle} : si $y=T(x)$, et si on retarde l'entrée de $t_0\in\R$ -- c'est-à-dire qu'on remplace le signal $x$ par le signal retardé $t\mapsto x(t-t_0)$ -- alors la sortie est retardée de la même durée : $T$ appliqué à $t\mapsto x(t-t_0)$ redonne le signal $t\mapsto y(t-t_0)$.
+        \end{itemize}
+        Montrer que le système $T:x\mapsto x*h$ est LTI.
+        \begin{solution}
+            Linéarité : $T(\alpha x_1+\beta x_2) = (\alpha x_1+\beta x_2)*h = \alpha(x_1*h)+\beta(x_2*h) = \alpha\,T(x_1)+\beta\,T(x_2)$, par bilinéarité de la convolution (vue en cours).
+
+            Invariance temporelle : en notant $y=T(x)=x*h$, l'invariance temporelle de la convolution (vue en cours) donne : le signal retardé $t\mapsto x(t-t_0)$, convolué par $h$, redonne le signal retardé $t\mapsto y(t-t_0)$. C'est exactement dire que $T$ appliqué à $t\mapsto x(t-t_0)$ redonne $t\mapsto y(t-t_0)$.
+
+            Les deux conditions sont vérifiées : $T$ est donc LTI, de \highlight{réponse impulsionnelle} $h$.
+        \end{solution}
+
+        \item Calculer $X=\mathcal F[x]$.
+        \begin{solution}
+            Par linéarité et la TF d'une impulsion décalée (vue en cours),
+            $$
+                X(f) = \sum_{n=1}^N a_n\,e^{-2\complexj\pi ft_n}.
+            $$
+        \end{solution}
+
+        \item En utilisant le théorème produit-convolution (Exercice~\ref{ex:dualite-conv}), calculer $y=h*x$.
+        \begin{solution}
+            $\mathcal F[y](f) = H(f)X(f) = \left(\displaystyle\sum_{k=1}^K \delta(f+f_k)\right) X(f)$. D'après la propriété du produit avec une impulsion (vue en cours, appliquée ici en fréquence), $\delta(f+f_k)\,X(f) = X(-f_k)\,\delta(f+f_k)$, donc
+            $$
+                \mathcal F[y](f) = \sum_{k=1}^K X(-f_k)\,\delta(f+f_k), \qquad X(-f_k) = \sum_{n=1}^N a_n\,e^{2\complexj\pi f_kt_n}.
+            $$
+            En repassant en temporel (même résultat que la question 1, dans l'autre sens) :
+            $$
+                y(t) = \sum_{k=1}^K X(-f_k)\,e^{-2\complexj\pi f_kt}.
+            $$
+            Convoluer $x$ par $h$ ne conserve donc, du signal échantillonné $x$, que les $K$ valeurs de son spectre aux fréquences $-f_1,\dots,-f_K$ : $h$ agit comme un filtre qui ne laisse passer qu'un nombre fini de fréquences.
+        \end{solution}
+
+        \item \textbf{Conclusion.} Que devient le résultat de la question précédente pour $K=1$, c'est-à-dire pour $h(t) = e^{-2\complexj\pi f_1t}$ (une seule fréquence) ? En une phrase, que fait alors $h$ au signal échantillonné $x$ ?
+        \begin{solution}
+            Avec $K=1$, $y(t) = X(-f_1)\,e^{-2\complexj\pi f_1t}$ : convoluer $x$ par une unique exponentielle complexe $h(t)=e^{-2\complexj\pi f_1t}$ extrait donc, à elle seule, la valeur du spectre de $x$ à la fréquence $-f_1$. $h$ agit comme un filtre qui isole une seule composante fréquentielle du signal échantillonné.
+        \end{solution}
+    \end{enumerate}
+\end{exercice}
+
+
+%% ── Ex 3 : APPLY ─────────────────────────────────────────────────
+\begin{exercice}[Modulation d'un signal à bande limitée]
+    Soit $x$ un signal (une fonction du temps $t\mapsto x(t)$) à bande limitée, c'est-à-dire dont la transformée de Fourier $X$ est nulle en dehors de $[-B,B]$ ($B>0$). Pour $f_0>B$, on pose
+    $$
+        m(t) = x(t)\sin(2\pi f_0t).
+    $$
+    \begin{enumerate}[\bfseries 1.]
+        \item Exprimer $M=\mathcal F[m]$ en fonction de $X$.
+        \begin{solution}
+            Avec la formule d'Euler $\sin(2\pi f_0t) = \dfrac{e^{2\complexj\pi f_0t}-e^{-2\complexj\pi f_0t}}{2\complexj}$ et le décalage fréquentiel (vu en cours) :
+            $$
+                M(f) = \frac1{2\complexj}\Big(X(f-f_0) - X(f+f_0)\Big).
+            $$
+        \end{solution}
+
+        \item En déduire le support de $M$, c'est-à-dire les valeurs de $f\in\R$ pour lesquelles $M(f)\neq0$.
+        \begin{solution}
+            $X$ est nulle en dehors de $[-B,B]$, donc $X(f-f_0)$ est nulle en dehors de $[f_0-B,f_0+B]$, et $X(f+f_0)$ en dehors de $[-f_0-B,-f_0+B]$. Comme $f_0>B$, ces deux intervalles sont disjoints, et le support de $M$ est leur réunion :
+            $$
+                [-f_0-B,\,-f_0+B]\ \cup\ [f_0-B,\,f_0+B].
+            $$
+            Moduler $x$ par un sinus translate donc son spectre autour de $\pm f_0$, sans en changer la forme.
+        \end{solution}
+
+        \item On remultiplie $m$ par le même sinus : $p(t) = m(t)\sin(2\pi f_0t)$. Exprimer $p(t)$ comme une somme de deux termes (transformation produit $\to$ somme).
+        \begin{solution}
+            $\sin^2(2\pi f_0t)$ se calcule avec la formule d'Euler :
+            $$
+                \sin^2(2\pi f_0t) = \left(\frac{e^{2\complexj\pi f_0t}-e^{-2\complexj\pi f_0t}}{2\complexj}\right)^{\!2} = \frac{e^{4\complexj\pi f_0t} - 2 + e^{-4\complexj\pi f_0t}}{-4} = \frac{1-\cos(4\pi f_0t)}2.
+            $$
+            D'où
+            $$
+                p(t) = x(t)\sin^2(2\pi f_0t) = \frac{x(t)}2 - \frac{x(t)\cos(4\pi f_0t)}2.
+            $$
+        \end{solution}
+
+        \item Calculer $P=\mathcal F[p]$ en fonction de $X$.
+        \begin{solution}
+            Le premier terme a pour TF $\frac12X(f)$ par linéarité. Pour le second, avec la formule d'Euler $\cos(4\pi f_0t) = \frac12e^{4\complexj\pi f_0t}+\frac12e^{-4\complexj\pi f_0t}$ et le décalage fréquentiel (vu en cours, avec la fréquence $2f_0$ au lieu de $f_0$) :
+            $$
+                \mathcal F\big[x(t)\cos(4\pi f_0t)\big](f) = \frac12\Big(X(f-2f_0)+X(f+2f_0)\Big).
+            $$
+            Par linéarité,
+            $$
+                P(f) = \frac12X(f) - \frac14\Big(X(f-2f_0)+X(f+2f_0)\Big).
+            $$
+        \end{solution}
+
+        \item Comment peut-on retrouver $x(t)$ à partir de $p(t)$ ? (Aucun calcul supplémentaire n'est demandé : justifier le principe à l'aide des questions précédentes.)
+        \begin{solution}
+            Comme pour $M$ (question 2), $f_0>B$ sépare les trois morceaux du spectre de $p$ : $\frac12X(f)$ occupe $[-B,B]$, tandis que les deux autres termes occupent $[2f_0-B,2f_0+B]$ et $[-2f_0-B,-2f_0+B]$, disjoints de $[-B,B]$ dès que $f_0>B$. Sur $[-B,B]$, on a donc exactement $P(f) = \frac12X(f)$.
+
+            Un \highlight{filtre passe-bas idéal} qui laisse inchangées les fréquences de $[-B,B]$ et annule les autres, appliqué à $p$, donne donc $\frac12X(f)$ sur tout $\R$, soit $\frac12x(t)$ en temporel : on retrouve $x$ (à un facteur $2$ près) en multipliant par $2$ le résultat de ce filtrage. Moduler puis démoduler (remultiplier par la porteuse, puis filtrer passe-bas) permet ainsi de transmettre $x$ autour de $f_0$ et de le récupérer à l'arrivée.
+        \end{solution}
+    \end{enumerate}
+\end{exercice}
+
+
+%% ── Ex 4–5 : APPLY ───────────────────────────────────────────────
+
+%% ── Ex 6–7 (optional) : EXTEND ───────────────────────────────────
+%% Purpose: harder result not in the CM, for strong students.
+%% Mark clearly as optional difficulty.
+%
+% \begin{exercice}[Approfondissement]
+%     \begin{enumerate}[\bfseries 1.]
+%         \item ...
+%         \begin{solution}
+%         \end{solution}
+%     \end{enumerate}
+% \end{exercice}
+
+\end{document}

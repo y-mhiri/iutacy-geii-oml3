@@ -1,0 +1,399 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+\usepackage{enumerate}
+\usepackage{booktabs}
+\usepackage{tcolorbox}
+\tcbuselibrary{listings,skins,breakable}
+\usepackage{sourcecodepro}
+\usepackage{FiraSans}
+\usepackage{environ}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta,positioning,calc}
+
+\geometry{a4paper, scale=0.8}
+\urlstyle{same}
+
+%% ─── Colors ──────────────────────────────────────────────────────
+\definecolor{modernblue}{RGB}{66,133,244}
+\definecolor{moderngray}{RGB}{95,99,104}
+\definecolor{darkgray}{RGB}{60,64,67}
+\definecolor{accentorange}{RGB}{255,111,0}
+\definecolor{codegreen}{RGB}{15,157,88}
+\definecolor{codeblue}{RGB}{25,118,210}
+\definecolor{codebg}{RGB}{250,250,250}
+\definecolor{codepurple}{RGB}{156,39,176}
+\definecolor{niceblue}{RGB}{0,128,172}
+
+%% ─── Code listing: PYTHON ───────────────────────────────────────
+\newtcblisting{pythoncode}[1][]{
+    listing engine=listings, colback=codebg, colframe=moderngray!50,
+    listing only, left=5mm, enhanced, sharp corners=all, boxrule=0.5pt, top=0pt,
+    listing options={
+        language=Python, basicstyle=\ttfamily\scriptsize,
+        keywordstyle=\color{codeblue}\bfseries,
+        commentstyle=\color{codegreen}\itshape,
+        stringstyle=\color{accentorange},
+        numberstyle=\tiny\color{moderngray}, numbers=left, numbersep=8pt,
+        breaklines=true, tabsize=4, showstringspaces=false,
+        keepspaces=true, columns=flexible,
+        literate=
+            {é}{{\'{e}}}1 {è}{{\`{e}}}1 {ê}{{\^{e}}}1 {ë}{{\"{e}}}1
+            {û}{{\^{u}}}1 {ù}{{\`{u}}}1 {î}{{\^{i}}}1 {ï}{{\"{i}}}1
+            {ô}{{\^{o}}}1 {â}{{\^{a}}}1 {à}{{\`{a}}}1 {ä}{{\"{a}}}1
+            {ç}{{\c{c}}}1 {Ç}{{\c{C}}}1
+            {É}{{\'{E}}}1 {È}{{\`{E}}}1 {Ê}{{\^{E}}}1,
+        #1
+    }, breakable
+}
+
+%% ─── Lesson box ──────────────────────────────────────────────────
+\newtcolorbox{lesson}[1][]{
+    enhanced, breakable,
+    colback=modernblue!5, colframe=modernblue!80,
+    colbacktitle=modernblue, coltitle=white,
+    fonttitle=\sffamily\bfseries, fontupper=\sffamily\small,
+    boxrule=0.5pt, arc=3pt, left=8pt, right=8pt, top=8pt, bottom=8pt,
+    attach boxed title to top left={yshift=-2mm, xshift=5mm},
+    boxed title style={sharp corners, boxrule=0.5pt},
+    title={#1}, before skip=1em, after skip=2em
+}
+
+%% ─── Out-of-scope box (optional) ─────────────────────────────────
+%% Use for concepts beyond the syllabus that students may encounter.
+\newtcolorbox{horsprog}{
+    enhanced, breakable,
+    colback=codepurple!5, colframe=codepurple!60,
+    colbacktitle=codepurple!80, coltitle=white,
+    fonttitle=\sffamily\bfseries, fontupper=\sffamily\small,
+    boxrule=0.5pt, arc=3pt, left=8pt, right=8pt, top=8pt, bottom=8pt,
+    title={Hors-programme --- à lire attentivement},
+    attach boxed title to top left={yshift=-2mm, xshift=5mm},
+    boxed title style={sharp corners, boxrule=0.5pt},
+    before skip=1em, after skip=2em
+}
+
+%% ─── Solution toggle ─────────────────────────────────────────────
+\newif\ifshowsolutions
+\showsolutionsfalse
+
+\ifshowsolutions
+    \newtcolorbox{solution}{colback=white, colframe=white, breakable,
+        fontupper=\color{red}}
+\else
+    \NewEnviron{solution}{}{}
+\fi
+
+%% ─── Question command ─────────────────────────────────────────────
+\newcounter{question}[section]
+\newcommand{\q}[1]{%
+    \vspace{0.5em}\noindent
+    {\color{black}\bfseries\stepcounter{question}\Alph{section}\arabic{question}.}
+    \hspace{0.5em}#1\par\vspace{0.3em}
+}
+\renewcommand{\thesection}{{\Alph{section}}}
+
+%% ─── Header / footer ─────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{2025-2026}
+\fancyhead[C]{\textbf{\courseName}}
+\fancyhead[R]{\large GEII -- BUT2}
+\fancyfoot[C]{\thepage}
+\fancyfoot[L]{\includegraphics[height=3em]{../../../common/logos_couleurs/IUTA.png}}
+\fancyfoot[R]{\href{mailto:prenom.nom@univ-smb.fr}{prenom.nom@univ-smb.fr}}
+
+%% ─── Course metadata ─────────────────────────────────────────────
+\newcommand{\courseName}{Outils Mathématiques et Logiciel --- OML3}
+\newcommand{\chapterTitle}{TP 1 --- Série de Fourier}
+
+\makeatletter
+\renewcommand\maketitle{{\raggedright\begin{center}
+    {\Huge\bfseries\@title}
+\end{center}}}
+\makeatother
+
+\input{../../../common/macros.tex}
+
+\title{\chapterTitle}
+\author{}
+\date{}
+
+%% ─────────────────────────────────────────────────────────────────
+\begin{document}
+\fontfamily{bch}\selectfont
+\fontsize{12pt}{14pt}\selectfont
+
+\maketitle
+\thispagestyle{fancy}
+
+
+%% ─── AVANT DE COMMENCER ──────────────────────────────────────────
+\section*{Avant de commencer}
+
+Ce TP n'est pas un TP de programmation : toutes les fonctions dont vous
+aurez besoin sont déjà écrites. Votre travail consiste à exécuter les
+cellules, lire les tracés produits, et répondre aux questions.
+
+\textbf{Ce document est le sujet de référence.} Le notebook
+\texttt{TP1.ipynb} est un compagnon d'exécution : il ne reprend que
+l'essentiel de chaque question, repérée par son numéro (A1, A2, B1, \dots)
+correspondant à celui utilisé ici. Gardez ce PDF ouvert pendant tout le TP
+et répondez-y (ou sur feuille) : le notebook seul ne suffit pas.
+
+\subsection*{Configuration de l'environnement}
+\begin{enumerate}
+    \item Ouvrir \texttt{TP1.ipynb} dans Jupyter.
+    \item Exécuter la première cellule (import des fonctions fournies,
+          dans \texttt{tp1\_helpers.py}) : rien ne devrait s'afficher, c'est
+          normal.
+    \item Exécuter ensuite les cellules dans l'ordre, en vous référant aux
+          questions ci-dessous.
+\end{enumerate}
+
+\begin{lesson}[Un notebook, comment ça marche ?]
+    Un notebook Jupyter est une suite de cellules. Une cellule de code
+    s'exécute avec \texttt{Shift+Entrée} ; le résultat (tracé, valeur)
+    s'affiche juste en dessous. Une cellule peut être ré-exécutée autant de
+    fois que nécessaire, par exemple après avoir changé une valeur -- c'est
+    ce que vous ferez pour la plupart des questions de ce TP.
+\end{lesson}
+
+\vspace{2em}\hrule\vspace{2em}
+\newpage
+
+
+%% ─── SECTION A ──────────────────────────────────────────────────
+\section{Première manipulation de séries trigonométriques}
+
+\subsection*{Contexte}
+Avant de manipuler des séries de Fourier, on prend en main l'outil sur des
+signaux déjà connus : sinus et cosinus.
+
+\q{Afficher les fonctions sinus et cosinus entre $-10$ et $10$ (fréquence
+$f=1\,\Hz$). Combien de périodes observez-vous ?}
+\begin{solution}
+    $T=1/f=1\,$s, donc 20 périodes sur $[-10,10]$.
+\end{solution}
+
+\q{Quel est le décalage temporel entre les deux fonctions ? Comment
+reconnaître $\cos$ de $\sin$ par lecture graphique ?}
+\begin{solution}
+    $\cos(t)=\sin(t+\pi/2)$ : $\cos$ est en avance d'un quart de période sur
+    $\sin$. Sur le graphe, $\cos$ vaut son maximum en $t=0$ tandis que
+    $\sin$ y est nul (et croissant) : c'est ce qui permet de les
+    distinguer visuellement.
+\end{solution}
+
+\begin{lesson}[Zoomer sans tracé interactif]
+    Les tracés de ce TP ne sont pas interactifs (pas de souris pour
+    zoomer). À la place, les fonctions fournies acceptent des arguments
+    \texttt{xlim=(min,max)} et \texttt{ylim=(min,max)} : changez ces
+    bornes et ré-exécutez la cellule pour "vous déplacer" dans le tracé.
+\end{lesson}
+
+\q{Refaire le tracé à $f=440\,\Hz$. Quelle est la période ? Zoomer sur une
+période (avec \texttt{xlim}) : que devient le décalage entre $\cos$ et
+$\sin$ ?}
+\begin{solution}
+    $T=1/440\approx 2{,}27\,$ms. Le décalage reste un quart de période
+    (proportion inchangée), donc environ $0{,}57\,$ms en valeur absolue :
+    seule sa durée en secondes diminue avec $f$.
+\end{solution}
+
+On fixe maintenant $T=1$ et $a_n=b_n=1$ pour tout $n$.
+
+\begin{lesson}[Fonction \texttt{reconstruct}]
+    \texttt{reconstruct(t, T, a0, an, bn)} évalue
+    $a_0+\sum_n\left[a_n\cos(n\omega_0 t)+b_n\sin(n\omega_0 t)\right]$ sur
+    le vecteur de temps \texttt{t}, à partir de coefficients que vous lui
+    donnez (calculés ou choisis à la main).
+\end{lesson}
+
+\q{Afficher la série trigonométrique correspondante pour une valeur de $N$
+de votre choix, puis recommencer avec d'autres valeurs (essayer par
+exemple $N=1,2,5,20,100$, puis $N=10^5$). La période du signal change-t-elle
+avec le nombre de termes ? Cette série converge-t-elle ?}
+\begin{solution}
+    La période ne change pas : chaque terme est de période $\le 1$, donc la
+    somme reste $1$-périodique quel que soit $N$. En revanche la série ne
+    converge pas : en $t=0$ chaque terme vaut $1$, donc la somme partielle
+    vaut exactement $N$ -- elle diverge avec $N$ (observable numériquement :
+    la valeur en $t=0$ atteint $10^5$ pour $N=10^5$). Ailleurs, la somme
+    oscille sans se stabiliser. C'est attendu : rien ne garantit qu'une
+    série trigonométrique quelconque converge, ce que les conditions de
+    Dirichlet (vues en cours) viennent précisément garantir.
+\end{solution}
+
+
+%% ─── SECTION B ──────────────────────────────────────────────────
+\section{Analyse et synthèse d'un signal périodique par série de Fourier}
+
+\subsection*{Objectif}
+Passer du signal carré à ses coefficients de Fourier, puis reconstruire le
+signal à partir d'un nombre fini de ces coefficients, et observer ce que
+cette troncature change.
+
+\q{Afficher le signal carré entre $-10$ et $10$, de période $1$. Utiliser
+\texttt{xlim} pour observer un ou deux sauts de plus près.}
+\begin{solution}
+    \texttt{make\_square(T=1.0, A=1.0)}, puis \texttt{plot\_signal}.
+\end{solution}
+
+\begin{lesson}[Fonction \texttt{fourier\_coeffs}]
+    \texttt{fourier\_coeffs(signal, N)} calcule $a_0$ et les $N$ premiers
+    $a_n,b_n$ par intégration numérique des formules du cours -- pas par
+    échantillonnage ni FFT. Retourne \texttt{(a0, an, bn)}.
+\end{lesson}
+
+\q{Calculer les 100 premiers coefficients de la série de Fourier du signal
+carré. Rappeler la formule des coefficients $a_n$ et $b_n$ vue en cours
+(TD1) et vérifier l'accord avec vos résultats.}
+\begin{solution}
+    $a_n=0$ pour tout $n$ ; $b_n=4/(n\pi)$ si $n$ impair, $b_n=0$ si $n$
+    pair. Les valeurs calculées concordent (aux erreurs d'arrondi près sur
+    $a_n$, de l'ordre de $10^{-17}$).
+\end{solution}
+
+\q{Tracer le spectre d'amplitude correspondant (\texttt{plot\_spectrum}).}
+\begin{solution}
+    Raies non nulles uniquement aux rangs impairs, décroissant en $1/n$.
+\end{solution}
+
+\q{Reconstruire le signal carré à partir de sa série de Fourier pour une
+valeur de $N$ de votre choix (\texttt{plot\_reconstruction}), puis
+recommencer avec d'autres valeurs (essayer $N=2,5,10,100$). Zoomer avec
+\texttt{xlim} près d'un saut. Que remarquez-vous ?}
+\begin{solution}
+    Plus $N$ augmente, plus la reconstruction se rapproche du signal carré
+    loin des sauts. Mais au voisinage de chaque discontinuité, un
+    dépassement d'environ 9\% de l'amplitude du saut persiste quel que soit
+    $N$ : il se resserre autour du saut sans jamais disparaître. C'est le
+    phénomène de Gibbs.
+\end{solution}
+
+\q{Reconstruire à nouveau le signal, mais en utilisant seulement les
+coefficients de rang \texttt{n\_min} à \texttt{n\_max} (essayer d'abord 50
+à 100, puis d'autres bornes). Que remarquez-vous ?}
+\begin{solution}
+    Le résultat n'a plus l'allure d'un carré : c'est une oscillation rapide
+    de faible amplitude (les $b_n$ de rang 50-100 valent
+    $4/(n\pi)\approx 0{,}01$--$0{,}025$, bien plus petits que l'amplitude 1
+    d'origine). Les harmoniques basses portent la forme globale du signal ;
+    les hautes n'ajoutent que du détail fin, avec une énergie bien plus
+    faible.
+\end{solution}
+
+
+%% ─── SECTION C ──────────────────────────────────────────────────
+\section{Deux signaux à l'allure trompeuse}
+
+Deux signaux fournis vont mettre à l'épreuve votre intuition sur les
+conditions de Dirichlet : l'un a l'air pathologique et ne l'est pas,
+l'autre l'inverse. On les étudie l'un après l'autre, en entier.
+
+\subsection*{La marche aléatoire}
+
+\q{Afficher le signal \texttt{marche} (\texttt{make\_random\_walk}) sur
+quelques périodes. Est-il périodique ? Respecte-t-il les conditions de
+Dirichlet ? Justifier.}
+\begin{solution}
+    Oui, périodique par construction. Il respecte Dirichlet malgré son
+    allure erratique : il est construit à partir d'un nombre \emph{fixe} de
+    sommets (25) reliés par des segments de droite -- donc un nombre fini
+    d'extrema, aucune discontinuité (la dernière valeur est recalée sur la
+    première), et borné.
+\end{solution}
+
+\q{Calculer ses coefficients de Fourier et reconstruire le signal pour une
+valeur de $N$ de votre choix, puis recommencer avec d'autres valeurs. Le
+comportement observé est-il cohérent avec la réponse précédente ?}
+\begin{solution}
+    Oui : la reconstruction converge proprement vers le signal quand $N$
+    augmente, cohérent avec Dirichlet respecté.
+\end{solution}
+
+\subsection*{Le signal exotique}
+
+\q{Afficher le signal \texttt{exotique} (\texttt{make\_exotique}) sur
+quelques périodes, puis zoomer avec \texttt{xlim} près de $t=0$. Est-il
+périodique ? Respecte-t-il les conditions de Dirichlet ? Justifier.}
+\begin{solution}
+    Périodique, mais il oscille infiniment vite au voisinage de $t=0$ dans
+    chaque période ($\sin(2\pi/t)$ a une infinité d'extrema qui
+    s'accumulent quand $t\to0^+$, bien visible en zoomant). Il ne respecte
+    donc \emph{pas} les conditions de Dirichlet (nombre fini d'extrema),
+    bien que son tracé à l'échelle globale ait l'air raisonnable.
+\end{solution}
+
+\q{Calculer ses coefficients de Fourier et reconstruire le signal pour une
+valeur de $N$ de votre choix, puis recommencer avec d'autres valeurs. Le
+comportement observé est-il cohérent avec la réponse précédente ?}
+\begin{solution}
+    Oui : le calcul des coefficients affiche lui-même un avertissement
+    (« le calcul numérique peine à converger »), et la reconstruction reste
+    mauvaise près de $t=0$ même à $N=60$ -- cohérent avec la
+    non-convergence attendue pour un signal qui ne vérifie pas Dirichlet.
+\end{solution}
+
+
+%% ─── SECTION D (optionnelle) ─────────────────────────────────────
+\section{Optionnel, si le temps le permet --- le signal dents de scie}
+
+\q{Afficher le signal \texttt{scie} (\texttt{make\_sawtooth}) sur quelques
+périodes. Où se trouve sa discontinuité, comparée à celle du signal carré ?}
+\begin{solution}
+    Une seule discontinuité par période, exactement à la jonction $t=0/T$
+    (contrairement au carré, qui en a une au milieu de la période \emph{et}
+    une à la jonction).
+\end{solution}
+
+\q{Calculer ses coefficients de Fourier et reconstruire le signal pour une
+valeur de $N$ de votre choix. Zoomer avec \texttt{xlim} exactement sur la
+jonction de période. Que remarquez-vous ?}
+\begin{solution}
+    Même phénomène que pour le carré : un dépassement d'environ 9\% de
+    l'amplitude du saut apparaît juste avant/après la jonction et ne
+    disparaît pas quand $N$ augmente -- Gibbs, ici localisé au seul endroit
+    où le signal est discontinu.
+\end{solution}
+
+\q{Tracer le spectre d'amplitude et le comparer à celui du signal carré
+(question B3).}
+\begin{solution}
+    Ici $b_n=-1/(n\pi)$ pour \emph{tout} $n$ (spectre dense), contre
+    $b_n=4/(n\pi)$ sur les rangs \emph{impairs seulement} pour le carré
+    (spectre creux, amplitude plus grande par raie). Mais dans les deux cas
+    l'enveloppe décroît en $1/n$ : attendu, puisque les deux signaux ont
+    une discontinuité de première espèce -- c'est cette décroissance lente
+    qui est responsable du phénomène de Gibbs dans les deux cas.
+\end{solution}
+
+\begin{lesson}[Fonctions \texttt{parseval\_energy}, \texttt{signal\_energy}]
+    \texttt{parseval\_energy(a0, an, bn)} calcule
+    $a_0^2+\frac12\sum_n(a_n^2+b_n^2)$ à partir des coefficients seuls.
+    \texttt{signal\_energy(signal)} calcule $\frac1T\int_0^T f(t)^2\,\d t$
+    directement sur le signal. Deux façons de calculer la même chose ?
+\end{lesson}
+
+\q{Calculer \texttt{signal\_energy(scie)}, puis \texttt{parseval\_energy}
+pour plusieurs valeurs de $N$ croissantes. Que remarquez-vous ?}
+\begin{solution}
+    La somme partielle $a_0^2+\frac12\sum(a_n^2+b_n^2)$ se rapproche, quand
+    $N$ augmente, de la même valeur que l'intégrale directe
+    $\frac1T\int_0^T f(t)^2\,\d t$ (ici $\approx 0{,}333$ dans les deux
+    cas). L'« énergie » du signal peut donc se lire soit directement sur
+    $f$, soit sur son spectre. On retrouvera ce résultat plus tard dans le
+    cours sous le nom de théorème de Parseval.
+\end{solution}
+
+\end{document}

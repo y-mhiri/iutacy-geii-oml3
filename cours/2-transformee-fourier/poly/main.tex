@@ -1,0 +1,645 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{amsthm}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+\usepackage{enumerate}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta,positioning,calc}
+
+\geometry{a4paper, scale=0.8}
+
+%% ─── Colors ──────────────────────────────────────────────────────
+\definecolor{niceblue}{RGB}{0,128,172}
+
+%% ─── Header / footer ─────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{2025-2026}
+\fancyhead[C]{\textbf{\courseName}}
+\fancyhead[R]{\large GEII -- BUT2}
+\fancyfoot[C]{\thepage}
+\fancyfoot[L]{\includegraphics[height=3em]{../../../common/logos_couleurs/IUTA.png}}
+\fancyfoot[R]{\href{mailto:prenom.nom@univ-smb.fr}{prenom.nom@univ-smb.fr}}
+
+%% ─── Course metadata ─────────────────────────────────────────────
+\newcommand{\courseName}{Outils Mathématiques et Logiciel --- OML3}
+\newcommand{\chapterTitle}{Chapitre 2 --- Transformée de Fourier}
+
+%% ─── Custom title ────────────────────────────────────────────────
+\makeatletter
+\renewcommand\maketitle{{\raggedright\begin{center}
+    {\Huge\bfseries\@title}
+\end{center}}}
+\makeatother
+
+%% ─── Theorem environments ────────────────────────────────────────
+\theoremstyle{definition}
+\newtheorem{definition}{Définition}[section]
+\newtheorem{proposition}{Propriété}[section]
+\newtheorem{theorem}{Théorème}[section]
+\newtheorem{corollary}{Corollaire}[section]
+\newtheorem{lemma}{Lemme}[section]
+\newtheorem{exemple}{Exemple}[section]
+\newtheorem{remark}{Remarque}[section]
+
+%% ─── Helpers ─────────────────────────────────────────────────────
+\newcommand{\highlight}[1]{{\color{niceblue}\emph{#1}}}
+\newcommand{\tf}{\overset{\mathcal F}{\longleftrightarrow}}
+
+\input{../../../common/macros.tex}
+
+\title{\chapterTitle}
+\author{}
+\date{}
+
+%% ─────────────────────────────────────────────────────────────────
+\begin{document}
+\fontfamily{bch}\selectfont
+\fontsize{12pt}{14pt}\selectfont
+
+\maketitle
+\thispagestyle{fancy}
+
+\section{Introduction et contexte}
+
+\rappelhead{Notations}
+Un \highlight{signal} est modélisé par une fonction $x:\R\to\R$, $t\mapsto x(t)$, où $t$ représente le temps. C'est l'objet d'étude de ce chapitre.
+
+\begin{remark}
+    On peut modéliser d'autres types de données par des fonctions du même esprit : une image en niveaux de gris, par exemple, est une fonction de deux variables spatiales vers $\R$, $I:\R^2\to\R$, $(x,y)\mapsto I(x,y)$ (l'intensité lumineuse au point $(x,y)$). Le traitement d'image généralise ainsi les outils de ce chapitre à des signaux à plusieurs variables, mais cela sort du cadre de ce cours : on se limite ici aux signaux temporels $x(t)$, fonctions d'une seule variable.
+\end{remark}
+
+\begin{definition}[Intégrale sur $\R$]
+    Pour une fonction $g$, l'intégrale sur $\R$ tout entier est définie comme une limite,
+    $$
+        \int_{-\infty}^{+\infty} g(t)\,\d t = \lim_{\substack{A\to+\infty\\B\to+\infty}} \int_{-A}^{B} g(t)\,\d t,
+    $$
+    lorsque cette limite existe (les deux bornes tendant vers l'infini indépendamment l'une de l'autre). C'est dans ce sens qu'il faut comprendre toutes les intégrales sur $\R$ de ce chapitre.
+\end{definition}
+
+\begin{definition}[Sinus cardinal]
+    La fonction \highlight{sinus cardinal}, notée $\sinc$, est définie par
+    $$
+        \sinc(x) = \begin{cases} \dfrac{\sin(x)}{x} & \text{si } x\neq0, \\ 1 & \text{si } x=0. \end{cases}
+    $$
+\end{definition}
+
+\begin{definition}[Énergie et puissance d'un signal]
+    \label{def:energie}
+    Soit $x:\R\to\R$ un signal. On appelle \highlight{énergie} de $x$ la quantité
+    $$
+        E_x = \int_{-\infty}^{+\infty} |x(t)|^2\,\d t \in [0,+\infty],
+    $$
+    et \highlight{puissance moyenne} de $x$ la quantité
+    $$
+        P_x = \lim_{T\to+\infty} \frac1T\int_{-T/2}^{T/2} |x(t)|^2\,\d t \in [0,+\infty],
+    $$
+    lorsque ces limites existent. On dit que $x$ est à \highlight{énergie finie} si $E_x<\infty$, et à \highlight{puissance finie} si $P_x<\infty$.
+\end{definition}
+
+\begin{remark}
+    Un signal $T$-périodique non nul a une énergie infinie (l'intégrale de $|x(t)|^2$ se répète indéfiniment) mais une puissance finie : $P_x$ se réduit alors à la moyenne de $|x(t)|^2$ sur une période. À l'inverse, un signal transitoire (nul en dehors d'un intervalle borné, par exemple) est typiquement à énergie finie. La théorie du chapitre~1 (séries de Fourier) s'applique aux signaux périodiques ; ce chapitre s'intéresse aux signaux à énergie finie, non nécessairement périodiques.
+\end{remark}
+
+On peut se demander si les outils du chapitre~1 s'étendent à ce second cas. L'idée : voir un signal à énergie finie comme la limite d'un signal périodique dont la période $T$ tend vers l'infini.
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[x=0.7cm,y=0.7cm]
+        \draw[-Latex] (-4.7,0) -- (4.7,0) node[right] {$t$};
+        \draw[-Latex] (0,-0.2) -- (0,2.3) node[above] {};
+        \foreach \c in {-4,-3,-2,-1,0,1,2,3,4} {
+            \draw[niceblue,thick] (\c-0.25,0) -- (\c-0.25,2) -- (\c+0.25,2) -- (\c+0.25,0);
+        }
+        \node[left] at (0,2) {$\frac1\theta$};
+        \node[below] at (1,0) {$T$};
+    \end{tikzpicture}
+    \hspace{0.5cm}
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=6.5cm, height=4.3cm,
+            xlabel={fréquence $f$}, ylabel={$T\,c_n$},
+            xmin=-4, xmax=4, ymin=-0.3, ymax=1.1,
+            axis lines=middle,
+            xlabel style={at=(current axis.right of origin), anchor=west},
+            ylabel style={at=(current axis.above origin), anchor=south},
+        ]
+        \addplot[domain=-4:4, samples=200, niceblue!40, thick] {sin(deg(1.570795*x))/(1.570795*x)};
+        \addplot+[ycomb, black!70, thick, mark=*, mark size=1.3pt, mark options={fill=black!70}] coordinates {
+            (-4.0000,-0.0000) (-3.0000,-0.2122) (-2.0000,0.0000) (-1.0000,0.6366) (0.0000,1.0000) (1.0000,0.6366) (2.0000,0.0000) (3.0000,-0.2122) (4.0000,-0.0000)
+        };
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Période $T$ petite ($T=1$, largeur d'impulsion $\theta=0.5$). À gauche, le signal périodique dans le temps. À droite, les coefficients renormalisés $Tc_n$ (bâtons noirs) de sa série de Fourier, peu nombreux et espacés de $f_0=1/T$, échantillonnent grossièrement la courbe enveloppe $\theta\sinc(\pi f\theta)$ (en clair).}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[x=0.7cm,y=0.7cm]
+        \draw[-Latex] (-4.7,0) -- (4.7,0) node[right] {$t$};
+        \draw[-Latex] (0,-0.2) -- (0,2.3) node[above] {};
+        \foreach \c in {-4,0,4} {
+            \draw[niceblue,thick] (\c-0.25,0) -- (\c-0.25,2) -- (\c+0.25,2) -- (\c+0.25,0);
+        }
+        \node[left] at (0,2) {$\frac1\theta$};
+        \node[below] at (4,0) {$T$};
+    \end{tikzpicture}
+    \hspace{0.5cm}
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=6.5cm, height=4.3cm,
+            xlabel={fréquence $f$}, ylabel={$T\,c_n$},
+            xmin=-4, xmax=4, ymin=-0.3, ymax=1.1,
+            axis lines=middle,
+            xlabel style={at=(current axis.right of origin), anchor=west},
+            ylabel style={at=(current axis.above origin), anchor=south},
+        ]
+        \addplot[domain=-4:4, samples=200, niceblue!40, thick] {sin(deg(1.570795*x))/(1.570795*x)};
+        \addplot+[ycomb, black!70, thick, mark=*, mark size=1pt, mark options={fill=black!70}] coordinates {
+            (-4.0000,-0.0000) (-3.7500,-0.0650) (-3.5000,-0.1286) (-3.2500,-0.1810) (-3.0000,-0.2122) (-2.7500,-0.2139) (-2.5000,-0.1801) (-2.2500,-0.1083) (-2.0000,0.0000) (-1.7500,0.1392) (-1.5000,0.3001) (-1.2500,0.4705) (-1.0000,0.6366) (-0.7500,0.7842) (-0.5000,0.9003) (-0.2500,0.9745) (0.0000,1.0000) (0.2500,0.9745) (0.5000,0.9003) (0.7500,0.7842) (1.0000,0.6366) (1.2500,0.4705) (1.5000,0.3001) (1.7500,0.1392) (2.0000,0.0000) (2.2500,-0.1083) (2.5000,-0.1801) (2.7500,-0.2139) (3.0000,-0.2122) (3.2500,-0.1810) (3.5000,-0.1286) (3.7500,-0.0650) (4.0000,-0.0000)
+        };
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Période $T$ grande ($T=4$, même largeur $\theta=0.5$). Les impulsions temporelles s'espacent, tandis que les coefficients renormalisés $Tc_n$, plus nombreux et plus rapprochés ($f_0=1/T$ plus petit), suivent de près la même courbe enveloppe. À la limite $T\to+\infty$, cette courbe enveloppe devient le spectre continu de ce chapitre calculé par Transformée de Fourier.}
+\end{figure}
+
+\section{Transformée de Fourier}
+\label{sec:tf}
+
+\begin{definition}[La transformée de Fourier (TF)]
+    \label{def:tf}
+    Soit $x:\R\to\R$ un signal. On appelle \highlight{transformée de Fourier} de $x$, lorsqu'elle existe, la fonction $X:\R\to\C$ définie par
+    $$
+        X(f) = \int_{-\infty}^{+\infty} x(t)\,e^{-2\complexj\pi ft}\,\d t.
+    $$
+    On note $X=\mathcal F[x]$ ou $x(t)\tf X(f)$. La variable $f$ s'interprète comme une fréquence, en $\Hz$.
+\end{definition}
+
+\begin{definition}[La transformée de Fourier inverse (TFI)]
+    \label{def:tfi}
+    Soit $X:\R\to\C$. On appelle \highlight{transformée de Fourier inverse} de $X$, lorsqu'elle existe, la fonction $x:\R\to\C$ définie par
+    $$
+        x(t) = \int_{-\infty}^{+\infty} X(f)\,e^{2\complexj\pi ft}\,\d f.
+    $$
+    On note $x=\mathcal F^{-1}[X]$.
+\end{definition}
+
+\begin{remark}
+    La transformée de Fourier et son inverse ne diffèrent que par le signe de l'exposant. La TF réalise une bijection entre le \highlight{domaine temporel} (les fonctions $x(t)$) et le \highlight{domaine fréquentiel} (les fonctions $X(f)$), qui contiennent la même information sous deux formes différentes,
+    $$\mathcal F^{-1}[\mathcal F[x]] = x.$$ 
+\end{remark}
+
+\begin{remark}[Condition (simplifiée) d'existence]
+    \label{rem:existence}
+    L'intégrale définissant $X(f)$ n'existe, pour une fréquence $f$ donnée, que si la limite qui la définit existe (au sens du \S1.1). Une condition simple qui garantit cette existence, pour tout $f$ à la fois, est l'intégrabilité de $x$ : $\int_{-\infty}^{+\infty}|x(t)|\,\d t < \infty$ (on note $x\in L^1(\R)$). Cette condition est suffisante mais pas nécessaire ; elle exclut en particulier les signaux qui ne s'atténuent pas à l'infini, comme un signal constant, $\cos$ ou $\sin$, qui n'ont donc pas de TF au sens de la Définition~\ref{def:tf}. On reviendra sur ce point au \S3, où l'impulsion de Dirac permettra d'étendre la TF à ces cas.
+\end{remark}
+
+\begin{exemple}[Signal porte]
+    \label{ex:porte}
+    Soit $\theta>0$ et $\Pi_\theta$ le signal (un rectangle de largeur $\theta$ et de hauteur $1$, centré en $0$) défini par
+    $$
+        \Pi_\theta(t) = \begin{cases} 1 & \text{si } |t| < \theta/2, \\ 0 & \text{si } |t| \geq \theta/2. \end{cases}
+    $$
+    Alors
+    $$
+        \mathcal F[\Pi_\theta](f) = \int_{-\theta/2}^{\theta/2} e^{-2\complexj\pi ft}\,\d t = \theta\,\sinc(\pi f\theta).
+    $$
+    Contrairement au spectre discret d'un signal périodique, $\mathcal F[\Pi_\theta]$ est une fonction continue de $f$ : c'est un spectre continu.
+\end{exemple}
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[x=1.2cm,y=1cm]
+        \draw[-Latex] (-2.2,0) -- (2.2,0) node[right] {$t$};
+        \draw[-Latex] (0,-0.2) -- (0,1.5) node[above] {$\Pi_\theta(t)$};
+        \draw[niceblue,thick] (-2,0) -- (-1,0) -- (-1,1) -- (1,1) -- (1,0) -- (2,0);
+        \draw[dashed] (-1,0) -- (-1,1); \draw[dashed] (1,0) -- (1,1);
+        \node[below] at (-1,0) {$-\theta/2$};
+        \node[below] at (1,0) {$\theta/2$};
+        \node[left] at (0,1) {$1$};
+    \end{tikzpicture}
+    \hspace{1cm}
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=6.5cm, height=4cm,
+            xlabel={$f$}, ylabel={$X(f)$},
+            xmin=-6, xmax=6,
+            axis lines=middle,
+            xlabel style={at=(current axis.right of origin), anchor=west},
+            ylabel style={at=(current axis.above origin), anchor=south},
+        ]
+        \addplot[domain=-6:6, samples=200, niceblue, thick] {sin(deg(3.14159*x))/(3.14159*x)};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Le signal porte ($\theta=1$) et sa transformée de Fourier, $\sinc(\pi f)$.}
+\end{figure}
+
+\begin{proposition}[Dualité]
+    \label{prop:dualite}
+    Soit $x(t)\tf X(f)$. Alors, en considérant $X$ comme un signal temporel, sa transformée de Fourier vaut $x(-f)$ :
+    $$
+        \mathcal F[X](f) = x(-f).
+    $$
+\end{proposition}
+\begin{proof}
+    Par définition de la TFI, $x(t) = \int X(f')e^{2\complexj\pi f't}\,\d f'$. En évaluant cette égalité en $t=-f$ :
+    $$
+        x(-f) = \int X(f')e^{-2\complexj\pi f'f}\,\d f' = \mathcal F[X](f),
+    $$
+    la dernière intégrale étant, au nom de la variable d'intégration près, exactement la définition de $\mathcal F[X](f)$.
+\end{proof}
+
+\begin{proposition}[Linéarité]
+    \label{prop:linearite}
+    Soient $x(t)\tf X(f)$, $y(t)\tf Y(f)$ et $\alpha,\beta\in\R$. Alors
+    $$
+        \alpha x(t) + \beta y(t) \tf \alpha X(f) + \beta Y(f).
+    $$
+\end{proposition}
+
+\begin{proposition}[Décalage temporel et fréquentiel]
+    \label{prop:decalages}
+    Soit $x(t)\tf X(f)$ et $t_0,f_0\in\R$. Alors
+    $$
+        x(t-t_0) \tf X(f)\,e^{-2\complexj\pi ft_0}, \qquad\qquad x(t)\,e^{2\complexj\pi f_0t} \tf X(f-f_0).
+    $$
+\end{proposition}
+\begin{proof}
+    Pour le décalage temporel, on pose $u=t-t_0$ :
+    $$
+    \mathcal F[x(\cdot-t_0)](f) = \int x(t-t_0)e^{-2\complexj\pi ft}\,\d t = \int x(u)e^{-2\complexj\pi f(u+t_0)}\,\d u = e^{-2\complexj\pi ft_0}X(f).
+    $$
+    Pour le décalage fréquentiel, $\displaystyle\int x(t)e^{2\complexj\pi f_0t}e^{-2\complexj\pi ft}\,\d t = \int x(t)e^{-2\complexj\pi (f-f_0)t}\,\d t = X(f-f_0)$.
+\end{proof}
+
+\begin{remark}
+    Un décalage dans le temps se traduit par un simple déphasage en fréquence, le module $|X(f)|$ est inchangé. De même multiplier $x$ par une exponentielle complexe translate seulement son spectre.
+\end{remark}
+
+\begin{proposition}[Changement d'échelle]
+    \label{prop:echelle}
+    Soit $x(t)\tf X(f)$ et $a\in\R^*$. Alors
+    $$
+        x(at) \tf \frac{1}{|a|}X\!\left(\frac fa\right).
+    $$
+    Comprimer un signal dans le temps ($|a|>1$) dilate son spectre, et réciproquement.
+\end{proposition}
+\begin{proof}
+    On pose $u=at$ (donc $\d u = a\,\d t$). Si $a>0$ : $\displaystyle\int x(at)e^{-2\complexj\pi ft}\,\d t = \frac1a\int x(u)e^{-2\complexj\pi (f/a)u}\,\d u = \frac1a X\!\left(\frac fa\right)$. Si $a<0$, le changement de variable inverse aussi les bornes de l'intégrale, ce qui fait apparaître $\frac1{-a}=\frac1{|a|}$ à la place de $\frac1a$. Dans les deux cas, on obtient $\frac1{|a|}X(f/a)$.
+\end{proof}
+
+\begin{proposition}[Dérivation]
+    \label{prop:derivation}
+    Soit $x$ dérivable, telle que $x(t)\to0$ quand $t\to\pm\infty$, et $x(t)\tf X(f)$. Alors
+    $$
+        x'(t) \tf 2\complexj\pi f\,X(f).
+    $$
+\end{proposition}
+\begin{proof}
+    Par intégration par parties, $\displaystyle\int x'(t)e^{-2\complexj\pi ft}\,\d t = \Big[x(t)e^{-2\complexj\pi ft}\Big]_{-\infty}^{+\infty} + 2\complexj\pi f\int x(t)e^{-2\complexj\pi ft}\,\d t$. Le terme entre crochets est nul car $x(t)\to0$ en $\pm\infty$, d'où le résultat.
+\end{proof}
+
+\begin{remark}
+    Dériver dans le domaine temporel revient donc à multiplier par $2\complexj\pi f$ dans le domaine fréquentiel ; réciproquement, intégrer revient (à une constante près) à diviser par $2\complexj\pi f$.
+\end{remark}
+
+\begin{proposition}[Parité et TF d'un signal réel]
+    \label{prop:parite}
+    Soit $x:\R\to\R$ un signal réel, $x(t)\tf X(f)$.
+    \begin{enumerate}[a)]
+        \item $X(-f) = \overline{X(f)}$ (symétrie hermitienne) ;
+        \item si $x$ est paire, $X$ est réelle et paire ;
+        \item si $x$ est impaire, $X$ est imaginaire pure et impaire.
+    \end{enumerate}
+\end{proposition}
+\begin{proof}
+    En écrivant $e^{-2\complexj\pi ft} = \cos(2\pi ft) - \complexj\sin(2\pi ft)$, on a $\displaystyle X(f) = \int x(t)\cos(2\pi ft)\,\d t - \complexj\int x(t)\sin(2\pi ft)\,\d t$, les deux intégrales étant réelles puisque $x$ est réelle.
+
+    a) $\overline{X(f)} = \int x(t)\cos(2\pi ft)\,\d t + \complexj\int x(t)\sin(2\pi ft)\,\d t = X(-f)$ (changer $f$ en $-f$ change le signe du second terme).
+
+    b) Si $x$ est paire, $t\mapsto x(t)\sin(2\pi ft)$ est impaire, donc son intégrale sur $\R$ est nulle : $X(f) = \int x(t)\cos(2\pi ft)\,\d t$ est réelle, et paire en $f$ car $\cos$ l'est.
+
+    c) Si $x$ est impaire, $t\mapsto x(t)\cos(2\pi ft)$ est impaire, donc $X(f) = -\complexj\int x(t)\sin(2\pi ft)\,\d t$ est imaginaire pure, et impaire en $f$ car $\sin$ l'est.
+\end{proof}
+
+\begin{remark}
+    Cette propriété est l'analogue, pour la TF, du corollaire de parité vu au chapitre~1 pour les coefficients $c_n$ d'un signal périodique réel ($c_{-n}=\overline{c_n}$, $c_n\in\R$ si $x$ paire, $c_n$ imaginaire pur si $x$ impaire) : même énoncé, même structure de preuve, seule la somme discrète est remplacée par une intégrale.
+\end{remark}
+
+\begin{proposition}[Formule de Parseval-Plancherel]
+    \label{prop:parseval-tf}
+    Soit $x(t)\tf X(f)$ un signal à énergie finie. Alors
+    $$
+        E_x = \int_{-\infty}^{+\infty} |x(t)|^2\,\d t = \int_{-\infty}^{+\infty} |X(f)|^2\,\d f.
+    $$
+\end{proposition}
+
+\begin{remark}
+    La TF conserve donc l'énergie du signal (Définition~\ref{def:energie} du \S1) : $|X(f)|^2$ s'interprète comme une \highlight{densité spectrale d'énergie}, qui indique comment l'énergie de $x$ se répartit sur les fréquences. C'est l'analogue, pour un signal à énergie finie, du théorème de Parseval du chapitre~1 ($\frac1T\int_0^T|x(t)|^2\,\d t = \sum_n|c_n|^2$ pour un signal périodique) : une somme discrète y devient ici une intégrale.
+\end{remark}
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[x=1.2cm,y=1.2cm]
+        \draw[-Latex] (-2.2,0) -- (2.2,0) node[right] {$t$};
+        \draw[-Latex] (0,-0.2) -- (0,1.5) node[above] {$|x(t)|^2$};
+        \fill[niceblue,fill opacity=0.3] (-0.5,0) rectangle (0.5,1);
+        \draw[niceblue,thick] (-2,0) -- (-0.5,0) -- (-0.5,1) -- (0.5,1) -- (0.5,0) -- (2,0);
+        \node[below] at (-0.5,0) {$-\theta/2$};
+        \node[below] at (0.5,0) {$\theta/2$};
+        \node[left] at (0,1) {$1$};
+    \end{tikzpicture}
+    \hspace{1cm}
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=6.5cm, height=4cm,
+            xlabel={$f$}, ylabel={$|X(f)|^2$},
+            xmin=-4, xmax=4, ymin=0,
+            axis lines=middle,
+            xlabel style={at=(current axis.right of origin), anchor=west},
+            ylabel style={at=(current axis.above origin), anchor=south},
+        ]
+        \addplot[domain=-4:4, samples=200, niceblue, thick, fill=niceblue, fill opacity=0.3] {(sin(deg(3.14159*x))/(3.14159*x))^2} \closedcycle;
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Illustration de Parseval-Plancherel sur le signal porte $\Pi_\theta$ ($\theta=1$, Exemple~\ref{ex:porte}) : $|x(t)|^2=\Pi_\theta(t)$ à gauche, $|X(f)|^2=\theta^2\sinc^2(\pi f\theta)$ à droite. Deux courbes de formes très différentes, mais de même aire $E_x=\theta=1$ (zones colorées).}
+\end{figure}
+
+\section{Impulsion de Dirac}
+\label{sec:dirac}
+
+On a vu (Remarque~\ref{rem:existence}) que des signaux usuels comme $\cos$, $\sin$ ou un signal constant n'ont pas de TF au sens de la Définition~\ref{def:tf}. L'impulsion de Dirac permet de lever cette limitation.
+
+\begin{definition}[Impulsion de Dirac]
+    \label{def:dirac}
+    Pour $\theta>0$, soit $p_\theta$ l'impulsion de largeur $\theta$, de hauteur $1/\theta$ et d'aire $1$ : $p_\theta(t) = \frac1\theta\,\Pi_\theta(t)$ (avec $\Pi_\theta$ défini à l'Exemple~\ref{ex:porte}). On appelle \highlight{impulsion de Dirac}, notée $\delta$, la limite de $p_\theta$ quand $\theta\to0$ :
+    $$
+        \delta(t) = \lim_{\theta\to0} p_\theta(t).
+    $$
+\end{definition}
+
+\begin{remark}
+    $\delta$ n'est pas une fonction au sens usuel : intuitivement, $\delta(t)=0$ pour $t\neq0$, et $\delta(0)$ devrait valoir $+\infty$ (la hauteur $1/\theta$ de $p_\theta$ diverge quand $\theta\to0$) tout en gardant une aire égale à $1$ à la limite. C'est une \highlight{distribution}, objet mathématique plus général qu'une fonction, qu'on manipule ici uniquement à travers les propriétés ci-dessous (obtenues en passant à la limite $\theta\to0$ dans les propriétés de $p_\theta$), sans entrer dans la théorie sous-jacente.
+\end{remark}
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[x=1.2cm,y=1cm]
+        \draw[-Latex] (-2,0) -- (2,0) node[right] {$t$};
+        \draw[niceblue,ultra thick,-Latex] (0,0) -- (0,1.6) node[above,yshift=2pt] {$\delta(t)$};
+        \draw[niceblue,ultra thick,-Latex] (1,0) -- (1,1.6) node[above,yshift=2pt] {$\delta(t-t_0)$};
+        \node[below] at (1,0) {$t_0$};
+        \node[below left] at (0,0) {$0$};
+    \end{tikzpicture}
+    \caption{Convention graphique pour représenter une impulsion de Dirac : une flèche verticale, dont la hauteur affichée n'a pas de sens quantitatif (seule l'aire, ici $1$, compte).}
+\end{figure}
+
+\begin{proposition}[Produit avec une impulsion]
+    \label{prop:dirac-produit}
+    Pour $x$ continue en $t_0$, $x(t)\,\delta(t-t_0) = x(t_0)\,\delta(t-t_0)$.
+\end{proposition}
+
+\begin{proposition}[Changement d'échelle]
+    \label{prop:dirac-echelle}
+    Pour $a\in\R^*$, $\delta(at) = \dfrac{1}{|a|}\delta(t)$. En particulier $\delta(-t)=\delta(t)$ : $\delta$ est paire.
+\end{proposition}
+
+
+\begin{proposition}[Propriétés intégrales]
+    \label{prop:dirac-integrales}
+    \begin{enumerate}[a)]
+        \item $\displaystyle\int_{-\infty}^{+\infty}\delta(t)\,\d t = 1$ ;
+        \item (\highlight{propriété d'échantillonnage}) pour $x$ continue en $t_0$, $\displaystyle\int_{-\infty}^{+\infty} x(t)\,\delta(t-t_0)\,\d t = x(t_0)$.
+    \end{enumerate}
+\end{proposition}
+\begin{proof}
+    a) découle directement de la construction : $\int p_\theta(t)\,\d t = \frac1\theta\times\theta = 1$ pour tout $\theta$, donc aussi à la limite.
+
+    b) $\displaystyle\int x(t)p_\theta(t-t_0)\,\d t = \frac1\theta\int_{t_0-\theta/2}^{t_0+\theta/2} x(t)\,\d t$, qui est la valeur moyenne de $x$ sur un intervalle de largeur $\theta$ centré en $t_0$ : elle tend vers $x(t_0)$ quand $\theta\to0$ par continuité de $x$ en $t_0$.
+\end{proof}
+
+
+
+\begin{proposition}[TF d'une impulsion]
+    \label{prop:dirac-tf}
+    $$
+        \mathcal F[\delta](f) = 1, \qquad\qquad \mathcal F[1](f) = \delta(f).
+    $$
+\end{proposition}
+\begin{proof}
+    D'après la propriété d'échantillonnage (Propriété~\ref{prop:dirac-integrales}b, avec $x(t)=e^{-2\complexj\pi ft}$, continue partout) : $\mathcal F[\delta](f) = \int \delta(t)e^{-2\complexj\pi ft}\,\d t = e^{-2\complexj\pi f\times0} = 1$. On en déduit $\mathcal F[1](f)$ par dualité (Propriété~\ref{prop:dualite}, avec $x=\delta$, $X=1$) : $\mathcal F[1](f) = \delta(-f) = \delta(f)$ ($\delta$ étant paire, Propriété~\ref{prop:dirac-echelle}).
+\end{proof}
+
+\begin{exemple}[TF d'une impulsion décalée]
+    D'après le décalage temporel (Propriété~\ref{prop:decalages}) appliqué à $x=\delta$, $X=1$ (Propriété~\ref{prop:dirac-tf}) :
+    $$
+        \mathcal F[\delta(\cdot-t_0)](f) = e^{-2\complexj\pi ft_0}.
+    $$
+    Le module de ce spectre vaut $1$ pour tout $f$ (Figure~\ref{fig:dirac-tf-decale}) : décaler l'impulsion dans le temps ne change pas la façon dont son énergie se répartit sur les fréquences, seulement leur phase.
+\end{exemple}
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[x=1.2cm,y=1cm]
+        \draw[-Latex] (-2,0) -- (2,0) node[right] {$t$};
+        \draw[niceblue,ultra thick,-Latex] (0,0) -- (0,1.6) node[above,yshift=2pt] {$\delta(t)$};
+        \node[below left] at (0,0) {$0$};
+    \end{tikzpicture}
+    \hspace{1cm}
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=6.5cm, height=4cm,
+            xlabel={$f$}, ylabel={$X(f)$},
+            xmin=-3, xmax=3, ymin=0, ymax=1.4,
+            axis lines=middle,
+            xlabel style={at=(current axis.right of origin), anchor=west},
+            ylabel style={at=(current axis.above origin), anchor=south},
+        ]
+        \addplot[domain=-3:3, samples=2, niceblue, thick] {1};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{TF de l'impulsion de Dirac $\delta(t)$ (Propriété~\ref{prop:dirac-tf}) : un spectre constant, $X(f)=1$ pour tout $f$, donc toutes les fréquences présentes avec le même poids.}
+    \label{fig:dirac-tf}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[x=1.2cm,y=1cm]
+        \draw[-Latex] (-2,0) -- (2,0) node[right] {$t$};
+        \draw[niceblue,ultra thick,-Latex] (1,0) -- (1,1.6) node[above,yshift=2pt] {$\delta(t-t_0)$};
+        \node[below] at (1,0) {$t_0$};
+        \node[below left] at (0,0) {$0$};
+    \end{tikzpicture}
+    \hspace{1cm}
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=6.5cm, height=4cm,
+            xlabel={$f$},
+            xmin=-3, xmax=3, ymin=-1.3, ymax=1.3,
+            axis lines=middle,
+            xlabel style={at=(current axis.right of origin), anchor=west},
+        ]
+        \addplot[domain=-3:3, samples=200, green!60!black, thick] {cos(deg(2*3.14159*x))};
+        \addplot[domain=-3:3, samples=200, red, thick] {-sin(deg(2*3.14159*x))};
+        \addplot[domain=-3:3, samples=2, niceblue, dashed, thick] {1};
+        \addplot[domain=-3:3, samples=2, niceblue, dashed, thick] {-1};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{TF de l'impulsion décalée $\delta(t-t_0)$ ($t_0=1$) : le spectre $X(f)=e^{-2\complexj\pi ft_0}$ est complexe, de partie réelle $\cos(2\pi ft_0)$ (vert), de partie imaginaire $-\sin(2\pi ft_0)$ (rouge), et de module constant égal à $1$ (bleu, pointillés) : décaler l'impulsion ne change que la phase de son spectre, jamais son module.}
+    \label{fig:dirac-tf-decale}
+\end{figure}
+
+\begin{exemple}[TF de $\cos$ et $\sin$]
+    D'après la TF d'un signal constant (Propriété~\ref{prop:dirac-tf}) et le décalage fréquentiel (Propriété~\ref{prop:decalages}, avec $x(t)=1$, $X(f)=\delta(f)$) :
+    $$
+        \mathcal F\!\left[e^{2\complexj\pi f_0t}\right](f) = \delta(f-f_0).
+    $$
+    Avec la formule d'Euler $\cos(2\pi f_0t) = \frac12e^{2\complexj\pi f_0t} + \frac12e^{-2\complexj\pi f_0t}$ et la linéarité (Propriété~\ref{prop:linearite}) :
+    $$
+        \mathcal F[\cos(2\pi f_0t)](f) = \frac12\delta(f-f_0) + \frac12\delta(f+f_0).
+    $$
+    De même, avec $\sin(2\pi f_0t) = \frac1{2\complexj}e^{2\complexj\pi f_0t} - \frac1{2\complexj}e^{-2\complexj\pi f_0t}$ :
+    $$
+        \mathcal F[\sin(2\pi f_0t)](f) = \frac1{2\complexj}\delta(f-f_0) - \frac1{2\complexj}\delta(f+f_0).
+    $$
+    On retrouve les poids $c_1=c_{-1}=\frac12$ obtenus au chapitre~1 pour la série de Fourier de $\cos(\omega_0t)$ (TD, Décalage dans le temps) : un signal non périodique donne, aux mêmes fréquences et avec les mêmes poids, des impulsions plutôt que des raies de hauteur finie.
+\end{exemple}
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[x=1.7cm,y=1cm]
+        \draw[-Latex] (-2.3,0) -- (2.3,0) node[right] {$f$};
+        \draw[niceblue,ultra thick,-Latex] (-1,0) -- (-1,1.6) node[above,yshift=2pt] {$\frac12$};
+        \draw[niceblue,ultra thick,-Latex] (1,0) -- (1,1.6) node[above,yshift=2pt] {$\frac12$};
+        \node[below] at (-1,0) {$-f_0$};
+        \node[below] at (1,0) {$f_0$};
+        \node[below left] at (0,0) {$0$};
+    \end{tikzpicture}
+    \caption{Spectre (module) de $\cos(2\pi f_0t)$ \emph{et} de $\sin(2\pi f_0t)$ : deux impulsions de poids $\frac12$ en $\pm f_0$. Les deux spectres ont le même module ; seule la phase des impulsions les distingue ($\delta(f\mp f_0)$ de poids réel $\frac12$ pour $\cos$, de poids imaginaire pur $\mp\frac{\complexj}2$ pour $\sin$).}
+\end{figure}
+
+\section{Produit de convolution}
+\label{sec:convolution}
+
+\begin{definition}[Produit de convolution]
+    \label{def:convolution}
+    Soient $x,y:\R\to\R$. On appelle \highlight{produit de convolution} de $x$ et $y$ le signal $x*y$ défini par
+    $$
+        (x*y)(t) = \int_{-\infty}^{+\infty} x(\tau)\,y(t-\tau)\,\d \tau,
+    $$
+    lorsque cette intégrale existe.
+\end{definition}
+
+\begin{proposition}[Linéarité et commutativité]
+    \label{prop:conv-lineaire}
+    Le produit de convolution est bilinéaire : $x*(\alpha y+\beta z) = \alpha(x*y)+\beta(x*z)$ pour $\alpha,\beta\in\R$, et commutatif : $x*y=y*x$.
+\end{proposition}
+
+\begin{proposition}[Invariance temporelle]
+    \label{prop:conv-invariance}
+    Si $z=x*y$, alors pour tout $t_0\in\R$, $x(\cdot-t_0)*y = z(\cdot-t_0)$ : décaler une des deux entrées décale le résultat d'autant.
+\end{proposition}
+
+\begin{remark}
+    Cette propriété est la raison pour laquelle la convolution intervient partout en traitement du signal. La sortie $y$ d'un système \highlight{linéaire invariant dans le temps} (LTI, un filtre par exemple) s'obtient en convoluant le signal d'entrée $x$ avec la \highlight{réponse impulsionnelle} $h$ du système (la sortie du système lorsque l'entrée est $\delta$), $y=x*h$. 
+\end{remark}
+
+\begin{proposition}[Convolution avec une porte, avec une impulsion]
+    \label{prop:conv-porte-dirac}
+    \begin{enumerate}[a)]
+        \item $x*\delta = x$ : $\delta$ est l'élément neutre de la convolution ;
+        \item $x*\delta(\cdot-t_0) = x(\cdot-t_0)$ : convoluer par une impulsion décalée décale le signal ;
+        \item $x*\Pi_\theta$ effectue un lissage de $x$ : sa valeur en $t$ est (à un facteur $\theta$ près) la moyenne de $x$ sur l'intervalle $[t-\theta/2,\,t+\theta/2]$.
+    \end{enumerate}
+\end{proposition}
+\begin{proof}
+    a) et b) découlent immédiatement de la propriété d'échantillonnage (Propriété~\ref{prop:dirac-integrales}b) appliquée dans l'intégrale de convolution. c) $\displaystyle(x*\Pi_\theta)(t) = \int x(\tau)\,\Pi_\theta(t-\tau)\,\d\tau = \int_{t-\theta/2}^{t+\theta/2} x(\tau)\,\d\tau$, qui vaut $\theta$ fois la moyenne de $x$ sur cet intervalle.
+\end{proof}
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=10cm, height=4.5cm,
+            xlabel={$t$},
+            xmin=-3, xmax=6, ymin=0, ymax=1.6,
+            axis lines=middle,
+            xlabel style={at=(current axis.right of origin), anchor=west},
+            ytick=\empty,
+            xtick={0,3}, xticklabels={$0$,$t_0$},
+        ]
+        \addplot[domain=-3:3, samples=100, black!60, thick, dashed] {exp(-x^2)};
+        \addplot[domain=0:6, samples=100, niceblue, thick] {exp(-(x-3)^2)};
+        \draw[-Latex] (axis cs:0,1.2) -- (axis cs:3,1.2) node[midway,above] {$*\,\delta(\cdot-t_0)$};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Convoluer un signal $x$ quelconque (en pointillés) par une impulsion décalée $\delta(t-t_0)$ (Propriété~\ref{prop:conv-porte-dirac}b) décale simplement $x$ de $t_0$ (en trait plein), sans en changer la forme : $x*\delta(\cdot-t_0)=x(\cdot-t_0)$.}
+\end{figure}
+
+\begin{proposition}[Dualité produit / convolution]
+    \label{prop:conv-tf-dualite}
+    Soient $x(t)\tf X(f)$ et $y(t)\tf Y(f)$. Alors
+    $$
+        (x*y)(t) \tf X(f)\,Y(f), \qquad\qquad x(t)\,y(t) \tf (X*Y)(f).
+    $$
+    Une convolution dans un domaine devient un simple produit dans l'autre.
+\end{proposition}
+
+\begin{exemple}[Observer un cosinus pendant une durée finie]
+    En pratique, on ne peut observer un signal que pendant une durée finie $\theta$ : ce qui est réellement mesuré n'est pas $\cos(2\pi f_0t)$ mais $\cos(2\pi f_0t)\times\Pi_\theta(t)$ (le signal, fenêtré par une porte d'observation). D'après la Propriété~\ref{prop:conv-tf-dualite}, la TF de ce produit est la convolution des TF de chaque terme :
+    $$
+        \mathcal F[\cos(2\pi f_0t)\times\Pi_\theta(t)](f) = \left(\frac{\delta(\cdot-f_0)+\delta(\cdot+f_0)}{2}\right)*\big(\theta\sinc(\pi\theta\,\cdot)\big)\,(f).
+    $$
+    D'après la Propriété~\ref{prop:conv-porte-dirac}b, convoluer avec $\delta(\cdot\mp f_0)$ recentre le sinus cardinal en $\pm f_0$ :
+    $$
+        \mathcal F[\cos(2\pi f_0t)\times\Pi_\theta(t)](f) = \frac\theta2\Big(\sinc(\pi\theta(f-f_0)) + \sinc(\pi\theta(f+f_0))\Big).
+    $$
+    Les deux impulsions idéales de $\cos(2\pi f_0t)$ (spectre théorique d'un signal de durée infinie) sont donc remplacées par deux lobes de sinus cardinal, de largeur d'autant plus grande que $\theta$ est petit : c'est exactement la forme obtenue au chapitre~1 pour les coefficients $c_n$ d'une impulsion périodique étroite (TD, sinc en $\frac{n\pi\theta}{T}$). Observer un signal pendant un temps fini élargit nécessairement ses raies spectrales.
+
+    \begin{figure}[h]
+        \centering
+        \begin{tikzpicture}
+            \begin{axis}[
+                width=6.5cm, height=4.3cm,
+                xlabel={$t$}, ylabel={$\cos(2\pi f_0t)\times\Pi_\theta(t)$},
+                xmin=-3, xmax=3, ymin=-1.3, ymax=1.3,
+                axis lines=middle,
+                xlabel style={at=(current axis.right of origin), anchor=west},
+                ylabel style={at=(current axis.above origin), anchor=south},
+                ytick=\empty,
+            ]
+            \addplot[domain=-3:3, samples=300, black!30, thick] {cos(deg(4*3.14159*x))};
+            \addplot[domain=-1:1, samples=200, niceblue, thick] {cos(deg(4*3.14159*x))};
+            \draw[dashed] (axis cs:-1,-1.3) -- (axis cs:-1,1.3);
+            \draw[dashed] (axis cs:1,-1.3) -- (axis cs:1,1.3);
+            \end{axis}
+        \end{tikzpicture}
+        \hspace{0.5cm}
+        \begin{tikzpicture}
+            \begin{axis}[
+                width=6.5cm, height=4.3cm,
+                xlabel={$f$}, ylabel={module},
+                xmin=-5, xmax=5, ymin=0,
+                axis lines=middle,
+                xlabel style={at=(current axis.right of origin), anchor=west},
+                ylabel style={at=(current axis.above origin), anchor=south},
+            ]
+            \addplot[domain=-5:5, samples=300, niceblue, thick]
+                {abs(sin(deg(2*3.14159*(x-2)))/(2*3.14159*(x-2)) + sin(deg(2*3.14159*(x+2)))/(2*3.14159*(x+2)))};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Cosinus fenêtré ($f_0=2$, $\theta=2$) : à gauche, $\cos(2\pi f_0t)$ (gris) tronqué par la fenêtre d'observation (bleu) ; à droite, le module du spectre résultant, deux lobes de sinus cardinal centrés en $\pm f_0$ au lieu de deux impulsions idéales.}
+    \end{figure}
+\end{exemple}
+
+\end{document}
