@@ -1,0 +1,41 @@
+# ─── LaTeX build artifacts ────────────────────────────────────────
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+*.idx
+*.ind
+*.ilg
+*.nav
+*.snm
+*.vrb
+*.xdv
+
+# Scratch "solutions shown" copies (sed-generated, never committed)
+*-scratch-sol.tex
+
+# ─── Python ────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# ─── OS / editor cruft ─────────────────────────────────────────────
+.DS_Store
+*.swp
+*~
+.vscode/
