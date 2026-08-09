@@ -5,6 +5,24 @@
 # numéro de question (A1, A2, B1, ...).
 
 # %%
+# Sur Google Colab, seul ce fichier .ipynb est importé (pas le reste du
+# dépôt) : on récupère tp1_helpers.py depuis GitHub avant de l'importer.
+# En local (Jupyter, VS Code...), ce fichier est déjà à côté du notebook :
+# rien ne se passe.
+try:
+    import google.colab
+    IN_COLAB = True
+except ImportError:
+    IN_COLAB = False
+
+if IN_COLAB:
+    import urllib.request
+    urllib.request.urlretrieve(
+        "https://raw.githubusercontent.com/y-mhiri/iutacy-geii-oml3/main/tp/TP1/notebook/tp1_helpers.py",
+        "tp1_helpers.py",
+    )
+
+# %%
 import numpy as np
 import matplotlib.pyplot as plt
 from tp1_helpers import (
