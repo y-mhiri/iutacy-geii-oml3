@@ -1,0 +1,399 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+\usepackage{enumerate}
+\usepackage{booktabs}
+\usepackage{tcolorbox}
+\tcbuselibrary{listings,skins,breakable}
+\usepackage{sourcecodepro}
+\usepackage{FiraSans}
+\usepackage{environ}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta,positioning,calc}
+
+\geometry{a4paper, scale=0.8}
+\urlstyle{same}
+
+%% ─── Colors ──────────────────────────────────────────────────────
+\definecolor{modernblue}{RGB}{66,133,244}
+\definecolor{moderngray}{RGB}{95,99,104}
+\definecolor{darkgray}{RGB}{60,64,67}
+\definecolor{accentorange}{RGB}{255,111,0}
+\definecolor{codegreen}{RGB}{15,157,88}
+\definecolor{codeblue}{RGB}{25,118,210}
+\definecolor{codebg}{RGB}{250,250,250}
+\definecolor{codepurple}{RGB}{156,39,176}
+\definecolor{niceblue}{RGB}{0,128,172}
+
+%% ─── Code listing: PYTHON ───────────────────────────────────────
+\newtcblisting{pythoncode}[1][]{
+    listing engine=listings, colback=codebg, colframe=moderngray!50,
+    listing only, left=5mm, enhanced, sharp corners=all, boxrule=0.5pt, top=0pt,
+    listing options={
+        language=Python, basicstyle=\ttfamily\scriptsize,
+        keywordstyle=\color{codeblue}\bfseries,
+        commentstyle=\color{codegreen}\itshape,
+        stringstyle=\color{accentorange},
+        numberstyle=\tiny\color{moderngray}, numbers=left, numbersep=8pt,
+        breaklines=true, tabsize=4, showstringspaces=false,
+        keepspaces=true, columns=flexible,
+        literate=
+            {é}{{\'{e}}}1 {è}{{\`{e}}}1 {ê}{{\^{e}}}1 {ë}{{\"{e}}}1
+            {û}{{\^{u}}}1 {ù}{{\`{u}}}1 {î}{{\^{i}}}1 {ï}{{\"{i}}}1
+            {ô}{{\^{o}}}1 {â}{{\^{a}}}1 {à}{{\`{a}}}1 {ä}{{\"{a}}}1
+            {ç}{{\c{c}}}1 {Ç}{{\c{C}}}1
+            {É}{{\'{E}}}1 {È}{{\`{E}}}1 {Ê}{{\^{E}}}1,
+        #1
+    }, breakable
+}
+
+%% ─── Lesson box ──────────────────────────────────────────────────
+\newtcolorbox{lesson}[1][]{
+    enhanced, breakable,
+    colback=modernblue!5, colframe=modernblue!80,
+    colbacktitle=modernblue, coltitle=white,
+    fonttitle=\sffamily\bfseries, fontupper=\sffamily\small,
+    boxrule=0.5pt, arc=3pt, left=8pt, right=8pt, top=8pt, bottom=8pt,
+    attach boxed title to top left={yshift=-2mm, xshift=5mm},
+    boxed title style={sharp corners, boxrule=0.5pt},
+    title={#1}, before skip=1em, after skip=2em
+}
+
+%% ─── Solution toggle ─────────────────────────────────────────────
+\newif\ifshowsolutions
+\showsolutionsfalse
+
+\ifshowsolutions
+    \newtcolorbox{solution}{colback=white, colframe=white, breakable,
+        fontupper=\color{red}}
+\else
+    \NewEnviron{solution}{}{}
+\fi
+
+%% ─── Question command ─────────────────────────────────────────────
+\newcounter{question}[section]
+\newcommand{\q}[1]{%
+    \vspace{0.5em}\noindent
+    {\color{black}\bfseries\stepcounter{question}\Alph{section}\arabic{question}.}
+    \hspace{0.5em}#1\par\vspace{0.3em}
+}
+\renewcommand{\thesection}{{\Alph{section}}}
+
+%% ─── Header / footer ─────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{2025-2026}
+\fancyhead[C]{\textbf{\courseName}}
+\fancyhead[R]{\large GEII -- BUT2}
+\fancyfoot[C]{\thepage}
+\fancyfoot[L]{\includegraphics[height=3em]{../../../common/logos_couleurs/IUTA.png}}
+% \fancyfoot[R]{\href{mailto:prenom.nom@univ-smb.fr}{prenom.nom@univ-smb.fr}}
+
+%% ─── Course metadata ─────────────────────────────────────────────
+\newcommand{\courseName}{Outils Mathématiques et Logiciel --- OML3}
+\newcommand{\chapterTitle}{TP 2 --- Série de Fourier, forme complexe}
+
+\makeatletter
+\renewcommand\maketitle{{\raggedright\begin{center}
+    {\Huge\bfseries\@title}
+\end{center}}}
+\makeatother
+
+\input{../../../common/macros.tex}
+
+\title{\chapterTitle}
+\author{}
+\date{}
+
+%% ─────────────────────────────────────────────────────────────────
+\begin{document}
+\fontfamily{bch}\selectfont
+\fontsize{12pt}{14pt}\selectfont
+
+\maketitle
+\thispagestyle{fancy}
+
+
+%% ─── AVANT DE COMMENCER ──────────────────────────────────────────
+\section*{Avant de commencer}
+
+Ce TP est écrit en Python. Les fonctions dont vous aurez besoin sont déjà
+écrites. Votre travail consiste à exécuter les cellules en modifiant ou
+non les paramètres, et à lire les tracés produits.
+
+\textbf{Ce document est le sujet de référence.} Le notebook
+\texttt{TP2.ipynb} est un compagnon d'exécution : il ne reprend que
+l'essentiel de chaque question, repérée par son numéro (A1, A2, B1,
+\dots) correspondant à celui utilisé ici. Gardez ce PDF ouvert pendant
+tout le TP.
+
+\textbf{Vos réponses vont sur feuille.} Contrairement au TP1, ce
+notebook ne contient pas d'emplacement de réponse : les calculs et
+justifications demandés se font sur papier, à rendre à la fin de la
+séance.
+
+\subsection*{Configuration de l'environnement}
+\begin{enumerate}
+    \item Ouvrir \texttt{TP2.ipynb} dans Jupyter.
+    \item Exécuter la première cellule (import des fonctions fournies,
+          dans \texttt{tp2\_helpers.py}) : rien ne devrait s'afficher,
+          c'est normal.
+    \item Exécuter ensuite les cellules dans l'ordre, en vous référant aux
+          questions ci-dessous.
+\end{enumerate}
+
+\vspace{2em}\hrule\vspace{2em}
+\newpage
+
+
+%% ─── SECTION A ──────────────────────────────────────────────────
+\section{Forme complexe}
+
+\subsection*{Contexte}
+Les séries de Fourier du TP1 s'écrivaient avec des sinus et cosinus.
+Cette section fait le lien avec l'écriture complexe
+$f(t) = \sum_{n=-\infty}^{+\infty} c_n\, e^{jn\omega_0 t}$, et vérifie sur
+un exemple que les deux écritures portent la même information.
+
+\q{Exécuter la cellule de rappel sur les nombres complexes en Python.
+Vérifier qu'un réel s'écrit bien comme un complexe de partie imaginaire
+nulle (\texttt{2 + 0j}). Calculer $e^{j\theta}$ pour $\theta=2k\pi$,
+$(2k+1)\pi$, $\pi/2$ et $\pi/3$ : les valeurs obtenues correspondent-elles
+à ce que vous attendiez ?}
+\begin{solution}
+    $e^{j2k\pi}=1$, $e^{j(2k+1)\pi}=-1$, $e^{j\pi/2}=j$,
+    $e^{j\pi/3}=\cos(\pi/3)+j\sin(\pi/3)=\tfrac12+j\tfrac{\sqrt3}{2}$ :
+    exactement les valeurs usuelles du cercle trigonométrique, retrouvées
+    ici sous forme complexe.
+\end{solution}
+
+\q{\textbf{Sur papier.} Le signal carré $k(t)$ a pour coefficients
+réels $a_n=0$ et $b_n=4/(n\pi)$ si $n$ impair, $0$ sinon. En utilisant
+$c_0=a_0$, $c_n=(a_n-jb_n)/2$ pour $n>0$, $c_{-n}=\overline{c_n}$,
+exprimer $c_n$ pour tout $n\in\mathbb Z$.}
+\begin{solution}
+    $c_0=0$. Pour $n>0$ impair : $c_n = -j\,2/(n\pi)$, et $c_n=0$ si $n$
+    pair. Pour $n<0$ : $c_n=\overline{c_{-n}}=+j\,2/(|n|\pi)$ si $n$
+    impair (négatif), $0$ sinon.
+\end{solution}
+
+\q{Exécuter la cellule qui calcule numériquement les $c_n$ du carré
+(\texttt{to\_complex\_coeffs}). Comparer à votre calcul précédent. Les
+$c_n$ sont-ils réels, imaginaires purs, ou ni l'un ni l'autre ? Pourquoi ?}
+\begin{solution}
+    Les valeurs numériques concordent avec A2. Les $c_n$ sont
+    imaginaires purs pour tout $n\neq0$ : c'est une conséquence directe
+    de l'imparité de $k$ -- $a_n=0$ équivaut exactement à
+    $\mathrm{Re}(c_n)=0$ pour $n\neq0$.
+\end{solution}
+
+\begin{lesson}[Fonction \texttt{plot\_spectrum\_complex}]
+    \texttt{plot\_spectrum\_complex(c, freq=False, T=None)} trace
+    $|c_n|$ en fonction du rang $n$ (spectre \emph{bilatéral}, $n$ positif
+    et négatif). Avec \texttt{freq=True} et \texttt{T} fourni, l'axe des
+    abscisses devient la fréquence $n/T$ au lieu du rang.
+\end{lesson}
+
+\q{Tracer le spectre bilatéral du carré. Comment décroît $|c_n|$ avec
+$n$ ?}
+\begin{solution}
+    $|c_n|=|b_n|/2$ pour $n\neq0$ : même décroissance en $1/n$ qu'au TP1,
+    à un facteur $2$ près (l'énergie de chaque raie du spectre unilatéral
+    du TP1 est répartie sur deux raies, $+n$ et $-n$, du spectre
+    bilatéral).
+\end{solution}
+
+\q{Retracer le spectre avec \texttt{freq=True}. Qu'est-ce qui change sur
+l'axe des abscisses ? Le spectre bilatéral (en $n$, ou en $n/T$) contient-il
+plus d'information que le spectre unilatéral du TP1, ou seulement la
+même information présentée autrement ?}
+\begin{solution}
+    L'axe passe du rang entier $n$ à la fréquence $n/T$ (Hz si $T$ est en
+    secondes) : seule l'échelle change, pas la forme du spectre. Le
+    spectre bilatéral ne contient pas plus d'information que le spectre
+    unilatéral -- $c_{-n}=\overline{c_n}$ pour un signal réel, donc $c_n$
+    (pour $n\geq0$) suffit à tout reconstruire -- mais c'est la forme
+    naturelle de l'écriture complexe, et celle qui généralisera
+    directement à la transformée de Fourier (chapitre suivant).
+\end{solution}
+
+\q{Reconstruire le carré en ne gardant que les $c_n$ d'indice
+$n\geq0$ (on retire tous les coefficients négatifs). Comparer au signal
+original ainsi qu'à la reconstruction complète (symétrique). Que
+devient la partie imaginaire ?}
+\begin{solution}
+    La reconstruction "asymétrique" n'est plus un signal réel : sa partie
+    imaginaire n'est plus négligeable (elle est même du même ordre de
+    grandeur que la partie réelle). En brisant la symétrie
+    $c_{-n}=\overline{c_n}$, on perd la garantie que la somme reste
+    réelle. C'est cette symétrie -- pas seulement la présence de tous les
+    rangs -- qui assure que la série reconstruit bien un signal réel.
+\end{solution}
+
+
+%% ─── SECTION B ──────────────────────────────────────────────────
+\section{Décalage temporel}
+
+\subsection*{Objectif}
+Retrouver, sur un exemple, la propriété de décalage temporel : que
+devient le spectre d'un signal quand on le décale dans le temps ?
+
+\q{Exécuter la cellule qui affiche $f(t)$ (le signal carré) puis
+$g(t)=f(t+\varphi)$. Quel est le lien entre les deux tracés ?}
+\begin{solution}
+    $g$ est le tracé de $f$ translaté horizontalement de $\varphi$ (vers
+    la gauche si $\varphi>0$) : même forme, même période, décalée dans le
+    temps.
+\end{solution}
+
+\q{Quelles valeurs de $\varphi$ rend $f$ et $g$ identiques (sur toute la
+droite réelle), et pourquoi ?}
+\begin{solution}
+    $\varphi = kT$, $k\in\mathbb Z$ (tout multiple de la période) :
+    $f(t+kT)=f(t)$ pour tout $t$, exactement la définition de la
+    $T$-périodicité de $f$.
+\end{solution}
+
+\q{\textbf{Sur papier.} Soit $f$ une fonction $T$-périodique de
+coefficients complexes $(c_n)$. On pose $g(t)=f(t+\varphi)$. Exprimer les
+coefficients complexes $(d_n)$ de $g$ en fonction de $(c_n)$.}
+\begin{solution}
+    $d_n = \dfrac{1}{T}\displaystyle\int_0^T f(t+\varphi)\,e^{-jn\omega_0 t}\,\mathrm dt$.
+    Avec le changement de variable $u=t+\varphi$ (et $f$ $T$-périodique,
+    donc l'intégrale sur une période ne dépend pas des bornes choisies) :
+    $d_n=\dfrac1T\displaystyle\int f(u)\,e^{-jn\omega_0(u-\varphi)}\,\mathrm du
+    = e^{jn\omega_0\varphi}\cdot\dfrac1T\displaystyle\int f(u)\,e^{-jn\omega_0 u}\,\mathrm du
+    = c_n\, e^{jn\omega_0\varphi}$.
+\end{solution}
+
+\q{Exécuter la cellule qui calcule numériquement les coefficients de $f$
+et de $g$, et les comparer. Vérifier l'accord avec la formule théorique trouver. %$d_n=c_n\,e^{jn\omega_0\varphi}$.
+}
+\begin{solution}
+    Les valeurs numériques ($d_n$ calculés directement sur $g$) et
+    prédites ($c_n\,e^{jn\omega_0\varphi}$) coïncident, aux erreurs
+    d'arrondi près -- ce qui confirme la formule de B3.
+\end{solution}
+
+\q{Tracer les spectres bilatéraux de $f$ et de $g$. Que remarquez-vous ?}
+\begin{solution}
+    $|d_n|=|c_n\,e^{jn\omega_0\varphi}|=|c_n|$ pour tout $n$ (un facteur
+    de module $1$ ne change pas le module) : les deux spectres
+    \emph{d'amplitude} sont rigoureusement identiques. Un décalage
+    temporel ne change que la \emph{phase} des coefficients, jamais leur
+    module : c'est cohérent avec l'intuition physique -- décaler un
+    signal dans le temps ne change ni sa forme ni son contenu fréquentiel,
+    seulement l'instant où chaque motif apparaît.
+\end{solution}
+
+
+%% ─── SECTION C ──────────────────────────────────────────────────
+\section{Superposition d'un signal et de son décalage}
+
+\subsection*{Contexte}
+On considère une tension $T$-périodique qui ne prend que $N$ valeurs
+distinctes $v_0,\dots,v_{N-1}$, chacune maintenue pendant une durée
+$T/N$ : un signal en escalier à pas régulier, sans lien de symétrie
+particulier entre les paliers. On le note $f(t)$.
+
+\begin{lesson}[Fonction \texttt{make\_levels}]
+    \texttt{make\_levels(N, T, A)} construit $f$ : $N$ paliers de largeur
+    $T/N$, de hauteurs tirées indépendamment dans $[-A,A]$.
+\end{lesson}
+
+\q{Afficher ce signal pour $N=4$. Ses coefficients complexes sont-ils, a
+priori, réels, imaginaires purs, ou quelconques ? Pourquoi ?}
+\begin{solution}
+    Quelconques : rien n'impose de parité aux valeurs
+    $v_0,\dots,v_{N-1}$, contrairement au signal carré (section A). Les
+    $c_n$ n'ont donc, en général, ni partie réelle ni partie imaginaire
+    nulle.
+\end{solution}
+
+\q{On pose $h(t)=f(t)+f(t+T/2)$. Afficher $h$. Quelle est sa période
+apparente ?}
+\begin{solution}
+    $T/2$ : le motif de $h$ se répète deux fois sur $[0,T)$, visible sur
+    le tracé.
+\end{solution}
+
+\q{\textbf{Sur papier.} Exprimer $c_n[h]$ en fonction de $c_n[f]$. Pour
+quels rangs $n$ ce coefficient est-il nécessairement nul, quelle que
+soit $f$ ? Est-ce cohérent avec la période observée en C2 ?}
+\begin{solution}
+    Par linéarité et décalage (B3), avec $\omega_0(T/2)=\pi$ :
+    $$
+    c_n[h] = c_n[f]\left(1+e^{jn\pi}\right) = c_n[f]\left(1+(-1)^n\right),
+    $$
+    soit $2c_n[f]$ si $n$ est pair, $0$ si $n$ est impair -- quelle que
+    soit $f$. Cohérent avec C2 : un signal dont seuls les rangs pairs
+    (relatifs à $T$) sont non nuls s'écrit avec des exponentielles de
+    fréquences multiples de $2\omega_0$, donc de période (au plus) $T/2$.
+\end{solution}
+
+\q{Calculer numériquement $c_n[f]$ et $c_n[h]$. Les rangs impairs
+s'annulent-ils effectivement ?}
+\begin{solution}
+    Oui, à la précision numérique près, pour tout rang impair calculé --
+    quelles que soient les valeurs $v_0,\dots,v_{N-1}$ tirées.
+\end{solution}
+
+\q{Tracer les spectres bilatéraux de $f$ et de $h$. Conclure.}
+\begin{solution}
+    Le spectre de $h$ ne conserve que les raies paires de celui de $f$
+    (doublées en amplitude) ; les raies impaires ont disparu -- la
+    signature spectrale exacte d'un signal deux fois plus rapide.
+\end{solution}
+
+\q{Recommencer l'opération sur $h$, avec un décalage égal à la moitié de
+sa période apparente ($T/4$). Calculer $h_2(t)=h(t)+h(t+T/4)$, tracer son
+spectre et son signal temporel. Que devient $h_2$ ?}
+\begin{solution}
+    $h_2$ ne conserve que le rang $n=0$ (tous les autres rangs calculés
+    sont numériquement nuls) : c'est un signal constant, égal à $4$ fois
+    la moyenne de $f$.
+\end{solution}
+
+\q{Plus généralement, que suggère cette construction sur ce qu'on peut
+obtenir d'un signal en l'additionnant seulement à des versions décalées
+de lui-même ?}
+\begin{solution}
+    En choisissant soigneusement des décalages successifs, la simple
+    addition de copies retardées d'un signal permet d'effacer ou de
+    conserver des portions choisies de son spectre -- jusqu'à l'annuler
+    presque entièrement, comme ici. C'est un principe de construction
+    (combiner des copies décalées pour obtenir un effet voulu sur le
+    spectre), pas seulement un résultat de calcul.
+\end{solution}
+
+\q{\textbf{Bonus (facultatif).} Démontrer le résultat de C6 : exprimer
+$c_n[h_2]$ en fonction de $c_n[f]$, et montrer que seuls les rangs
+multiples de $4$ peuvent être non nuls. Pourquoi ce résultat entraîne-t-il,
+pour ce signal $f$ à $N=4$ paliers, que $h_2$ est constant ?}
+\begin{solution}
+    En combinant B3 deux fois -- une fois avec $\varphi=T/2$ (C3), une
+    fois avec $T/4$ --~:
+    $$
+    c_n[h_2] = c_n[f]\left(1+(-1)^n\right)\left(1+e^{jn\pi/2}\right).
+    $$
+    Le premier facteur impose $n$ pair ; le second s'annule pour
+    $e^{jn\pi/2}=-1$, soit $n\equiv2\pmod4$. Seuls les rangs multiples de
+    $4$ peuvent donc survivre. Or, pour un signal à $N=4$ paliers de
+    largeur égale, $c_n[f]=0$ automatiquement pour tout multiple de $4$
+    (chaque palier contribue une intégrale de l'exponentielle sur un
+    cycle complet, qui s'annule) : il ne reste donc que $n=0$, la moyenne
+    de $f$. Pour un nombre de paliers qui n'est pas une puissance de $2$,
+    cette coïncidence n'a pas lieu et $h_2$ n'est en général pas
+    constante.
+\end{solution}
+
+\end{document}

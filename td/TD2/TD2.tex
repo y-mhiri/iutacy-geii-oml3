@@ -28,7 +28,7 @@
 \fancyhead[R]{\large GEII -- BUT2}
 \fancyfoot[C]{\thepage}
 \fancyfoot[L]{\includegraphics[height=3em]{../../common/logos_couleurs/IUTA.png}}
-\fancyfoot[R]{\href{mailto:prenom.nom@univ-smb.fr}{prenom.nom@univ-smb.fr}}
+% \fancyfoot[R]{\href{mailto:prenom.nom@univ-smb.fr}{prenom.nom@univ-smb.fr}}
 
 %% ─── Course metadata ─────────────────────────────────────────────
 \newcommand{\courseName}{Outils Mathématiques et Logiciel --- OML3}
@@ -45,10 +45,9 @@
 %% Compile with \showsolutionstrue for the teacher version.
 \newif\ifshowsolutions
 \showsolutionsfalse
-
 \ifshowsolutions
     \newtcolorbox{solution}{
-        colback=red!5!white, colframe=red!50!white,
+        colback=white, colframe=white, coltext=red,
         breakable, title=\textbf{Solution :}
     }
 \else
@@ -104,25 +103,8 @@
 \textit{Tous les exercices ne seront pas abordés lors des séances de TD. Pour vos révisions il est recommandé de revoir précisément les 3 premiers exercices de chaque TD et de vous confronter au moins une fois à chaque exercice. La correction des TD sera mise en ligne sur le Moodle du cours dans la semaine qui suit le TD.}
 \vspace{2em}
 
-%% ── Ex 1 : CLASSIFY / DEFINE ────────────────────────────────────
-%% Purpose: activate vocabulary from the CM.
-%% No computation harder than substituting into a definition.
-%% At least one positive, one negative, one boundary case.
-\begin{exercice}
-        Préciser si la fonction suivante est périodique, paire ou impaire puis calculer l'expression des coefficients complexes de sa série de Fourier,
-        $$f(t) = \cos(2\pi f_0 t + \varphi),$$ où $f_0$ et $\varphi$ sont deux réels.
-\end{exercice}
-
-
-%% ── Ex 2–3 : PROVE ───────────────────────────────────────────────
-%% Purpose: make students re-derive a theorem stated in the CM.
-%% Structure: easy direction → hard direction → verify on an example.
-
-
-
 
 \begin{exercice}[Décalage dans le temps]
-
     Soit $f$ une fonction $T$-périodique, de coefficients de Fourier complexes $c_n$. Pour $\varphi\in\R$, on considère le signal décalé $g(t) = f(t+\varphi)$.
 
     \begin{enumerate}[\bfseries 1.]
@@ -130,6 +112,8 @@
         \begin{solution}
             $g(t+T) = f(t+T+\varphi) = f(t+\varphi) = g(t)$ car $f$ est $T$-périodique : $g$ est donc $T$-périodique, de même période que $f$.
         \end{solution}
+
+    
 
         \item En notant $d_n$ les coefficients de Fourier complexes de $g$, montrer que $d_n = c_n\,e^{jn\omega_0\varphi}$.
         \begin{solution}
@@ -140,7 +124,7 @@
             $$
                 d_n = \frac1T\int_\varphi^{T+\varphi} f(u)e^{-jn\omega_0(u-\varphi)}\,\d u = e^{jn\omega_0\varphi}\cdot\frac1T\int_\varphi^{T+\varphi} f(u)e^{-jn\omega_0u}\,\d u.
             $$
-            La fonction $u\mapsto f(u)e^{-jn\omega_0u}$ est $T$-périodique (produit de $f$, $T$-périodique, et de $u\mapsto e^{-jn\omega_0u}$, $T$-périodique puisque $\omega_0T=2\pi$). D'après le TD1 (Exercice~5), son intégrale sur $[\varphi,T+\varphi]$ vaut la même chose que sur $[0,T]$, donc
+            La fonction $u\mapsto f(u)e^{-jn\omega_0u}$ est $T$-périodique (produit de $f$, $T$-périodique, et de $u\mapsto e^{-jn\omega_0u}$, $T$-périodique puisque $\omega_0T=2\pi$). Son intégrale sur $[\varphi,T+\varphi]$ vaut la même chose que sur $[0,T]$ (leur donner ce résultat s'il ne leur paraît pas évident puis les rediriger vers l'exercice 5 du TD1 pour la démo), donc
             $$
                 d_n = e^{jn\omega_0\varphi}\cdot\frac1T\int_0^T f(u)e^{-jn\omega_0u}\,\d u = c_n\,e^{jn\omega_0\varphi}.
             $$
@@ -167,12 +151,64 @@
         %         \end{axis}
         %     \end{tikzpicture}
         %     \end{center}
+
+            \item Calculer les coefficients complexes de la fonction carré définie sur une période $T>0$ par
+        $$
+            f_{carre}(t) = \begin{cases}
+                1 & t\in[0,T/2[\\ -1 & t\in[T/2, T[
+                    \end{cases}
+        $$ 
+
+        \begin{solution}
+            Soit $n\in\Z$
+            $$
+                c_n = \frac{1}{T}\int_0^T f_{carre}(t) e^{-\complexj n \omega t} \d t = \frac{1}{T}\int_0^{T/2} e^{-\complexj n \omega t} \d t - \frac{1}{T}\int_{T/2}^T e^{-\complexj n \omega t} \d t.
+            $$
+            On applique le changement de variable $u= t-T/2$ de sorte à avoir
+            $$
+            \begin{aligned}
+                c_n &= \frac{1}{T}\int_0^{T/2} e^{-\complexj n \omega t} \d t - \frac{1}{T}\int_{0}^{T/2} e^{-\complexj n \omega (t + T/2)} \d t \\
+                &= \frac{1}{T}\int_0^{T/2} e^{-\complexj n \omega t} \d t - \frac{e^{-\complexj n \omega \pi}}{T} \int_{0}^{T/2} e^{-\complexj n \omega t}  \d t
+            \end{aligned}
+            $$
+            ($\omega T/2 = \pi$).
+            On distingue alors deux cas. 
+
+            \textbf{$n$ paire :} $e^{-\complexj n \pi} = 1$ et donc $c_n = 0$.
+            
+            \textbf{$n$ impaire :} $e^{-\complexj n \pi} = -1$ et donc 
+            $$
+            \begin{aligned}
+                c_n &= \frac{2}{T} \int_0^{T/2} e^{-\complexj n \omega t} \d t = \frac{2}{T} \left[ \frac{e^{-\complexj n\omega t}}{-\complexj n \omega}\right]_0^{T/2} \\
+                &= \frac{2}{T} \left( \frac{-1 - 1}{-\complexj n\omega}\right) = -\complexj \frac{2}{n \pi}.
+            \end{aligned}
+            $$
+            (En bonus pour ceux qui s'ennuie : en déduire les coefs $a_n$ et $b_n$ de la forme trigonométrique -> identifier à partir de $c_n = \frac{a_n - j b_n}{2}$).
+
+        \end{solution}
+
         \item En déduire l'expression des coefficients $c_n$ de la fonction périodique définie par 
         $$
         g(t) = 3f_{\rm carre}(t) + f_{\rm carre}(t-2)
         $$
         et tracer son spectre bilatéral pour $-8 \leq n \leq 8$.
+        \begin{solution}
+            En appliquant la formule précédemment démontré et en utlisant la linéarité de la série de Fourier : 
+            $$
+            \begin{aligned}    
+                d_n &= \begin{cases}
+                    0 & n \ \text{paire} \\
+                    -3\complexj \frac{2}{n \pi} - \complexj e^{\complexj 2 n\omega}  \frac{2}{n \pi}  & n \ \text{impaire} \\
+                \end{cases}\\ 
+                d_n &= \begin{cases}
+                    0 & n \ \text{paire} \\
+                    \frac{2}{n \pi}  \left( 3 e^{-\pi/2} + e^{\complexj 2 n\omega - \pi/2}\right)  & n \ \text{impaire} \\
+                \end{cases}
+            \end{aligned}
+                $$
 
+            (En bonus : Est-ce $d_n$ imaginaire pure ? -> non. Que conclure sur $g$ ? -> n'est pas paire). 
+        \end{solution}
 
         % \item En déduire les coefficients de $\sin(\omega_0t)$ à l'aide de la question 2 puis tracer son spectre bilatéral.
         % \begin{solution}
@@ -184,6 +220,231 @@
 
         %     Ici $|d_1|=|d_{-1}|=\frac12$ : le spectre bilatéral de $\sin(\omega_0t)$ est donc \emph{identique} à celui de $\cos(\omega_0t)$ (deux bâtons de hauteur $\frac12$ en $\pm f_0$). Le spectre d'amplitude ne conserve que le module des $c_n$ : il ne distingue pas $\cos$ et $\sin$, seule leur phase (l'argument de $d_n$) diffère.
         % \end{solution}
+    \end{enumerate}
+\end{exercice}
+%% ── Ex 1 : PROVE (guided) ────────────────────────────────────────
+%% Purpose: establish the one lemma every other exercise in this TD
+%% leans on (isolating a term via orthogonality of complex
+%% exponentials over a period), guided step by step so students derive
+%% it themselves rather than being handed it.
+\begin{exercice}
+    Soit $T>0$, $\omega_0=\dfrac{2\pi}{T}$, et $k\in\Z$. On veut établir le résultat suivant
+    $$
+        \int_0^T e^{\complexj k\omega_0 t}\,\d t = \begin{cases} T & \text{si } k=0 \\ 0 & \text{si } k\neq 0 \end{cases}.
+    $$
+
+    \begin{enumerate}[\bfseries 1.]
+        \item Traiter le cas $k=0$.
+        \begin{solution}
+            Pour $k=0$, $e^{\complexj k\omega_0 t}=1$, donc $\displaystyle\int_0^T e^{\complexj k\omega_0 t}\,\d t = \int_0^T 1\,\d t = T$.
+        \end{solution}
+
+        \item On suppose maintenant $k\neq 0$. Donner une primitive de $t\mapsto e^{\complexj k\omega_0 t}$.
+        \begin{solution}
+            $t\mapsto \dfrac{e^{\complexj k\omega_0 t}}{\complexj k\omega_0}$ est une primitive de $t\mapsto e^{\complexj k\omega_0 t}$ (on dérive comme une exponentielle usuelle ; $k\omega_0\neq0$ assure que l'on ne divise pas par $0$).
+        \end{solution}
+
+        \item En déduire $\displaystyle\int_0^T e^{\complexj k\omega_0 t}\,\d t$ pour $k\neq0$. On pourra utiliser $\omega_0 T = 2\pi$.
+        \begin{solution}
+            $$
+                \int_0^T e^{\complexj k\omega_0 t}\,\d t = \left[\frac{e^{\complexj k\omega_0 t}}{\complexj k\omega_0}\right]_0^T = \frac{e^{\complexj k\omega_0 T}-1}{\complexj k\omega_0}.
+            $$
+            Or $k\omega_0T = 2k\pi$ avec $k\in\Z$, donc $e^{\complexj k\omega_0 T} = e^{\complexj 2k\pi} = 1$, d'où
+            $$
+                \int_0^T e^{\complexj k\omega_0 t}\,\d t = \frac{1-1}{\complexj k\omega_0} = 0.
+            $$
+        \end{solution}
+
+        % \item En séparant partie réelle et partie imaginaire, retrouver que $\displaystyle\int_0^T \cos(k\omega_0 t)\,\d t = 0$ et $\displaystyle\int_0^T \sin(k\omega_0 t)\,\d t = 0$ pour tout $k\in\Z^*$.
+        % \begin{solution}
+        %     $e^{\complexj k\omega_0 t} = \cos(k\omega_0 t) + \complexj\sin(k\omega_0 t)$ (formule d'Euler), donc
+        %     $$
+        %         \int_0^T e^{\complexj k\omega_0 t}\,\d t = \int_0^T \cos(k\omega_0 t)\,\d t + \complexj\int_0^T \sin(k\omega_0 t)\,\d t.
+        %     $$
+        %     Cette quantité est nulle (question précédente) ; une somme $a+\complexj b$ ($a,b\in\R$) n'est nulle que si $a=b=0$. D'où $\displaystyle\int_0^T \cos(k\omega_0 t)\,\d t = 0$ et $\displaystyle\int_0^T \sin(k\omega_0 t)\,\d t = 0$.
+        % \end{solution}
+    \end{enumerate}
+
+\end{exercice}
+
+
+%% ── Ex 2 : CLASSIFY / DEFINE ─────────────────────────────────────
+%% Purpose: activate vocabulary from the CM.
+%% No computation harder than substituting into a definition.
+%% At least one positive, one negative, one boundary case.
+\begin{exercice}
+        On considère la fonction $$f(t) = \cos(\omega_0 t + \varphi),$$ où $\omega_0$ et $\varphi$ sont deux réels.
+
+        \begin{enumerate}[\bfseries 1.]
+            \item $f$ est-elle périodique et si oui ecrire sa période en fonction de $\omega_0$.
+             \begin{solution}
+                On vérifie que $f$ est périodique de période $T = \frac{2\pi}{\omega_0}$.
+             \end{solution}
+             \item Montrer que $f$ est paire si et seulement si $\varphi = k\pi$, $k\in\Z$
+            \begin{solution}
+             $f$ est paire si et seulement si, pour tout réel $t$
+             $
+             f(t) = f(-t),
+             $ soit
+             $$
+             \begin{aligned}
+                &\cos(\omega_0 t + \varphi) = \cos(-\omega_0 t + \varphi) \\
+                \iff & \cos(\omega_0 t)\cos(\varphi) - \sin(\omega_0 t) \sin(\varphi) = \cos(\omega_0t) \cos(\varphi) + \sin(\omega_0 t)\sin(\varphi) \\
+                \iff & \sin(\varphi) = 0.
+             \end{aligned}
+             $$
+             Ce qui équivaut à $\varphi = k\pi$, $k\in\Z$.
+             \end{solution}
+
+
+            \item Montrer que $f$ est impaire si et seulement si $\varphi = \frac{k\pi}{2}$ , $k\in\Z$.
+            \begin{solution}
+                De la même façon,  $f$ est impaire si et seulement si, pour tout réel $t$
+             $
+             f(t) = -f(-t),
+             $ soit
+             $$
+             \begin{aligned}
+                &\cos(\omega_0 t + \varphi) = -\cos(-\omega_0 t + \varphi) \\
+                \iff & \cos(\omega_0 t)\cos(\varphi) - \sin(\omega_0 t) \sin(\varphi) = -\cos(\omega_0t) \cos(\varphi) - \sin(\omega_0 t)\sin(\varphi) \\
+                \iff & \cos(\varphi) = 0.
+             \end{aligned}
+             $$
+             Ce qui est équivaut à $\varphi = k\cfrac{\pi}{2}$, $k\in\Z$.
+            \end{solution}
+
+            \item Que valent les coefficients complexes de la série de Fourier de $f$ pour $n \neq 1$ et $n\neq -1$.
+            \begin{solution}
+                On rappel la formule des coefficients complexes. Pour $n\in\Z$
+                $$
+                    c_n = \frac{1}{T} \int_0^T f(t) e^{-jn\omega_0t}\d t.
+                $$
+                Plutôt que de chercher la primitive du produit, on exprimera la fonction cosinus par la formule d'Euler
+                $$
+                    \cos(t) = \frac{e^{\complexj t} + e^{-\complexj t}}{2}.
+                $$
+                On obtient
+                $$
+                \begin{aligned}
+                    c_n &= \frac{1}{T}\int_0^T \left( \frac{e^{\complexj \omega_0 t + \varphi} + e^{-\complexj \omega_0 t + \varphi}}{2} \right) e^{-jn\omega_0t}\d t = \frac{e^{\complexj\varphi}}{T}\int_0^T \left( \frac{e^{\complexj \omega_0 t} + e^{-\complexj \omega_0 t}}{2} \right) e^{-jn\omega_0t}\d t \\
+                    & = \frac{e^{\complexj\varphi}}{2T}\int_0^T e^{-\complexj (n-1)\omega_0 t} + e^{-\complexj (n+1)\omega_0 t} \d t = \frac{e^{\complexj\varphi}}{2T} \left(\left[- \frac{e^{-\complexj (n-1)\omega_0 t}}{\complexj (n-1)\omega_0}\right]_0^T + \left[- \frac{e^{-\complexj (n+1)\omega_0 t}}{\complexj (n+1)\omega_0}\right]_0^T\right) \\
+                    &= \frac{e^{\complexj\varphi}}{2T}\left(\frac{1 - e^{-\complexj (n-1)\omega_0 T}}{\complexj (n-1)\omega_0} + \frac{1 - e^{-\complexj (n+1)\omega_0 T}}{\complexj (n+1)\omega_0}\right)
+                \end{aligned}
+                $$
+                On conclut que $c_n = 0$ en remarquant que $\omega_0 T = 2\pi$ et donc  $$e^{-\complexj (n-1)\omega_0 T}= e^{-\complexj (n+1)\omega_0 T} =1.$$
+
+            \end{solution}
+            \item \textit{(Pour les étudiants en avance.)} Calculer $c_1$ et $c_{-1}$. Indice : $\underset{x\to 0}{\lim} \cfrac{\sin(x)}{x} = 1$.
+            \begin{solution}
+                Pour $n=-1$,
+                $\cfrac{1 - e^{-\complexj (n-1)\omega_0 T}}{\complexj (n-1)\omega_0} = 0$
+                mais $\cfrac{1 - e^{-\complexj (n+1)\omega_0 T}}{\complexj (n+1)\omega_0}$ n'est pas définie.
+
+                On remarquera toutefois que
+                $$
+                \begin{aligned}
+                    \frac{e^{\complexj\varphi}}{2T}\cfrac{1 - e^{-\complexj (n+1)\omega_0 T}}{\complexj (n+1)\omega_0} &= e^{-\complexj ((n+1)\pi - \varphi)}\times \cfrac{e^{\complexj (n+1)\pi} - e^{-\complexj (n+1)\pi}}{2\complexj (n+1)\pi} \\
+                    & = e^{-\complexj ((n+1)\pi - \varphi)}\times \frac{\sin((n+1)\pi)}{(n+1)\pi}
+                \end{aligned}
+                    $$
+
+                La limite donnée en indice nous permet donc d'écrire par passage à la limite
+                $$
+                    c_{-1} = e^{j\varphi} 
+                $$
+                De la même façon on trouve
+                $$
+                    c_{1} = e^{j\varphi} 
+                $$
+            \end{solution}
+        \end{enumerate}
+        
+\end{exercice}
+
+
+%% ── Ex 2–3 : PROVE ───────────────────────────────────────────────
+%% Purpose: make students re-derive a theorem stated in the CM.
+%% Structure: easy direction → hard direction → verify on an example.
+
+
+
+
+
+
+%% ── Ex 4–5 : APPLY ───────────────────────────────────────────────
+%% Purpose: numerical problem with real or realistic GEII data.
+%% Ends with an engineer's conclusion, not just a number.
+\begin{exercice}[Impulsion périodique étroite --- approfondissement]
+    Soit $0<\theta<T$ et $f_\theta$ la fonction $T$-périodique définie, sur la période $\left[-\dfrac T2,\dfrac T2\right]$, par
+    $$
+        f_\theta(t) = \begin{cases} \dfrac{1}{\theta} & \text{si } |t|\leq\dfrac{\theta}{2} \\ 0 & \text{si } \dfrac{\theta}{2} < |t| \leq \dfrac{T}{2} \end{cases},
+    $$
+    et prolongée à $\R$ tout entier par $T$-périodicité (un motif d'aire $1$ par période, concentré sur une largeur $\theta$).
+
+    \begin{center}
+    \begin{tikzpicture}[x=0.9cm,y=1.2cm]
+        \draw[-Latex] (-1,0) -- (13,0) node[right] {$t$};
+        \draw[-Latex] (0,-0.3) -- (0,3.3) node[above] {$f_\theta(t)$};
+        \draw[niceblue,thick] (-1,0) -- (13,0);
+        \foreach \c in {0,6,12} {
+            \draw[niceblue,thick] (\c-0.5,0) -- (\c-0.5,2.5) -- (\c+0.5,2.5) -- (\c+0.5,0);
+        }
+        \draw[dashed] (5.5,0) -- (5.5,2.9);
+        \draw[dashed] (6.5,0) -- (6.5,2.9);
+        \draw[latex-latex] (5.5,2.9) -- (6.5,2.9) node[midway,above] {\small $\theta$};
+        \node[left] at (0,2.5) {$\dfrac1\theta$};
+        \node[below] at (6,0) {$T$};
+        \node[below] at (12,0) {$2T$};
+    \end{tikzpicture}
+    \end{center}
+
+    \begin{enumerate}[\bfseries 1.]
+        \item Quelle est la période de $f_\theta$ ?
+        \begin{solution}
+            $T$, par construction.
+        \end{solution}
+
+        \item Calculer $a_0$.
+        \begin{solution}
+            Par définition, $a_0$ s'obtient en intégrant sur une période entière, ici $\left[-\frac T2,\frac T2\right]$. Par la relation de Chasles, on découpe cette période aux points où $f_\theta$ change d'expression :
+            $$
+                a_0 = \frac1T\int_{-T/2}^{T/2} f_\theta(t)\,\d t
+                = \frac1T\left(\int_{-T/2}^{-\theta/2} 0\,\d t \ + \int_{-\theta/2}^{\theta/2} \frac{1}{\theta}\,\d t \ + \int_{\theta/2}^{T/2} 0\,\d t\right).
+            $$
+            Les deux intégrales aux extrémités sont nulles ($f_\theta=0$ sur ces régions) ; il ne reste que
+            $$
+                a_0 = \frac1T\int_{-\theta/2}^{\theta/2} \frac{1}{\theta}\,\d t = \frac{1}{T\theta}\times\theta = \frac1T.
+            $$
+        \end{solution}
+
+        \item Calculer les coefficients de la série de Fourier $a_n$ et $b_n$, puis en déduire les valeurs du spectre $A_n$ en fonction de $\theta$.
+        \begin{solution}
+            $f_\theta$ est paire, donc $b_n=0$ pour tout $n$. Pour $a_n$, le même découpage qu'à la question précédente ne laisse subsister que l'intégrale sur $\left[-\frac\theta2,\frac\theta2\right]$ :
+            $$
+                a_n = \frac{2}{T}\int_{-\theta/2}^{\theta/2} \frac{1}{\theta}\cos(n\omega_0 t)\,\d t = \frac{2}{T\theta}\left[\frac{\sin(n\omega_0 t)}{n\omega_0}\right]_{-\theta/2}^{\theta/2} = \frac{2\sin\left(n\omega_0\theta/2\right)}{Tn\omega_0\theta/2}.
+            $$
+            En notant $\sinc(x) = \dfrac{\sin(x)}{x}$, et puisque $\omega_0\theta/2 = \pi\theta/T$,
+            $$
+                a_n = \frac{2}{T}\sinc\!\left(\frac{n\pi\theta}{T}\right), \qquad A_n = |a_n| = \frac{2}{T}\left|\sinc\!\left(\frac{n\pi\theta}{T}\right)\right|.
+            $$
+        \end{solution}
+
+        \item Calculer les coefficients de la représentation complexe $c_n$ en fonction de $\theta$.
+        \begin{solution}
+            $b_n=0$ donc $c_n = a_n/2$ pour $n\geq1$, et $c_0=a_0$. En remarquant que $\sinc(0)=1$, on peut écrire une seule formule valable pour tout $n\in\Z$ :
+            $$
+                c_n = \frac1T\sinc\!\left(\frac{n\pi\theta}{T}\right).
+            $$
+        \end{solution}
+
+        \item On fait maintenant tendre $\theta$ vers $0$, en gardant la hauteur $1/\theta$ (donc l'aire du motif reste égale à $1$). Que devient $c_n$ pour un $n$ fixé ?
+        \begin{solution}
+            Quand $\theta\to0$, $\dfrac{n\pi\theta}{T}\to0$ donc $\sinc\!\left(\dfrac{n\pi\theta}{T}\right)\to1$, et
+            $$
+                c_n \longrightarrow \frac1T \quad \text{pour tout } n\in\Z.
+            $$
+            Le spectre devient plat : toutes les fréquences $nf_0$ contribuent avec le même poids $1/T$, sans décroissance. C'est l'inverse de $f_{\rm carr\acute{e}}$, dont le spectre décroît en $1/n$ (énergie concentrée sur les basses fréquences) : une impulsion infiniment brève (mais d'aire finie) répartit son énergie sur toutes les fréquences à parts égales. On retrouvera ce résultat plus tard dans le cours.
+        \end{solution}
     \end{enumerate}
 \end{exercice}
 
@@ -261,77 +522,6 @@
 
 
 
-
-%% ── Ex 4–5 : APPLY ───────────────────────────────────────────────
-%% Purpose: numerical problem with real or realistic GEII data.
-%% Ends with an engineer's conclusion, not just a number.
-\begin{exercice}[Impulsion périodique étroite --- approfondissement]
-    Soit $0<\theta<T$ et $f_\theta$ la fonction $T$-périodique telle que
-    $$
-        f_\theta(t) = \begin{cases} \dfrac{1}{\theta} & \text{si } |t|\leq\dfrac{\theta}{2} \\ 0 & \text{si } \dfrac{\theta}{2} < |t| \leq \dfrac{T}{2} \end{cases}
-    $$
-    (un motif d'aire $1$ par période, concentré sur une largeur $\theta$).
-
-    \begin{center}
-    \begin{tikzpicture}[x=0.9cm,y=1.2cm]
-        \draw[-Latex] (-1,0) -- (13,0) node[right] {$t$};
-        \draw[-Latex] (0,-0.3) -- (0,3.3) node[above] {$f_\theta(t)$};
-        \draw[niceblue,thick] (-1,0) -- (13,0);
-        \foreach \c in {0,6,12} {
-            \draw[niceblue,thick] (\c-0.5,0) -- (\c-0.5,2.5) -- (\c+0.5,2.5) -- (\c+0.5,0);
-        }
-        \draw[dashed] (5.5,0) -- (5.5,2.9);
-        \draw[dashed] (6.5,0) -- (6.5,2.9);
-        \draw[latex-latex] (5.5,2.9) -- (6.5,2.9) node[midway,above] {\small $\theta$};
-        \node[left] at (0,2.5) {$\dfrac1\theta$};
-        \node[below] at (6,0) {$T$};
-        \node[below] at (12,0) {$2T$};
-    \end{tikzpicture}
-    \end{center}
-
-    \begin{enumerate}[\bfseries 1.]
-        \item Quelle est la période de $f_\theta$ ?
-        \begin{solution}
-            $T$, par construction.
-        \end{solution}
-
-        \item Calculer $a_0$.
-        \begin{solution}
-            $$
-                a_0 = \frac1T\int_{-\theta/2}^{\theta/2} \frac{1}{\theta}\,\d t = \frac{1}{T\theta}\times\theta = \frac1T.
-            $$
-        \end{solution}
-
-        \item Calculer les coefficients de la série de Fourier $a_n$ et $b_n$, puis en déduire les valeurs du spectre $A_n$ en fonction de $\theta$.
-        \begin{solution}
-            $f_\theta$ est paire, donc $b_n=0$ pour tout $n$ (Exercice~3). Pour $a_n$ :
-            $$
-                a_n = \frac{2}{T}\int_{-\theta/2}^{\theta/2} \frac{1}{\theta}\cos(n\omega_0 t)\,\d t = \frac{2}{T\theta}\left[\frac{\sin(n\omega_0 t)}{n\omega_0}\right]_{-\theta/2}^{\theta/2} = \frac{2\sin\left(n\omega_0\theta/2\right)}{Tn\omega_0\theta/2}.
-            $$
-            En notant $\sinc(x) = \dfrac{\sin(x)}{x}$, et puisque $\omega_0\theta/2 = \pi\theta/T$,
-            $$
-                a_n = \frac{2}{T}\sinc\!\left(\frac{n\pi\theta}{T}\right), \qquad A_n = |a_n| = \frac{2}{T}\left|\sinc\!\left(\frac{n\pi\theta}{T}\right)\right|.
-            $$
-        \end{solution}
-
-        \item Calculer les coefficients de la représentation complexe $c_n$ en fonction de $\theta$.
-        \begin{solution}
-            $b_n=0$ donc $c_n = a_n/2$ pour $n\geq1$, et $c_0=a_0$. En remarquant que $\sinc(0)=1$, on peut écrire une seule formule valable pour tout $n\in\Z$ :
-            $$
-                c_n = \frac1T\sinc\!\left(\frac{n\pi\theta}{T}\right).
-            $$
-        \end{solution}
-
-        \item On fait maintenant tendre $\theta$ vers $0$, en gardant la hauteur $1/\theta$ (donc l'aire du motif reste égale à $1$). Que devient $c_n$ pour un $n$ fixé ?
-        \begin{solution}
-            Quand $\theta\to0$, $\dfrac{n\pi\theta}{T}\to0$ donc $\sinc\!\left(\dfrac{n\pi\theta}{T}\right)\to1$, et
-            $$
-                c_n \longrightarrow \frac1T \quad \text{pour tout } n\in\Z.
-            $$
-            Le spectre devient plat : toutes les fréquences $nf_0$ contribuent avec le même poids $1/T$, sans décroissance. C'est l'inverse de $f_{\rm carr\acute{e}}$, dont le spectre décroît en $1/n$ (énergie concentrée sur les basses fréquences) : une impulsion infiniment brève (mais d'aire finie) répartit son énergie sur toutes les fréquences à parts égales. On retrouvera ce résultat en échantillonnage.
-        \end{solution}
-    \end{enumerate}
-\end{exercice}
 
 
 

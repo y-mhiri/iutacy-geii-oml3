@@ -1,0 +1,9 @@
+%% Convention graphique pour l'impulsion de Dirac : une fleche
+%% verticale (la hauteur affichee n'a pas de sens quantitatif, seule
+%% l'aire compte). Version a une seule impulsion (non decalee), pour
+%% la frame de definition. Consomme par slides.
+\begin{tikzpicture}[x=1.2cm,y=1cm]
+    \draw[-Latex] (-2,0) -- (2,0) node[right] {$t$};
+    \draw[niceblue,ultra thick,-Latex] (0,0) -- (0,1.6) node[above,yshift=2pt] {$\delta(t)$};
+    \node[below left] at (0,0) {$0$};
+\end{tikzpicture}

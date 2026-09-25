@@ -1,0 +1,24 @@
+%% Comparaison : sinus "en theorie" defini sur R tout entier (gauche,
+%% vraie fonction periodique) vs meme sinus multiplie par une fenetre
+%% rectangulaire, donc tronque et nul en dehors (droite, ce qu'on
+%% observe/mesure en pratique -- plus periodique au sens strict).
+%% Consomme par slides (frame de cloture).
+\begin{tikzpicture}[x=0.4cm,y=1cm]
+    \draw[-Latex] (-1,0) -- (17,0) node[right] {\small $t$};
+    \draw[-Latex] (0,-1.4) -- (0,1.4);
+    \draw[niceblue,thick,domain=-0.5:16.5,smooth,variable=\t,samples=200]
+        plot ({\t},{sin(90*\t)});
+    \node at (8,1.8) {\small $\sin(t)$, défini sur $\R$};
+\end{tikzpicture}
+\hspace{1.2cm}
+\begin{tikzpicture}[x=0.4cm,y=1cm]
+    \draw[-Latex] (-1,0) -- (17,0) node[right] {\small $t$};
+    \draw[-Latex] (0,-1.4) -- (0,1.4);
+    \draw[gray,thick] (-0.5,0) -- (4,0);
+    \draw[gray,thick] (12,0) -- (16.5,0);
+    \draw[red,thick,domain=4:12,smooth,variable=\t,samples=150]
+        plot ({\t},{sin(90*\t)});
+    \draw[dashed] (4,-1.3) -- (4,1.3);
+    \draw[dashed] (12,-1.3) -- (12,1.3);
+    \node at (8,1.8) {\small $\sin(t)\times\mathrm{rect}(t)$, tronqué};
+\end{tikzpicture}

@@ -1,0 +1,10 @@
+%% Convention graphique pour l'impulsion de Dirac : fleche verticale
+%% (la hauteur affichee n'a pas de sens quantitatif, seule l'aire
+%% compte). Repris du poly (section 3). Consomme par slides.
+\begin{tikzpicture}[x=1.2cm,y=1cm]
+    \draw[-Latex] (-2,0) -- (2,0) node[right] {$t$};
+    \draw[niceblue,ultra thick,-Latex] (0,0) -- (0,1.6) node[above,yshift=2pt] {$\delta(t)$};
+    \draw[niceblue,ultra thick,-Latex] (1,0) -- (1,1.6) node[above,yshift=2pt] {$\delta(t-t_0)$};
+    \node[below] at (1,0) {$t_0$};
+    \node[below left] at (0,0) {$0$};
+\end{tikzpicture}

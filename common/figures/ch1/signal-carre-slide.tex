@@ -1,0 +1,12 @@
+%% Signal carre, version slide (simplifiee/agrandie par rapport au
+%% poly). Consomme par slides.
+\begin{tikzpicture}[x=0.6cm,y=1cm]
+    \draw[-Latex] (-0.3,0) -- (10.5,0) node[right] {$t$};
+    \draw[-Latex] (0,-1.4) -- (0,1.4) node[above] {$f_{\rm carr\acute{e}}(t)$};
+    \draw[niceblue,thick]
+        (0,1) -- (2.5,1) -- (2.5,-1) -- (5,-1) -- (5,1)
+        -- (7.5,1) -- (7.5,-1) -- (10,-1);
+    \draw[dashed] (2.5,0) -- (2.5,-1) (5,0) -- (5,1);
+    \node[below] at (2.5,0) {\small $T/2$};
+    \node[below] at (5,0) {\small $T$};
+\end{tikzpicture}

@@ -1,0 +1,19 @@
+%% Illustration de la parite avec des fonctions reellement
+%% periodiques (cos = paire, sin = impaire), coherentes avec le
+%% contexte des series de Fourier (rappelle la frame "Cosinus et
+%% sinus"). Consomme par slides.
+\begin{tikzpicture}[x=0.6cm,y=1cm]
+    \draw[-Latex] (-4.5,0) -- (4.5,0) node[right] {\small $t$};
+    \draw[-Latex] (0,-1.5) -- (0,1.5);
+    \draw[niceblue,thick,domain=-4:4,smooth,variable=\t,samples=100]
+        plot ({\t},{1.2*cos(\t r)});
+    \node at (0,1.8) {\small $\cos(t)$ : paire};
+\end{tikzpicture}
+\hspace{1.2cm}
+\begin{tikzpicture}[x=0.6cm,y=1cm]
+    \draw[-Latex] (-4.5,0) -- (4.5,0) node[right] {\small $t$};
+    \draw[-Latex] (0,-1.5) -- (0,1.5);
+    \draw[red,thick,domain=-4:4,smooth,variable=\t,samples=100]
+        plot ({\t},{1.2*sin(\t r)});
+    \node at (0,1.8) {\small $\sin(t)$ : impaire};
+\end{tikzpicture}

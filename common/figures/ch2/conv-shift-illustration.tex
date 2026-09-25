@@ -1,0 +1,18 @@
+%% Convoluer un signal x quelconque par une impulsion decalee
+%% delta(.-t0) decale simplement x de t0. Repris du poly (section 4).
+%% Consomme par slides.
+\begin{tikzpicture}
+    \begin{axis}[
+        width=10cm, height=4.5cm,
+        xlabel={$t$},
+        xmin=-3, xmax=6, ymin=0, ymax=1.6,
+        axis lines=middle,
+        xlabel style={at=(current axis.right of origin), anchor=west},
+        ytick=\empty,
+        xtick={0,3}, xticklabels={$0$,$t_0$},
+    ]
+    \addplot[domain=-3:3, samples=100, black!60, thick, dashed] {exp(-x^2)};
+    \addplot[domain=0:6, samples=100, niceblue, thick] {exp(-(x-3)^2)};
+    \draw[-Latex] (axis cs:0,1.2) -- (axis cs:3,1.2) node[midway,above] {$*\,\delta(\cdot-t_0)$};
+    \end{axis}
+\end{tikzpicture}

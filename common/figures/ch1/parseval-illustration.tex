@@ -1,0 +1,20 @@
+%% Egalite de Parseval : f(t) (temps) puis aire sous |f(t)|^2 (temps)
+%% a gauche = somme des batons |c_n|^2 (frequence) a droite. Consomme
+%% par slides.
+\begin{tikzpicture}
+    \begin{groupplot}[
+        group style={group size=3 by 1, horizontal sep=1.6cm},
+        width=5cm, height=4.2cm,
+        ytick=\empty, xtick=\empty,
+        axis lines=left,
+    ]
+    \nextgroupplot[xlabel={$t$}, ylabel={$f(t)$}, domain=0:4*pi, samples=150]
+    \addplot[niceblue, thick] {sin(deg(x))};
+    \nextgroupplot[xlabel={$t$}, ylabel={$|f(t)|^2$}, domain=0:4*pi, samples=150]
+    \addplot[niceblue, thick, fill=niceblue, fill opacity=0.25] {(sin(deg(x)))^2} \closedcycle;
+    \nextgroupplot[xlabel={fréquence}, ylabel={$|c_n|^2$}, ymin=0, ymax=0.4]
+    \addplot+[ycomb, niceblue, thick, mark=*, mark options={fill=niceblue}] coordinates {
+        (-3,0.02)(-2,0.05)(-1,0.25)(0,0)(1,0.25)(2,0.05)(3,0.02)
+    };
+    \end{groupplot}
+\end{tikzpicture}

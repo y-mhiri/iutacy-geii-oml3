@@ -1,0 +1,23 @@
+%% Approximation du signal carre par sa serie de Fourier tronquee a
+%% N=1 (pointille gris), N=5, N=9 harmoniques -- convergence + phenomene
+%% de Gibbs visible pres des sauts. Le vrai signal carre (noir) est
+%% trace en reference, cible vers laquelle les troncatures convergent.
+%% Consomme par slides.
+\begin{tikzpicture}
+    \begin{axis}[
+        width=10cm, height=5.5cm,
+        ytick=\empty, xtick=\empty,
+        axis lines=middle,
+        ymin=-1.5, ymax=1.5,
+        domain=0:4*pi,
+        samples=200,
+    ]
+    \addplot[black, thick] coordinates {
+        (0,1) (3.14159,1) (3.14159,-1) (6.28319,-1)
+        (6.28319,1) (9.42478,1) (9.42478,-1) (12.56637,-1)
+    };
+    \addplot[gray!70, dashed, thick] {(4/pi)*sin(deg(x))};
+    \addplot[orange, thick] {(4/pi)*(sin(deg(x)) + (1/3)*sin(deg(3*x)) + (1/5)*sin(deg(5*x)))};
+    \addplot[niceblue, very thick] {(4/pi)*(sin(deg(x)) + (1/3)*sin(deg(3*x)) + (1/5)*sin(deg(5*x)) + (1/7)*sin(deg(7*x)) + (1/9)*sin(deg(9*x)))};
+    \end{axis}
+\end{tikzpicture}

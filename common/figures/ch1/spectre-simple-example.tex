@@ -1,0 +1,17 @@
+%% Spectre d'un exemple jouet f(t) = 2cos(w0 t) + sin(2 w0 t) : deux
+%% batons, A1=2, A2=1. Consomme par slides.
+\begin{tikzpicture}
+    \begin{axis}[
+        width=9cm, height=5cm,
+        xlabel={fréquence}, ylabel={$A_n$},
+        xtick={1,2,3,4},
+        xticklabels={$0$,$1$,$2$,$3$},
+        ytick=\empty,
+        ymin=0, ymax=2.5,
+        axis lines=left,
+    ]
+    \addplot+[ycomb, niceblue, thick, mark=*, mark options={fill=niceblue}] coordinates {
+        (1,0) (2,2) (3,1) (4,0)
+    };
+    \end{axis}
+\end{tikzpicture}

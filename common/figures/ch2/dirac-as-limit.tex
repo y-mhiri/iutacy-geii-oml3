@@ -1,0 +1,25 @@
+%% Dirac comme limite d'une porte p_theta qui se retrecit (largeur
+%% theta) et grandit (hauteur 1/theta), aire toujours egale a 1 (aire
+%% coloree, etiquetee). Deux instances, theta=1 et theta=0.25, pour
+%% visualiser la limite theta->0. Consomme par slides.
+\begin{tikzpicture}[x=1cm,y=0.5cm]
+    \draw[-Latex] (-2.2,0) -- (2.2,0) node[right] {\small $t$};
+    \draw[-Latex] (0,-0.2) -- (0,4.8);
+    \fill[niceblue, opacity=0.3] (-0.5,0) rectangle (0.5,1);
+    \draw[niceblue,thick] (-2,0) -- (-0.5,0) -- (-0.5,1) -- (0.5,1) -- (0.5,0) -- (2,0);
+    \node[left] at (0,1) {\small $1$};
+    \node[below] at (0,-0.6) {\small aire $=1$};
+    \node[above] at (0,4.9) {\small $\theta=1$};
+\end{tikzpicture}
+\hspace{0.3cm}
+{\Large $\xrightarrow{\ \theta\to0\ }$}
+\hspace{0.3cm}
+\begin{tikzpicture}[x=1cm,y=0.5cm]
+    \draw[-Latex] (-2.2,0) -- (2.2,0) node[right] {\small $t$};
+    \draw[-Latex] (0,-0.2) -- (0,4.8);
+    \fill[niceblue, opacity=0.3] (-0.125,0) rectangle (0.125,4);
+    \draw[niceblue,thick] (-2,0) -- (-0.125,0) -- (-0.125,4) -- (0.125,4) -- (0.125,0) -- (2,0);
+    \node[left] at (0,4) {\small $4$};
+    \node[below] at (0,-0.6) {\small aire $=1$};
+    \node[above] at (0,4.9) {\small $\theta=0.25$};
+\end{tikzpicture}

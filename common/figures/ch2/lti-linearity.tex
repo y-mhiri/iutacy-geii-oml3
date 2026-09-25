@@ -1,0 +1,11 @@
+%% Schema-bloc d'un systeme S : linearite. Entree x(t) = somme
+%% ponderee de signaux x_i(t), sortie y(t)=S(x(t)) = meme somme
+%% ponderee des sorties S(x_i(t)). Consomme par slides.
+\begin{tikzpicture}[>=Stealth, font=\large]
+    \draw[thick] (0,0) rectangle (2,1.4);
+    \node at (1,0.7) {$S$};
+    \draw[-Latex, thick] (-3.6,0.7) -- (0,0.7)
+        node[midway, above] {\normalsize $x(t)=\displaystyle\sum_i a_i x_i(t)$};
+    \draw[-Latex, thick] (2,0.7) -- (4.5,0.7)
+        node[right, above] {\normalsize $y(t)=S\{x\}(t)=\displaystyle\sum_i a_i S\{x_i\}(t)$};
+\end{tikzpicture}

@@ -1,0 +1,10 @@
+%% Signal periodique "chaotique" en apparence : somme de 4 harmoniques
+%% (rangs 1,3,5,7 de la meme fondamentale, amplitudes/phases
+%% quelconques) -- vraiment periodique malgre l'aspect complexe.
+%% Consomme par slides.
+\begin{tikzpicture}[x=0.28cm,y=1.1cm]
+    \draw[-Latex] (-0.3,0) -- (25,0) node[right] {$t$};
+    \draw[-Latex] (0,-1.6) -- (0,1.6);
+    \draw[red,thick,domain=0:24,smooth,variable=\t,samples=220]
+        plot ({\t},{0.5*sin(30*\t) + 0.35*sin(90*\t+40) + 0.3*sin(150*\t+120) + 0.25*sin(210*\t+10)});
+\end{tikzpicture}

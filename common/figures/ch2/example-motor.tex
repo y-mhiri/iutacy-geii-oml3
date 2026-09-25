@@ -1,0 +1,12 @@
+%% Icone simple d'un moteur a courant continu, sans reference a
+%% l'equation differentielle : entree V(t) (tension), sortie
+%% omega(t) (vitesse angulaire). Consomme par slides.
+\begin{tikzpicture}[x=1cm,y=1cm, thick]
+    \draw (-1.8,0) -- (-0.9,0);
+    \node[left] at (-1.8,0) {$V(t)$};
+    \draw[thick] (0,0) circle (1);
+    \node at (0,0) {\Large $M$};
+    \draw[-Latex, thick] (0.45,0.2) arc (38:-230:0.55);
+    \draw (0.9,0) -- (1.8,0);
+    \node[right] at (1.8,0) {$\omega(t)$};
+\end{tikzpicture}

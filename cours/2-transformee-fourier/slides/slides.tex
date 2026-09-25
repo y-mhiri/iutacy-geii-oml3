@@ -1,0 +1,478 @@
+\documentclass[aspectratio=43,10pt]{beamer}
+
+%% ─── Theme ────────────────────────────────────────────────────────
+\usetheme[iut, sans, progressbar=segmented, nosub]{Shibui}
+
+%% ─── Packages ────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{listings}
+\usepackage{translator}
+\uselanguage{French}
+\languagepath{French}
+\usepackage{graphicx}
+\usepackage{mathtools}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta,positioning,calc}
+\usepgfplotslibrary{fillbetween,groupplots}
+
+\graphicspath{{../../../common/figures/ch2/}}
+\input{../../../common/macros.tex}
+
+%% ─── Metadata ─────────────────────────────────────────────────────
+\title{Outils Mathématiques et Logiciel --- OML3}
+\subtitle{Chapitre 2 --- Transformée de Fourier}
+\author{\textbf{BUT2} -- Génie Électrique et Informatique Industrielle}
+\date{2025-2026}
+
+%% ─── Theorem environments ─────────────────────────────────────────
+%% `definition` and `theorem` are already provided (and auto-localized
+%% via babel) by the beamer class itself -- only declare the extra ones.
+\newtheorem{proposition}{Propriété}
+\newtheorem{remark}{Remarque}
+
+%% ─── Text helper (mirrors poly/main.tex) ───────────────────────────
+\newcommand{\highlight}[1]{{\color{niceblue}\emph{#1}}}
+\newcommand{\tf}{\overset{\mathcal F}{\longleftrightarrow}}
+
+%% ─── Figure helper : fit any \input'd figure to a target width ────
+\newcommand{\slidefig}[2]{%
+\begin{center}
+\resizebox{#1}{!}{\input{../../../common/figures/ch2/#2}}
+\end{center}
+}
+
+%% ─────────────────────────────────────────────────────────────────
+\begin{document}
+\shorthandoff{:;!?}
+
+\maketitle
+
+%% ═══════════════════════════════════════════════════════════════════
+%% SÉANCE 1 (CM1, 1h) : sections "Introduction et contexte",
+%%                       "Transformée de Fourier"
+%% SÉANCE 2 (CM2, 1h) : sections "Impulsion de Dirac",
+%%                       "Produit de convolution"
+%% Mirrors poly/main.tex. Exemple fil rouge : le signal porte
+%% Pi_theta, dont la TF (theta sinc(pi f theta)) sert d'illustration a
+%% plusieurs propriétés (dualité, échelle, parité, Parseval) plutôt que
+%% de multiplier les exemples.
+%% ═══════════════════════════════════════════════════════════════════
+
+%% ─── SECTION : Introduction et contexte ─────────────────────────
+\section{Introduction et contexte}
+
+\begin{frame}{Et les signaux non périodiques ?}
+    \begin{block}{Chapitre 1}
+        Séries de Fourier : décomposer un signal \highlight{périodique}
+        en somme de sinusoïdes.
+    \end{block}
+    \begin{block}{Chapitre 2}
+        Peut-on faire de même avec un signal \highlight{non périodique}  ?
+        \slidefig{0.6\textwidth}{context-signal-example.tex}
+        \begin{alertblock}{}
+        \end{alertblock}
+    \end{block}
+\end{frame}
+
+\begin{frame}{Intégrale sur $\R$ et sinus cardinal}
+    \begin{definition}[Intégrale sur $\R$]
+        $\displaystyle\int_{-\infty}^{+\infty} g(t)\,\d t = \lim_{\substack{A\to+\infty\\B\to+\infty}} \int_{-A}^{B} g(t)\,\d t$,
+        lorsque cette limite existe.
+    \end{definition}
+    \begin{definition}[Sinus cardinal]
+        $\sinc(x) = \dfrac{\sin(x)}{x}$ si $x\neq0$, et $\sinc(0)=1$.
+    \end{definition}
+    \slidefig{0.55\textwidth}{sinc-def.tex}
+\end{frame}
+
+\begin{frame}{Énergie et puissance d'un signal}
+    \begin{definition}[Énergie, puissance moyenne]
+        $$
+            E_x = \int_{-\infty}^{+\infty} |x(t)|^2\,\d t, \qquad
+            P_x = \lim_{T\to+\infty} \frac1T\int_{-T/2}^{T/2} |x(t)|^2\,\d t.
+        $$
+    \end{definition}
+    \slidefig{0.85\textwidth}{energy-vs-power.tex}
+    \begin{center}
+        \small Signal périodique : $P_x$ finie, $E_x$ infinie. \quad
+        Signal à support fini : $E_x$ finie.
+    \end{center}
+\end{frame}
+
+\begin{frame}{Un exemple particulier}
+    % \begin{center}
+    %     Un signal à énergie finie comme \highlight{limite} d'un signal
+    %     périodique dont la période $T\to+\infty$ : un train
+    %     d'impulsions de période $T$, largeur $\theta$, hauteur
+    %     $1/\theta$.
+    % \end{center}
+    \begin{overprint}
+    \onslide<1>
+    \slidefig{\textwidth}{intro-limit-small-T.tex}
+    \begin{center}\small Fonction périodique $\to$   Coefficients complexe de sa série de Fourier\end{center}
+    \onslide<2>
+    \slidefig{\textwidth}{intro-limit-large-T.tex}
+    \begin{center}\small Lorsque la période $T$ augmente les raies $Tc_n$ se resserrent et
+    dessinent une enveloppe continue.\end{center}
+    \end{overprint}
+\end{frame}
+
+
+
+%% ─── SECTION : Transformée de Fourier ───────────────────────────
+\section{Transformée de Fourier}
+
+\begin{frame}{Définition : TF et TFI}
+    \begin{definition}[Transformée de Fourier]
+        $$
+            X(f) = \mathcal F[x](f) = \int_{-\infty}^{+\infty} x(t)\,e^{-2\complexj\pi ft}\,\d t
+        $$
+    \end{definition}
+    \begin{definition}[Transformée de Fourier inverse]
+        $$
+            x(t) = \mathcal F^{-1}[X](t) = \int_{-\infty}^{+\infty} X(f)\,e^{2\complexj\pi ft}\,\d f
+        $$
+    \end{definition}
+    \begin{center}
+        \small Seul le signe de l'exposant change entre les deux.
+        \quad $x(t)\tf X(f)$
+    \end{center}
+\end{frame}
+
+\begin{frame}{De la série à l'intégrale}
+    \[
+        x(t) = \sum_{n=-\infty}^{+\infty} c_n\,e^{\complexj2\pi nf_0 t}
+        = \sum_{n=-\infty}^{+\infty} X_T(nf_0)\,e^{\complexj2\pi nf_0 t}\ f_0,
+    \]
+    $$
+     X_T(nf_0) f_0 = c_n
+    $$
+    \slidefig{0.68\textwidth}{riemann-sum.tex}
+    \begin{center}
+        \small Quand $T\to+\infty$, $f_0\to\d f$ : la somme des raies
+        devient l'intégrale
+    \end{center}
+\end{frame}
+
+\begin{frame}{Exemple : le signal porte}
+    \begin{definition}[Signal porte]
+        $$
+            \Pi_\theta(t) = \begin{cases} 1 & \text{si } |t|<\theta/2 \\ 0 & \text{si } |t|\geq\theta/2 \end{cases}
+        $$
+    \end{definition}
+    \slidefig{\textwidth}{porte-sinc.tex}
+    \begin{center}
+        $\Pi_\theta(t) \tf \theta\,\sinc(\pi f\theta)$ 
+    \end{center}
+\end{frame}
+
+\begin{frame}{Deux domaines, une seule information}
+    \begin{center}
+        \Large $\mathcal F^{-1}\big[\mathcal F[x]\big] = x$
+    \end{center}
+    \vspace{1em}
+    \begin{center}
+        \small Domaine \highlight{temporel} ($x(t)$) et domaine
+        \highlight{fréquentiel} ($X(f)$) 
+        
+        Deux représentations
+        équivalentes du même signal.
+    \end{center}
+    % \begin{alertblock}{Condition d'existence (simplifiée)}
+    %     Si $x$ est intégrable ($\int|x(t)|\,\d t<\infty$), $X(f)$
+    %     existe pour tout $f$. Cela exclut $\cos$, $\sin$, une
+    %     constante --- on lèvera cette limitation en \S3 avec
+    %     l'impulsion de Dirac.
+    % \end{alertblock}
+\end{frame}
+
+\begin{frame}{Propriété : dualité}
+    \begin{proposition}[Dualité]
+        Si $x(t)\tf X(f)$, alors $\mathcal F[X](f) = x(-f)$.
+    \end{proposition}
+    \slidefig{0.85\textwidth}{dualite-2x2.tex}
+    \begin{center}
+        \small En haut : $\Pi_\theta(t)\tf\theta\sinc(\pi f\theta)$. En
+        bas : le même sinus cardinal, relu comme un signal
+        \highlight{temporel} (variable $t$), a pour TF une porte, cette
+        fois en \highlight{fréquence} (variable $f$) --- $\Pi_\theta$
+        étant paire, $x(-f)=x(f)$.
+    \end{center}
+\end{frame}
+
+\begin{frame}{Propriétés : linéarité, décalages}
+    \begin{proposition}[Linéarité]
+        $\alpha x(t) + \beta y(t) \tf \alpha X(f) + \beta Y(f)$
+    \end{proposition}
+    \begin{proposition}[Décalage temporel et fréquentiel]
+        $$
+            x(t-t_0) \tf X(f)\,e^{-2\complexj\pi ft_0}, \qquad\qquad
+            x(t)\,e^{2\complexj\pi f_0t} \tf X(f-f_0)
+        $$
+    \end{proposition}
+    \begin{center}
+        \small Un décalage temporel ne change pas $|X(f)|$, seulement
+        sa phase.
+    \end{center}
+\end{frame}
+
+\begin{frame}{Propriété : changement d'échelle}
+    \begin{proposition}[Changement d'échelle]
+        $$
+            x(at) \tf \frac{1}{|a|}X\!\left(\frac fa\right)
+        $$
+    \end{proposition}
+    \slidefig{0.7\textwidth}{echelle-small-theta.tex}
+    \slidefig{0.7\textwidth}{echelle-large-theta.tex}
+    \begin{center}
+        \small
+        Comprimer dans le temps dilate le spectre, et réciproquement.
+    \end{center}
+\end{frame}
+
+\begin{frame}{Propriété : dérivation}
+    \begin{proposition}[Dérivation]
+        Si $x(t)\to0$ en $\pm\infty$ et $x(t)\tf X(f)$, alors
+        $$
+            x'(t) \tf 2\complexj\pi f\,X(f).
+        $$
+    \end{proposition}
+    \begin{center}
+        \small Dériver dans le temps $\iff$ multiplier par
+        $2\complexj\pi f$ en fréquence
+        
+        Intégrer $\iff$ diviser (à
+        une constante près).
+    \end{center}
+\end{frame}
+
+\begin{frame}{Propriété : parité d'un signal réel}
+    \begin{proposition}[Parité et TF d'un signal réel]
+        Soit $x$ une fonction réel, $x(t)\tf X(f)$.
+        \begin{itemize}
+            \item $X(-f) = \overline{X(f)}$, 
+            \item $x$ paire $\Rightarrow$ $X$ réelle et paire, 
+            \item $x$ impaire $\Rightarrow$ $X$ imaginaire pure et impaire.
+        \end{itemize}
+    \end{proposition}
+
+\end{frame}
+
+\begin{frame}{Propriété : Parseval-Plancherel}
+    \begin{proposition}[Parseval-Plancherel]
+        $$
+            E_x = \int_{-\infty}^{+\infty} |x(t)|^2\,\d t = \int_{-\infty}^{+\infty} |X(f)|^2\,\d f
+        $$
+    \end{proposition}
+    \slidefig{\textwidth}{parseval-porte.tex}
+    \begin{center}
+        \small Deux courbes de formes très différentes, même aire
+        $E_x=\theta$ : $|X(f)|^2$ est une densité spectrale d'énergie.
+    \end{center}
+\end{frame}
+
+%% ─── SECTION : Impulsion de Dirac ────────────────────────────────
+\section{Impulsion de Dirac}
+
+\begin{frame}{L'impulsion de Dirac}
+    \begin{definition}[Impulsion de Dirac]
+        Pour $\theta>0$, soit $p_\theta = \frac1\theta\Pi_\theta$ (aire
+        $1$, largeur $\theta$). L'impulsion de Dirac est
+        $$
+            \delta(t) = \lim_{\theta\to0} p_\theta(t).
+        $$
+    \end{definition}
+    \begin{overprint}
+    \onslide<1>
+    \slidefig{\textwidth}{dirac-as-limit.tex}
+    \begin{center}\small $p_\theta$ se resserre et grandit, mais garde
+    toujours une aire égale à $1$.\end{center}
+    \onslide<2>
+    \slidefig{0.4\textwidth}{dirac-arrow-single.tex}
+    \begin{center}\small Convention graphique : une flèche verticale
+
+    (\red{Attention} : $\delta$ n'est pas une fonction usuelle).\end{center}
+    \end{overprint}
+\end{frame}
+
+\begin{frame}{L'outil central : propriété d'échantillonnage}
+    \begin{proposition}[Propriétés de $\delta$]
+        Pour $x$ continue en $t_0$ :
+        $$
+            x(t)\,\delta(t-t_0) = x(t_0)\,\delta(t-t_0), \qquad
+            \int_{-\infty}^{+\infty} x(t)\,\delta(t-t_0)\,\d t = x(t_0).
+        $$
+    \end{proposition}
+    \slidefig{0.4\textwidth}{dirac-sampling.tex}
+    \begin{alertblock}{Retenir}
+        $\delta$ « prélève » la valeur de $x$ en un point --- c'est
+        cette propriété qui rend $\delta$ si utile.
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{Changement d'échelle et parité de $\delta$}
+    \begin{proposition}[Changement d'échelle]
+        $$
+            \delta(at) = \frac{1}{|a|}\delta(t), \qquad\qquad \delta(-t)=\delta(t) \ \text{($\delta$ est paire)}.
+        $$
+    \end{proposition}
+\end{frame}
+
+\begin{frame}{TF d'une impulsion}
+    \begin{proposition}[TF d'une impulsion]
+        $$
+            \mathcal F[\delta](f) = 1, \qquad\qquad \mathcal F[1](f) = \delta(f).
+        $$
+    \end{proposition}
+    \begin{overprint}
+    \onslide<1>
+    \slidefig{\textwidth}{dirac-tf-limit.tex}
+    % \begin{center}\small Intuition : $\mathcal F[p_\theta](f)=\sinc(\pi f\theta)$
+    % (gris $\theta=0.5$, bleu $\theta=0.15$) s'aplatit vers la constante
+    % $1$ (rouge) quand $\theta\to0$.\end{center}
+    \onslide<2>
+    \slidefig{\textwidth}{dirac-tf-constant.tex}
+    \begin{center}\small Une impulsion contient, avec le même poids,
+    toutes les fréquences.\end{center}
+    \end{overprint}
+\end{frame}
+
+\begin{frame}{Exemple : TF d'une impulsion décalée}
+    \[
+        \mathcal F[\delta(\cdot-t_0)](f) = e^{-2\complexj\pi ft_0}
+    \]
+    \slidefig{\textwidth}{dirac-tf-decale.tex}
+
+    % \begin{center}
+    %     \small Module constant égal à $1$ : c'est la propriété de
+    %     \highlight{décalage temporel} du \S2 --- décaler ne change que
+    %     la phase.
+    % \end{center}
+\end{frame}
+
+\begin{frame}{Exemple : TF de $\cos$ et $\sin$}
+    \begin{columns}
+        \column{0.5\textwidth}
+        \small
+        \textbf{Chapitre 1 (rappel)}
+        \[
+            \cos(\omega_0t) = \tfrac12e^{\complexj\omega_0t} + \tfrac12e^{-\complexj\omega_0t}
+        \]
+        Spectre \highlight{discret} : deux raies en $\pm f_0$, poids
+        $c_1=c_{-1}=\frac12$.
+        \column{0.5\textwidth}
+        \small
+        \textbf{Chapitre 2 (ici)}
+        \[
+            \mathcal F[\cos(2\pi f_0t)](f) = \tfrac12\delta(f-f_0) + \tfrac12\delta(f+f_0)
+        \]
+        Spectre \highlight{continu} : mêmes fréquences, mêmes poids,
+        mais des impulsions.
+    \end{columns}
+    \slidefig{0.75\textwidth}{cos-sin-tf-spectrum.tex}
+\end{frame}
+
+%% ─── SECTION : Produit de convolution ────────────────────────────
+\section{Produit de convolution}
+
+\begin{frame}{Le produit de convolution}
+    \begin{definition}[Produit de convolution]
+        $$
+            h(t) = (x*y)(t) = \int_{-\infty}^{+\infty} x(u)\,y(t-u)\,\d u
+        $$
+    \end{definition}
+    \begin{columns}
+        \column{0.5\textwidth}
+        \slidefig{\textwidth}{conv-setup.tex}
+        % \begin{center}\small $x$ et $y$, avant tout décalage.\end{center}
+        \column{0.5\textwidth}
+        \slidefig{\textwidth}{conv-product.tex}
+        % \begin{center}\small Pour $t=a>0$ : $x(u)\,y(a-u)$, aire
+        % colorée $=(x*y)(a)$.\end{center}
+    \end{columns}
+    \begin{center}
+        \small Bilinéaire et commutatif : $x*y=y*x$.
+    \end{center}
+\end{frame}
+
+\begin{frame}{Invariance temporelle}
+    \begin{overprint}
+        \onslide<1>
+        \begin{proposition}[Linéarité]
+            $\forall t,t_0\in\R$, $$((x_1 + x_2)*y)(t) = (x_{1} * y)(t) + (x_{2} * y)(t).$$
+        \end{proposition}
+        \slidefig{0.85\textwidth}{lti-linearity.tex}
+        \begin{center}\small Linéarité de $S$.\end{center}
+        \onslide<2>
+        \begin{proposition}[Invariance temporelle]
+            $\forall t,t_0\in\R$, $$(x*y)(t-t_0) = (x_{-t_{0}} * y)(t),$$ avec $x_{-t_{0}}(u) = x(u-t_0)$.
+        \end{proposition}
+    \slidefig{0.7\textwidth}{lti-time-invariance.tex}
+    \begin{center}\small Invariance temporelle de $S$.\end{center}
+    \end{overprint}
+    \begin{alertblock}{Pourquoi ça compte}
+        La sortie d'un système \highlight{linéaire invariant dans le
+        temps} (un filtre) s'obtient par convolution de l'entrée $x$
+        avec sa \highlight{réponse impulsionnelle} $h$ : $y=x*h$.
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{Exemples de systèmes LTI}
+    \begin{columns}
+        \column{0.5\textwidth}
+        \centering \small Circuit RC (filtre)
+        \slidefig{\textwidth}{example-rc.tex}
+        \begin{center}\small $v_e(t) \ \longrightarrow\ v_s(t)$\end{center}
+        \column{0.5\textwidth}
+        \centering \small Moteur à courant continu
+        \slidefig{\textwidth}{example-motor.tex}
+        \begin{center}\small $V(t) \ \longrightarrow\ \omega(t)$\end{center}
+    \end{columns}
+    \begin{center}
+        \small Deux systèmes physiques très différents, mais tous deux
+        \highlight{linéaires} et \highlight{invariants dans le temps}.
+    \end{center}
+\end{frame}
+
+\begin{frame}{Convolution avec une porte, avec une impulsion}
+    \begin{proposition}[Convolution avec porte et impulsion]
+        \begin{itemize}
+            \item $x*\delta = x$ : $\delta$ est neutre pour $*$ ;
+            \item $x*\delta(\cdot-t_0) = x(\cdot-t_0)$ : décale $x$ ;
+            \item $x*\Pi_\theta$ lisse $x$ (moyenne glissante de largeur $\theta$).
+        \end{itemize}
+    \end{proposition}
+    \slidefig{.9\textwidth}{conv-shift-illustration.tex}
+\end{frame}
+
+\begin{frame}{Dualité produit / convolution}
+    \begin{proposition}[Dualité produit / convolution]
+        $$
+            (x*y)(t) \tf X(f)\,Y(f), \qquad\qquad x(t)\,y(t) \tf (X*Y)(f)
+        $$
+    \end{proposition}
+    \begin{center}
+        Une convolution dans un domaine devient un simple
+        \highlight{produit} dans l'autre.
+    \end{center}
+\end{frame}
+
+\begin{frame}{Pour finir : observer un cosinus pendant une durée finie}
+    \[
+        \cos(2\pi f_0t)\times\Pi_\theta(t) \quad\longrightarrow\quad
+        \frac\theta2\Big(\sinc(\pi\theta(f-f_0)) + \sinc(\pi\theta(f+f_0))\Big)
+    \]
+    \slidefig{\textwidth}{windowed-cosine-spectrum.tex}
+    \begin{center}
+        \small Produit dans le temps = convolution en fréquence : les
+        impulsions idéales de $\cos$ s'élargissent en lobes de sinus
+        cardinal. Observer un signal pendant un temps fini élargit
+        toujours ses raies spectrales.
+    \end{center}
+\end{frame}
+
+\end{document}

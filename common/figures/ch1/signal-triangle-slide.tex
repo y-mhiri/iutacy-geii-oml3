@@ -1,0 +1,10 @@
+%% Signal triangle, version slide. Consomme par slides.
+\begin{tikzpicture}[x=0.6cm,y=0.7cm]
+    \draw[-Latex] (-0.3,0) -- (10.5,0) node[right] {$t$};
+    \draw[-Latex] (0,-0.3) -- (0,3.4) node[above] {$f_{\rm triangle}(t)$};
+    \draw[niceblue,thick]
+        (0,0) -- (2.5,3) -- (5,0) -- (7.5,3) -- (10,0);
+    \draw[dashed] (2.5,0) -- (2.5,3) (5,0) -- (5,3);
+    \node[below] at (2.5,0) {\small $T/2$};
+    \node[below] at (5,0) {\small $T$};
+\end{tikzpicture}

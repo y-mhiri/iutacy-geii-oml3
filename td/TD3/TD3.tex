@@ -27,7 +27,7 @@
 \fancyhead[R]{\large GEII -- BUT2}
 \fancyfoot[C]{\thepage}
 \fancyfoot[L]{\includegraphics[height=3em]{../../common/logos_couleurs/IUTA.png}}
-\fancyfoot[R]{\href{mailto:prenom.nom@univ-smb.fr}{prenom.nom@univ-smb.fr}}
+% \fancyfoot[R]{\href{mailto:prenom.nom@univ-smb.fr}{prenom.nom@univ-smb.fr}}
 
 %% ─── Course metadata ─────────────────────────────────────────────
 \newcommand{\courseName}{Outils Mathématiques et Logiciel --- OML3}
@@ -47,7 +47,7 @@
 
 \ifshowsolutions
     \newtcolorbox{solution}{
-        colback=red!5!white, colframe=red!50!white,
+        colback=white, colframe=white,coltext=red,
         breakable, title=\textbf{Solution :}
     }
 \else
@@ -99,248 +99,467 @@
 \setcounter{exercice}{0}
 
 
+\begin{exercice}
+    Soit $x(t)$ une fonction de $\R$ à valeurs réelles. On notera $X(f)$ sa transformée de Fourier.
+    \begin{enumerate}[\bfseries 1.]
+        \item Rappeler la formule de la transformée de Fourier et de son inverse.
+        \begin{solution}
+            $$
+                X(f) = \mathcal F[x](f) = \int_{-\infty}^{+\infty} x(t)\,e^{-2\complexj\pi ft}\,\d t,
+                \qquad
+                x(t) = \mathcal F^{-1}[X](t) = \int_{-\infty}^{+\infty} X(f)\,e^{2\complexj\pi ft}\,\d f.
+            $$
+        \end{solution}
+        \item Que représente la variable $f$ de la transformée de Fourier ?
+        \begin{solution}
+            Une fréquence, en $\Hz$.
+        \end{solution}
+        \item Dans quel espace les valeurs de $X(f)$ vivent-elles ?
+        \begin{solution}
+            Dans $\C$ : même si $x$ est à valeurs réelles, $X(f)$ est a priori complexe (l'exponentielle $e^{-2\complexj\pi ft}$ l'est).
+        \end{solution}
+        \item Quelle formule du cours traduit l'idée que la transformée de Fourier effectue une bijection entre le domaine fréquentiel et le domaine temporel ?
+        \begin{solution}
+            $\mathcal F^{-1}[\mathcal F[x]] = x$.
+        \end{solution}
+    \end{enumerate}
+\end{exercice}
+
+\begin{exercice}
+    On considère un système dont la sortie s'écrit
+    $$
+        y(t) = \begin{cases}
+        e^{-\alpha t} & t \geq 0 \\
+        0 & t < 0,
+        \end{cases}
+    $$ avec $\alpha > 0$.
+    \begin{enumerate}[\bfseries 1.]
+        \item Calculer $Y(f)$, la transformée de Fourier de $y(t)$.
+
+        \textit{On remarquera que $y$ est nulle pour $t < 0$~; l'intégrale ne
+        porte donc que sur $[0, +\infty[$.}
+        \begin{solution}
+            $$
+                Y(f) = \int_0^{+\infty} e^{-\alpha t}e^{-2\complexj\pi ft}\,\d t
+                = \int_0^{+\infty} e^{-(\alpha+2\complexj\pi f)t}\,\d t
+                = \left[\frac{e^{-(\alpha+2\complexj\pi f)t}}{-(\alpha+2\complexj\pi f)}\right]_0^{+\infty}
+                = \frac{1}{\alpha+2\complexj\pi f},
+            $$
+            le terme en $+\infty$ s'annulant car $\alpha>0$ (partie réelle de l'exposant strictement négative).
+        \end{solution}
+
+        \item Vérifier que
+        $$\abs{Y(f)}^2 = \frac{1}{\alpha^2 + 4\pi^2 f^2}
+                       = \frac{1/\alpha^2}{1 + \omega^2/\alpha^2},
+          \qquad \omega = 2\pi f.$$
+        \begin{solution}
+            $$
+                \abs{Y(f)}^2 = Y(f)\overline{Y(f)} = \frac{1}{\alpha+2\complexj\pi f}\cdot\frac{1}{\alpha-2\complexj\pi f} = \frac{1}{\alpha^2+4\pi^2f^2}.
+            $$
+            En factorisant $\alpha^2$ au dénominateur, $\dfrac{1}{\alpha^2+4\pi^2f^2} = \dfrac{1/\alpha^2}{1+4\pi^2f^2/\alpha^2} = \dfrac{1/\alpha^2}{1+\omega^2/\alpha^2}$.
+        \end{solution}
+
+        \item On y reconnaît le carré du gain d'un filtre RC passe-bas.
+        Donner la fréquence de coupure $f_c$ en fonction de $\alpha$. À l'aide du comportement de
+        $\abs{Y(f)}$ pour $f \gg f_c$, justifier que les hautes fréquences de
+        l'entrée sont atténuées en sortie.
+        \begin{solution}
+            La forme $\dfrac{1/\alpha^2}{1+(\omega/\alpha)^2}$ s'identifie à $\dfrac{H_0^2}{1+(\omega/\omega_c)^2}$ avec $\omega_c=\alpha=2\pi f_c$, soit
+            $$
+                f_c = \frac{\alpha}{2\pi}.
+            $$
+            En interprétant $y(t)$ comme la réponse impulsionnelle du système (sa sortie pour une entrée $\delta(t)$, cf. Exercice~3), $\abs{Y(f)}$ en est le gain. Pour $f\gg f_c$, $\omega^2/\alpha^2\gg1$ donc
+            $$
+                \abs{Y(f)}^2 \approx \frac{1/\alpha^2}{\omega^2/\alpha^2} = \frac{1}{4\pi^2f^2} \xrightarrow[f\to+\infty]{} 0 :
+            $$
+            le gain décroît avec $f$, les hautes fréquences de l'entrée sont donc atténuées en sortie.
+        \end{solution}
+    \end{enumerate}
+\end{exercice}
+
+\begin{exercice}
+    Pour rappel, une impulsion de Dirac peut se définir comme la limite d'une fonction porte centrée en 0 et \highlight{d'aire 1} quand la largeur de la porte tend vers 0. On la note $\delta(t)$ de sorte que, quelle que soit la fonction $x(t)$ choisie,
+    $$
+        \delta(t)\,x(t) = x(0)\,\delta(t).
+    $$
+
+    \begin{enumerate}[\bfseries 1.]
+        \item À partir de la définition de l'impulsion de Dirac, donner la valeur de $$I_\delta = \int_{-\infty}^{+\infty} \delta(t) \d t.$$
+        \begin{solution}
+            $I_\delta = 1$ : c'est l'aire de la porte limite, par construction.
+        \end{solution}
+        \item Soit $x(t)$ une fonction à valeurs réelles. En déduire la valeur de $$\int_{-\infty}^{+\infty} x(t)\delta(t)\d t.$$
+        \begin{solution}
+            D'après l'identité rappelée en tête d'exercice, $x(t)\delta(t)=x(0)\delta(t)$, donc
+            $$
+                \int_{-\infty}^{+\infty} x(t)\delta(t)\,\d t = x(0)\int_{-\infty}^{+\infty}\delta(t)\,\d t = x(0)\times I_\delta = x(0).
+            $$
+        \end{solution}
+        \item Soit $t_0 \in\R$. Que vaut
+         $$\int_{-\infty}^{+\infty} x(t)\delta(t-t_0)\d t\ ?$$
+        \begin{solution}
+            En posant $u=t-t_0$ (donc $t=u+t_0$, $\d u=\d t$), on se ramène à la question précédente appliquée à la fonction $u\mapsto x(u+t_0)$ :
+            $$
+                \int_{-\infty}^{+\infty} x(t)\delta(t-t_0)\,\d t = \int_{-\infty}^{+\infty} x(u+t_0)\delta(u)\,\d u = x(0+t_0) = x(t_0).
+            $$
+        \end{solution}
+        \item Rappeler la définition du produit de convolution puis justifier à partir du résultat de la question 3 que l'impulsion de Dirac est l'élément neutre de l'opération de convolution.
+
+        \textit{Rappel :  un élément neutre laisse tout élément inchangé par l'opération. Ainsi $0$ pour l'addition ($a+0=a$) et $1$ pour la multiplication ($a\times 1=a$). Ici : $x * \delta = x$ pour toute fonction $x$.}
+        \begin{solution}
+            $$
+                (x*y)(t) = \int_{-\infty}^{+\infty} x(\tau)\,y(t-\tau)\,\d\tau.
+            $$
+            Donc
+            $$
+                (x*\delta)(t) = \int_{-\infty}^{+\infty} x(\tau)\,\delta(t-\tau)\,\d\tau.
+            $$
+            On pose $u=t-\tau$ (donc $\tau=t-u$, $\d\tau=-\d u$, et les bornes s'inversent, ce qui compense le signe) :
+            $$
+                (x*\delta)(t) = \int_{-\infty}^{+\infty} x(t-u)\,\delta(u)\,\d u.
+            $$
+            En appliquant le résultat de la question 2 à la fonction $u\mapsto x(t-u)$ (prise en $u=0$) :
+            $$
+                (x*\delta)(t) = x(t-0) = x(t).
+            $$
+            Donc $x*\delta=x$ pour toute fonction $x$ : $\delta$ est bien l'élément neutre de la convolution.
+        \end{solution}
+    \end{enumerate}
+
+\end{exercice}
+
+\begin{exercice}
+    On considère la fonction $x(t) = \cos(\omega t)$.
+
+    \begin{enumerate}[\bfseries 1.]
+        \item Sur quel intervalle la fonction $x(t)$ est-elle définie ?
+        \begin{solution}
+            $\R$ tout entier : le cosinus est défini pour tout réel.
+        \end{solution}
+        \item On souhaite modéliser un cosinus observé sur un temps fini. On l'exprimera par une fonction $y(t) = k(t)x(t)$. Définir la fonction $k(t)$ telle que
+        $$
+            y(t) = k(t)x(t) = \begin{cases}
+                x(t) & t\in[-\theta/2, \theta/2] \\
+                0 & \text{sinon}
+            \end{cases}
+        $$
+        À quelle fonction du cours fait-elle référence ?
+        \begin{solution}
+            $k(t) = \Pi_\theta(t)$, le signal porte de largeur $\theta$ vu en cours (\S2).
+        \end{solution}
+        \item Rappeler la décomposition en série de Fourier de $x(t)$ en forme complexe. \textit{Indice: utiliser la formule d'Euler.}
+        \begin{solution}
+            Avec $\omega_0=\omega$, $\cos(\omega t) = \frac12e^{\complexj\omega t}+\frac12e^{-\complexj\omega t}$ (Euler) : c'est déjà la décomposition en série de Fourier complexe, avec $c_1=c_{-1}=\frac12$ et $c_n=0$ pour $n\notin\{-1,1\}$.
+        \end{solution}
+        \item $y(t)$ admet-il une décomposition en série de Fourier ? Justifier.
+        \begin{solution}
+            Non : $y$ est identiquement nulle en dehors de $[-\theta/2,\theta/2]$, donc n'est pas périodique (une fonction $T$-périodique non nulle ne peut pas s'annuler identiquement sur un intervalle infini). Les séries de Fourier (chapitre 1) ne s'appliquent qu'aux fonctions périodiques ; $y$, à support borné, relève de la transformée de Fourier (chapitre 2).
+        \end{solution}
+        \item Exprimer la transformée de Fourier de $x(t)$ à l'aide de deux impulsions de Dirac.
+
+        \textit{Rappel :} 
+        
+        \textit{ $\mathcal F[\delta]=1$ (TF d'une impulsion) et par dualité, $\mathcal F[1]=\delta$.}
+    
+        \textit{$h(t)e^{2\complexj\pi f_0t} \overset{\mathcal F}{\longleftrightarrow} H(f-f_0)$.}
+
+        \begin{solution}
+            Avec $f_0=\omega/(2\pi)$, en remarquant que $x(t) = \frac{1}{2} e^{\complexj 2\pi f_0 t} + \frac{1}{2}e^{-\complexj 2\pi f_0 t}$, on trouve
+            $$
+                \mathcal F[x](f) = \frac12\delta(f-f_0) + \frac12\delta(f+f_0).
+            $$
+        \end{solution}
+        \item Calculer l'expression de la transformée de Fourier de $k(t)$.
+        \begin{solution}
+            $k=\Pi_\theta$ est le signal porte, non nul seulement sur $[-\theta/2,\theta/2]$ :
+            $$
+                \mathcal F[k](f) = \int_{-\theta/2}^{\theta/2} e^{-2\complexj\pi ft}\,\d t
+                = \left[\frac{e^{-2\complexj\pi ft}}{-2\complexj\pi f}\right]_{-\theta/2}^{\theta/2}
+                = \frac{e^{-\complexj\pi f\theta} - e^{\complexj\pi f\theta}}{-2\complexj\pi f}
+                = \frac{e^{\complexj\pi f\theta} - e^{-\complexj\pi f\theta}}{2\complexj\pi f}.
+            $$
+            Par la formule d'Euler, $e^{\complexj\pi f\theta} - e^{-\complexj\pi f\theta} = 2\complexj\sin(\pi f\theta)$, donc
+            $$
+                \mathcal F[k](f) = \frac{2\complexj\sin(\pi f\theta)}{2\complexj\pi f} = \frac{\sin(\pi f\theta)}{\pi f}
+                = \theta\cdot\frac{\sin(\pi f\theta)}{\pi f\theta} = \theta\,\sinc(\pi f\theta).
+            $$
+        \end{solution}
+        \item En déduire la transformée de Fourier de $y(t)$.
+
+        \textit{Rappel : Un produit dans le domaine temporel se traduit par un produit de convolution dans le domaine fréquentiel}
+        \begin{solution}
+            
+            $$
+            Y(f) = \mathcal{F}(y)(f) = \mathcal{F}(k \times x)(f) = \mathcal{F}(k)(f) * \mathcal{F}(x)(f)
+            $$
+
+            D'après les questions précédentes, 
+            $$
+                \mathcal{F}(k)(f) = \theta\,\sinc(\pi f\theta),
+            $$
+            $$
+                \mathcal{F}(x)(f) = \frac12\delta(f-f_0) + \frac12\delta(f+f_0).
+            $$
+
+            Ainsi, 
+
+            $$
+            \begin{aligned}
+                  Y(f) &= \int_{-\infty}^{+\infty} K(u) X(u - f) \d u \\
+                        &= \frac{1}{2} \int_{-\infty}^{+\infty} \theta\,\sinc(\pi f\theta) \delta(f-f_0) \d u + \frac{1}{2} \int_{-\infty}^{+\infty} \theta\,\sinc(\pi f\theta) \delta(f+f_0) \d u \\
+                        &= \frac{\theta}{2} \left(\sinc(\pi (f-f_0)\theta) + \sinc(\pi (f+f_0)\theta)\right)
+            \end{aligned}
+            $$
+        \end{solution}
+
+    \end{enumerate}
+\end{exercice}
+
+
+
+
 %% ── Ex 1 : CLASSIFY / DEFINE ────────────────────────────────────
 %% Purpose: activate vocabulary from the CM.
 %% No computation harder than substituting into a definition.
 %% At least one positive, one negative, one boundary case.
-\begin{exercice}
-    \label{ex:energie-puissance}
-    Pour les signaux suivants, préciser s'il s'agit de signaux à énergie finie et/ou puissance finie,
-    \begin{enumerate}[\bfseries 1.]
-        \item $x(t) = \tan(t)$
-        \begin{solution}
-            $\tan$ est $\pi$-périodique, mais non bornée : au voisinage de chaque pôle $t=\frac\pi2+k\pi$ ($k\in\Z$), $\tan(t)\sim\frac1{\pi/2-t}$, donc $\tan^2$ n'est déjà pas intégrable sur un intervalle borné contenant un pôle. L'énergie est donc infinie, mais la puissance aussi : contrairement à ce que suggère la remarque du cours (un signal périodique non nul a une puissance finie), cela suppose implicitement que le carré du signal reste intégrable sur une période, ce qui échoue ici à cause des pôles.
-        \end{solution}
+% \begin{exercice}
+%     \label{ex:energie-puissance}
+%     Pour les signaux suivants, préciser s'il s'agit de signaux à énergie finie et/ou puissance finie,
+%     \begin{enumerate}[\bfseries 1.]
+%         \item $x(t) = \tan(t)$
+%         \begin{solution}
+%             $\tan$ est $\pi$-périodique, mais non bornée : au voisinage de chaque pôle $t=\frac\pi2+k\pi$ ($k\in\Z$), $\tan(t)\sim\frac1{\pi/2-t}$, donc $\tan^2$ n'est déjà pas intégrable sur un intervalle borné contenant un pôle. L'énergie est donc infinie, mais la puissance aussi : contrairement à ce que suggère la remarque du cours (un signal périodique non nul a une puissance finie), cela suppose implicitement que le carré du signal reste intégrable sur une période, ce qui échoue ici à cause des pôles.
+%         \end{solution}
 
-        \item $x(t) = \cos(2\pi t)$
-        \begin{solution}
-            $\cos(2\pi t)$ est $1$-périodique et non nulle : son énergie est infinie. Sa puissance vaut
-            $$
-                P_x = \int_0^1 \cos^2(2\pi t)\,\d t = \int_0^1 \frac{1+\cos(4\pi t)}2\,\d t = \frac12,
-            $$
-            finie, comme attendu pour un signal périodique borné.
-        \end{solution}
-        \item $x(t) = \Pi_\theta(t)\, e^{-t/\tau} \sin(2\pi t)$
-        \begin{solution}
-            $x$ est nulle en dehors de $[-\theta/2,\theta/2]$, et bornée sur cet intervalle (produit de fonctions continues) : c'est un signal transitoire, à énergie finie. Sa puissance moyenne est alors nulle : $P_x=0$ (une énergie finie, divisée par une fenêtre $T$ qui grandit indéfiniment, tend vers $0$).
-        \end{solution}
-    \end{enumerate}
-\end{exercice}
+%         \item $x(t) = \cos(2\pi t)$
+%         \begin{solution}
+%             $\cos(2\pi t)$ est $1$-périodique et non nulle : son énergie est infinie. Sa puissance vaut
+%             $$
+%                 P_x = \int_0^1 \cos^2(2\pi t)\,\d t = \int_0^1 \frac{1+\cos(4\pi t)}2\,\d t = \frac12,
+%             $$
+%             finie, comme attendu pour un signal périodique borné.
+%         \end{solution}
+%         \item $x(t) = \Pi_\theta(t)\, e^{-t/\tau} \sin(2\pi t)$
+%         \begin{solution}
+%             $x$ est nulle en dehors de $[-\theta/2,\theta/2]$, et bornée sur cet intervalle (produit de fonctions continues) : c'est un signal transitoire, à énergie finie. Sa puissance moyenne est alors nulle : $P_x=0$ (une énergie finie, divisée par une fenêtre $T$ qui grandit indéfiniment, tend vers $0$).
+%         \end{solution}
+%     \end{enumerate}
+% \end{exercice}
 
 
 %% ── Ex 2 : PROVE ─────────────────────────────────────────────────
 %% Purpose: make students re-derive a theorem stated in the CM.
 %% Structure: easy direction → hard direction → verify on an example.
-\begin{exercice}
-    \label{ex:fenetrage}
-    Soit $\theta>0$ et $x:\R\to\R$. On considère le signal fenêtré $g(t) = \Pi_\theta(t)\,x(t)$.
-    \begin{enumerate}[\bfseries 1.]
-        \item Exprimer $E_g$ comme une intégrale sur un intervalle borné.
-        \begin{solution}
-            $\Pi_\theta$ ne prend que les valeurs $0$ et $1$, donc $\Pi_\theta(t)^2=\Pi_\theta(t)$, et
-            $$
-                E_g = \int_{-\infty}^{+\infty} \Pi_\theta(t)^2\,x(t)^2\,\d t = \int_{-\theta/2}^{\theta/2} x(t)^2\,\d t.
-            $$
-        \end{solution}
+% \begin{exercice}
+%     \label{ex:fenetrage}
+%     Soit $\theta>0$ et $x:\R\to\R$. On considère le signal fenêtré $g(t) = \Pi_\theta(t)\,x(t)$.
+%     \begin{enumerate}[\bfseries 1.]
+%         \item Exprimer $E_g$ comme une intégrale sur un intervalle borné.
+%         \begin{solution}
+%             $\Pi_\theta$ ne prend que les valeurs $0$ et $1$, donc $\Pi_\theta(t)^2=\Pi_\theta(t)$, et
+%             $$
+%                 E_g = \int_{-\infty}^{+\infty} \Pi_\theta(t)^2\,x(t)^2\,\d t = \int_{-\theta/2}^{\theta/2} x(t)^2\,\d t.
+%             $$
+%         \end{solution}
 
-        \item En déduire une condition suffisante simple sur $x$ pour que $g$ soit à énergie finie.
-        \begin{solution}
-            Si $x$ est bornée sur $[-\theta/2,\theta/2]$, par $M$ disons, alors $E_g \le M^2\theta < \infty$ : $g$ est à énergie finie. Plus généralement il suffit que $x$ soit de carré intégrable sur cet intervalle, ce qui est automatique pour toute fonction continue, ou bornée avec un nombre fini de discontinuités.
-        \end{solution}
+%         \item En déduire une condition suffisante simple sur $x$ pour que $g$ soit à énergie finie.
+%         \begin{solution}
+%             Si $x$ est bornée sur $[-\theta/2,\theta/2]$, par $M$ disons, alors $E_g \le M^2\theta < \infty$ : $g$ est à énergie finie. Plus généralement il suffit que $x$ soit de carré intégrable sur cet intervalle, ce qui est automatique pour toute fonction continue, ou bornée avec un nombre fini de discontinuités.
+%         \end{solution}
 
-        \item Fenêtrer ne suffit donc pas toujours : à l'aide de l'Exercice~\ref{ex:energie-puissance}, pour quelles valeurs de $\theta$ le signal $g(t) = \Pi_\theta(t)\tan(t)$ est-il à énergie finie ?
-        \begin{solution}
-            $\tan$ est continue, donc bornée, sur $[-\theta/2,\theta/2]$ si et seulement si cet intervalle ne contient aucun pôle, c'est-à-dire si $\theta/2<\pi/2$, soit $\theta<\pi$ : dans ce cas $g$ est à énergie finie (question précédente). Si $\theta\ge\pi$, la fenêtre contient le pôle $t=\pi/2$ et $E_g$ diverge, exactement comme pour $\tan$ non fenêtrée : fenêtrer temporellement ne rend pas automatiquement un signal à énergie finie si celui-ci garde, à l'intérieur de la fenêtre, une singularité non intégrable.
-        \end{solution}
-    \end{enumerate}
-\end{exercice}
+%         \item Fenêtrer ne suffit donc pas toujours : à l'aide de l'Exercice~\ref{ex:energie-puissance}, pour quelles valeurs de $\theta$ le signal $g(t) = \Pi_\theta(t)\tan(t)$ est-il à énergie finie ?
+%         \begin{solution}
+%             $\tan$ est continue, donc bornée, sur $[-\theta/2,\theta/2]$ si et seulement si cet intervalle ne contient aucun pôle, c'est-à-dire si $\theta/2<\pi/2$, soit $\theta<\pi$ : dans ce cas $g$ est à énergie finie (question précédente). Si $\theta\ge\pi$, la fenêtre contient le pôle $t=\pi/2$ et $E_g$ diverge, exactement comme pour $\tan$ non fenêtrée : fenêtrer temporellement ne rend pas automatiquement un signal à énergie finie si celui-ci garde, à l'intérieur de la fenêtre, une singularité non intégrable.
+%         \end{solution}
+%     \end{enumerate}
+% \end{exercice}
 
 
 %% ── Ex 3 : APPLY ─────────────────────────────────────────────────
 %% Purpose: numerical problem with real or realistic GEII data.
 %% Ends with an engineer's conclusion, not just a number.
-\begin{exercice}
-    \label{ex:support-tf}
-    Pour chacune des fonctions suivantes, préciser son support (l'intervalle, ou l'ensemble, sur lequel le signal est non nul) et calculer sa transformée de Fourier, soit par calcul intégral, soit en utilisant les propriétés de la Transformée de Fourier.
-    \begin{enumerate}[\bfseries 1.]
-        \item $x(t) = \Pi_\theta(t)$
-        \begin{solution}
-            Support : $]-\theta/2,\theta/2[$. C'est le signal porte vu en cours :
-            $$
-                \mathcal F[x](f) = \theta\,\sinc(\pi f\theta).
-            $$
-        \end{solution}
+% \begin{exercice}
+%     \label{ex:support-tf}
+%     Pour chacune des fonctions suivantes, préciser son support (l'intervalle, ou l'ensemble, sur lequel le signal est non nul) et calculer sa transformée de Fourier, soit par calcul intégral, soit en utilisant les propriétés de la Transformée de Fourier.
+%     \begin{enumerate}[\bfseries 1.]
+%         \item $x(t) = \Pi_\theta(t)$
+%         \begin{solution}
+%             Support : $]-\theta/2,\theta/2[$. C'est le signal porte vu en cours :
+%             $$
+%                 \mathcal F[x](f) = \theta\,\sinc(\pi f\theta).
+%             $$
+%         \end{solution}
 
-        \item $x(t) = \delta(t-t_0) + \delta(t-t_1)$
-        \begin{solution}
-            Support : $\{t_0,t_1\}$. Par linéarité et la TF d'une impulsion décalée (vue en cours),
-            $$
-                \mathcal F[x](f) = e^{-2\complexj\pi ft_0} + e^{-2\complexj\pi ft_1}.
-            $$
-        \end{solution}
-        \item $x(t) = e^{-a|t|}$, avec $a>0$ (ci-dessous, pour $a=2$) :
-        \begin{center}
-            \begin{tikzpicture}
-                \begin{axis}[
-                    width=6.5cm, height=4cm,
-                    xlabel={$t$}, ylabel={$x(t)$},
-                    xmin=-2, xmax=2, ymin=0, ymax=1.3,
-                    axis lines=middle,
-                    xlabel style={at=(current axis.right of origin), anchor=west},
-                    ylabel style={at=(current axis.above origin), anchor=south},
-                ]
-                \addplot[domain=-2:2, samples=200, niceblue, thick] {exp(-2*abs(x))};
-                \end{axis}
-            \end{tikzpicture}
-        \end{center}
-        \begin{solution}
-            Support : $\R$ tout entier (contrairement aux deux signaux précédents, $x$ n'est jamais nulle). En séparant l'intégrale en $t<0$ et $t>0$ :
-            $$
-                \mathcal F[x](f) = \int_{-\infty}^0 e^{at}e^{-2\complexj\pi ft}\,\d t + \int_0^{+\infty} e^{-at}e^{-2\complexj\pi ft}\,\d t = \frac1{a-2\complexj\pi f} + \frac1{a+2\complexj\pi f} = \frac{2a}{a^2+4\pi^2f^2}.
-            $$
-            Un résultat réel et pair, comme attendu puisque $x$ est réelle et paire (propriété de parité). Plus la décroissance temporelle $a$ est lente, plus le spectre se resserre autour de $f=0$ : on retrouve, une fois de plus, l'antagonisme temps-fréquence -- une courbe en cloche, dite lorentzienne :
-            \begin{center}
-                \begin{tikzpicture}
-                    \begin{axis}[
-                        width=6.5cm, height=4cm,
-                        xlabel={$f$}, ylabel={$X(f)$},
-                        xmin=-1.5, xmax=1.5, ymin=0, ymax=1.3,
-                        axis lines=middle,
-                        xlabel style={at=(current axis.right of origin), anchor=west},
-                        ylabel style={at=(current axis.above origin), anchor=south},
-                    ]
-                    \addplot[domain=-1.5:1.5, samples=200, niceblue, thick] {1/(1+3.14159^2*x^2)};
-                    \end{axis}
-                \end{tikzpicture}
-            \end{center}
-        \end{solution}
-    \end{enumerate}
-\end{exercice}
+%         \item $x(t) = \delta(t-t_0) + \delta(t-t_1)$
+%         \begin{solution}
+%             Support : $\{t_0,t_1\}$. Par linéarité et la TF d'une impulsion décalée (vue en cours),
+%             $$
+%                 \mathcal F[x](f) = e^{-2\complexj\pi ft_0} + e^{-2\complexj\pi ft_1}.
+%             $$
+%         \end{solution}
+%         \item $x(t) = e^{-a|t|}$, avec $a>0$ (ci-dessous, pour $a=2$) :
+%         \begin{center}
+%             \begin{tikzpicture}
+%                 \begin{axis}[
+%                     width=6.5cm, height=4cm,
+%                     xlabel={$t$}, ylabel={$x(t)$},
+%                     xmin=-2, xmax=2, ymin=0, ymax=1.3,
+%                     axis lines=middle,
+%                     xlabel style={at=(current axis.right of origin), anchor=west},
+%                     ylabel style={at=(current axis.above origin), anchor=south},
+%                 ]
+%                 \addplot[domain=-2:2, samples=200, niceblue, thick] {exp(-2*abs(x))};
+%                 \end{axis}
+%             \end{tikzpicture}
+%         \end{center}
+%         \begin{solution}
+%             Support : $\R$ tout entier (contrairement aux deux signaux précédents, $x$ n'est jamais nulle). En séparant l'intégrale en $t<0$ et $t>0$ :
+%             $$
+%                 \mathcal F[x](f) = \int_{-\infty}^0 e^{at}e^{-2\complexj\pi ft}\,\d t + \int_0^{+\infty} e^{-at}e^{-2\complexj\pi ft}\,\d t = \frac1{a-2\complexj\pi f} + \frac1{a+2\complexj\pi f} = \frac{2a}{a^2+4\pi^2f^2}.
+%             $$
+%             Un résultat réel et pair, comme attendu puisque $x$ est réelle et paire (propriété de parité). Plus la décroissance temporelle $a$ est lente, plus le spectre se resserre autour de $f=0$ : on retrouve, une fois de plus, l'antagonisme temps-fréquence -- une courbe en cloche, dite lorentzienne :
+%             \begin{center}
+%                 \begin{tikzpicture}
+%                     \begin{axis}[
+%                         width=6.5cm, height=4cm,
+%                         xlabel={$f$}, ylabel={$X(f)$},
+%                         xmin=-1.5, xmax=1.5, ymin=0, ymax=1.3,
+%                         axis lines=middle,
+%                         xlabel style={at=(current axis.right of origin), anchor=west},
+%                         ylabel style={at=(current axis.above origin), anchor=south},
+%                     ]
+%                     \addplot[domain=-1.5:1.5, samples=200, niceblue, thick] {1/(1+3.14159^2*x^2)};
+%                     \end{axis}
+%                 \end{tikzpicture}
+%             \end{center}
+%         \end{solution}
+%     \end{enumerate}
+% \end{exercice}
 
 
-\begin{exercice}[Lobes spectraux et compromis temps-fréquence]
-    \label{ex:lobes}
-    \begin{enumerate}[\bfseries 1.]
-        \item Rappeler la transformée de Fourier $X$ de $\Pi_\theta$ (Exercice~\ref{ex:support-tf}). Montrer qu'elle s'annule exactement aux fréquences $f=k/\theta$, $k\in\Z^*$. En déduire la largeur du \highlight{lobe principal} (autour de $0$) puis celle de chaque \highlight{lobe secondaire}.
-        \begin{solution}
-            $X(f) = \theta\,\sinc(\pi f\theta)$. Comme $\sinc(u)=0 \iff u\in\pi\Z^*$ (et $\sinc(0)=1\neq0$), $X(f)=0 \iff \pi f\theta = k\pi,\ k\in\Z^* \iff f=k/\theta$.
+% \begin{exercice}[Lobes spectraux et compromis temps-fréquence]
+%     \label{ex:lobes}
+%     \begin{enumerate}[\bfseries 1.]
+%         \item Rappeler la transformée de Fourier $X$ de $\Pi_\theta$ (Exercice~\ref{ex:support-tf}). Montrer qu'elle s'annule exactement aux fréquences $f=k/\theta$, $k\in\Z^*$. En déduire la largeur du \highlight{lobe principal} (autour de $0$) puis celle de chaque \highlight{lobe secondaire}.
+%         \begin{solution}
+%             $X(f) = \theta\,\sinc(\pi f\theta)$. Comme $\sinc(u)=0 \iff u\in\pi\Z^*$ (et $\sinc(0)=1\neq0$), $X(f)=0 \iff \pi f\theta = k\pi,\ k\in\Z^* \iff f=k/\theta$.
 
-            Le lobe principal s'étend donc entre les deux premiers zéros, $f\in\,]-1/\theta,1/\theta[$ : une largeur $2/\theta$. Chaque lobe secondaire s'étend entre deux zéros consécutifs $f=k/\theta$ et $f=(k+1)/\theta$ : une largeur $1/\theta$. Plus l'impulsion est étroite dans le temps ($\theta$ petit), plus son spectre s'étale en fréquence.
-        \end{solution}
+%             Le lobe principal s'étend donc entre les deux premiers zéros, $f\in\,]-1/\theta,1/\theta[$ : une largeur $2/\theta$. Chaque lobe secondaire s'étend entre deux zéros consécutifs $f=k/\theta$ et $f=(k+1)/\theta$ : une largeur $1/\theta$. Plus l'impulsion est étroite dans le temps ($\theta$ petit), plus son spectre s'étale en fréquence.
+%         \end{solution}
 
-        \item Calculer $E_x$, l'énergie de $\Pi_\theta$. En déduire $\displaystyle\int_{-\infty}^{+\infty} |X(f)|^2\,\d f$.
-        \begin{solution}
-            $\displaystyle E_x = \int_{-\theta/2}^{\theta/2} 1\,\d t = \theta$. Par Parseval-Plancherel, $\displaystyle\int_{-\infty}^{+\infty}|X(f)|^2\,\d f = E_x = \theta$.
-        \end{solution}
+%         \item Calculer $E_x$, l'énergie de $\Pi_\theta$. En déduire $\displaystyle\int_{-\infty}^{+\infty} |X(f)|^2\,\d f$.
+%         \begin{solution}
+%             $\displaystyle E_x = \int_{-\theta/2}^{\theta/2} 1\,\d t = \theta$. Par Parseval-Plancherel, $\displaystyle\int_{-\infty}^{+\infty}|X(f)|^2\,\d f = E_x = \theta$.
+%         \end{solution}
 
-        \item Calculer, en fonction de $\theta$, l'énergie contenue dans le lobe principal, $\displaystyle I_1 = \int_{-1/\theta}^{1/\theta} |X(f)|^2\,\d f$ (on admettra que $\displaystyle\int_{-\pi}^{\pi}\sinc^2(u)\,\d u \approx 2{,}836$). Quelle fraction de $E_x$ cela représente-t-il ?
-        \begin{solution}
-            En posant $u=\pi f\theta$ (donc $\d u = \pi\theta\,\d f$, et $f=\pm1/\theta \Rightarrow u=\pm\pi$) :
-            $$
-                I_1 = \int_{-1/\theta}^{1/\theta} \theta^2\sinc^2(\pi f\theta)\,\d f = \frac{\theta^2}{\pi\theta}\int_{-\pi}^{\pi}\sinc^2(u)\,\d u \approx \frac{2{,}836}\pi\,\theta \approx 0{,}903\,\theta.
-            $$
-            Soit $I_1/E_x \approx 90{,}3\,\%$ : la quasi-totalité de l'énergie du signal porte est concentrée dans le lobe principal, les lobes secondaires ne portant ensemble que $\approx9{,}7\,\%$.
-        \end{solution}
+%         \item Calculer, en fonction de $\theta$, l'énergie contenue dans le lobe principal, $\displaystyle I_1 = \int_{-1/\theta}^{1/\theta} |X(f)|^2\,\d f$ (on admettra que $\displaystyle\int_{-\pi}^{\pi}\sinc^2(u)\,\d u \approx 2{,}836$). Quelle fraction de $E_x$ cela représente-t-il ?
+%         \begin{solution}
+%             En posant $u=\pi f\theta$ (donc $\d u = \pi\theta\,\d f$, et $f=\pm1/\theta \Rightarrow u=\pm\pi$) :
+%             $$
+%                 I_1 = \int_{-1/\theta}^{1/\theta} \theta^2\sinc^2(\pi f\theta)\,\d f = \frac{\theta^2}{\pi\theta}\int_{-\pi}^{\pi}\sinc^2(u)\,\d u \approx \frac{2{,}836}\pi\,\theta \approx 0{,}903\,\theta.
+%             $$
+%             Soit $I_1/E_x \approx 90{,}3\,\%$ : la quasi-totalité de l'énergie du signal porte est concentrée dans le lobe principal, les lobes secondaires ne portant ensemble que $\approx9{,}7\,\%$.
+%         \end{solution}
 
-        \item On observe maintenant $y(t) = \Pi_\theta(t)\cos(2\pi f_0t)$, avec $f_0\theta\in\N^*$ (un nombre entier de périodes dans la fenêtre) et $f_0\gg1/\theta$ (de nombreuses périodes dans la fenêtre) -- ci-dessous, pour $\theta=2$, $f_0=4$ : le cosinus (gris) tronqué par la fenêtre (bleu). Calculer $\mathcal F[y]$. Sans nouveau calcul d'intégrale, déduire de la question 3 la fraction de l'énergie de $y$ contenue dans les deux lobes principaux, situés autour de $\pm f_0$.
-        \begin{center}
-            \begin{tikzpicture}
-                \begin{axis}[
-                    width=7cm, height=4.3cm,
-                    xlabel={$t$},
-                    xmin=-3, xmax=3, ymin=-1.3, ymax=1.3,
-                    axis lines=middle,
-                    xlabel style={at=(current axis.right of origin), anchor=west},
-                    ytick=\empty,
-                ]
-                \addplot[domain=-3:3, samples=600, black!30, thick] {cos(deg(2*3.14159*4*x))};
-                \addplot[domain=-1:1, samples=200, niceblue, thick] {cos(deg(2*3.14159*4*x))};
-                \draw[dashed] (axis cs:-1,-1.3) -- (axis cs:-1,1.3);
-                \draw[dashed] (axis cs:1,-1.3) -- (axis cs:1,1.3);
-                \end{axis}
-            \end{tikzpicture}
-        \end{center}
-        \begin{solution}
-            Avec la formule d'Euler et le décalage fréquentiel (même méthode que pour la porte) :
-            $$
-                \mathcal F[y](f) = \frac{\theta}2\Big(\sinc\big(\pi\theta(f-f_0)\big) + \sinc\big(\pi\theta(f+f_0)\big)\Big)
-            $$
-            (on retrouve l'exemple du cours sur le cosinus fenêtré). Le module de ce spectre : deux lobes de sinus cardinal centrés en $\pm f_0$, avec des lobes secondaires qui subsistent tout le long de l'axe des fréquences.
-            \begin{center}
-                \begin{tikzpicture}
-                    \begin{axis}[
-                        width=7cm, height=4.3cm,
-                        xlabel={$f$}, ylabel={module},
-                        xmin=-7, xmax=7, ymin=0,
-                        axis lines=middle,
-                        xlabel style={at=(current axis.right of origin), anchor=west},
-                        ylabel style={at=(current axis.above origin), anchor=south},
-                    ]
-                    \addplot[domain=-7:7, samples=400, niceblue, thick]
-                        {abs(sin(deg(2*3.14159*(x-4)))/(2*3.14159*(x-4)) + sin(deg(2*3.14159*(x+4)))/(2*3.14159*(x+4)))};
-                    \end{axis}
-                \end{tikzpicture}
-            \end{center}
+%         \item On observe maintenant $y(t) = \Pi_\theta(t)\cos(2\pi f_0t)$, avec $f_0\theta\in\N^*$ (un nombre entier de périodes dans la fenêtre) et $f_0\gg1/\theta$ (de nombreuses périodes dans la fenêtre) -- ci-dessous, pour $\theta=2$, $f_0=4$ : le cosinus (gris) tronqué par la fenêtre (bleu). Calculer $\mathcal F[y]$. Sans nouveau calcul d'intégrale, déduire de la question 3 la fraction de l'énergie de $y$ contenue dans les deux lobes principaux, situés autour de $\pm f_0$.
+%         \begin{center}
+%             \begin{tikzpicture}
+%                 \begin{axis}[
+%                     width=7cm, height=4.3cm,
+%                     xlabel={$t$},
+%                     xmin=-3, xmax=3, ymin=-1.3, ymax=1.3,
+%                     axis lines=middle,
+%                     xlabel style={at=(current axis.right of origin), anchor=west},
+%                     ytick=\empty,
+%                 ]
+%                 \addplot[domain=-3:3, samples=600, black!30, thick] {cos(deg(2*3.14159*4*x))};
+%                 \addplot[domain=-1:1, samples=200, niceblue, thick] {cos(deg(2*3.14159*4*x))};
+%                 \draw[dashed] (axis cs:-1,-1.3) -- (axis cs:-1,1.3);
+%                 \draw[dashed] (axis cs:1,-1.3) -- (axis cs:1,1.3);
+%                 \end{axis}
+%             \end{tikzpicture}
+%         \end{center}
+%         \begin{solution}
+%             Avec la formule d'Euler et le décalage fréquentiel (même méthode que pour la porte) :
+%             $$
+%                 \mathcal F[y](f) = \frac{\theta}2\Big(\sinc\big(\pi\theta(f-f_0)\big) + \sinc\big(\pi\theta(f+f_0)\big)\Big)
+%             $$
+%             (on retrouve l'exemple du cours sur le cosinus fenêtré). Le module de ce spectre : deux lobes de sinus cardinal centrés en $\pm f_0$, avec des lobes secondaires qui subsistent tout le long de l'axe des fréquences.
+%             \begin{center}
+%                 \begin{tikzpicture}
+%                     \begin{axis}[
+%                         width=7cm, height=4.3cm,
+%                         xlabel={$f$}, ylabel={module},
+%                         xmin=-7, xmax=7, ymin=0,
+%                         axis lines=middle,
+%                         xlabel style={at=(current axis.right of origin), anchor=west},
+%                         ylabel style={at=(current axis.above origin), anchor=south},
+%                     ]
+%                     \addplot[domain=-7:7, samples=400, niceblue, thick]
+%                         {abs(sin(deg(2*3.14159*(x-4)))/(2*3.14159*(x-4)) + sin(deg(2*3.14159*(x+4)))/(2*3.14159*(x+4)))};
+%                     \end{axis}
+%                 \end{tikzpicture}
+%             \end{center}
 
-            L'énergie de $y$ vaut
-            $$
-                E_y = \int_{-\theta/2}^{\theta/2}\cos^2(2\pi f_0t)\,\d t = \frac\theta2 + \frac{\sin(2\pi f_0\theta)}{4\pi f_0} = \frac\theta2,
-            $$
-            le second terme s'annulant car $f_0\theta\in\N^*$. Comme $f_0\gg1/\theta$, les deux motifs centrés en $\pm f_0$ ne se recouvrent pas et, par symétrie, portent chacun la moitié de l'énergie, $\theta/4$. Chacun a exactement la forme d'un sinc$^2$ translaté, identique à celle de la porte seule : la fraction $90{,}3\,\%$ de la question 3 s'applique donc à chacun. Au total, $\approx90{,}3\,\%$ de $E_y$ se trouve dans les deux lobes principaux, autour de $\pm f_0$ -- fenêtrer puis moduler ne change pas cette proportion, seulement sa position en fréquence.
-        \end{solution}
+%             L'énergie de $y$ vaut
+%             $$
+%                 E_y = \int_{-\theta/2}^{\theta/2}\cos^2(2\pi f_0t)\,\d t = \frac\theta2 + \frac{\sin(2\pi f_0\theta)}{4\pi f_0} = \frac\theta2,
+%             $$
+%             le second terme s'annulant car $f_0\theta\in\N^*$. Comme $f_0\gg1/\theta$, les deux motifs centrés en $\pm f_0$ ne se recouvrent pas et, par symétrie, portent chacun la moitié de l'énergie, $\theta/4$. Chacun a exactement la forme d'un sinc$^2$ translaté, identique à celle de la porte seule : la fraction $90{,}3\,\%$ de la question 3 s'applique donc à chacun. Au total, $\approx90{,}3\,\%$ de $E_y$ se trouve dans les deux lobes principaux, autour de $\pm f_0$ -- fenêtrer puis moduler ne change pas cette proportion, seulement sa position en fréquence.
+%         \end{solution}
 
-        \item On considère à présent $z(t) = \sinc(\pi\theta t)\cos(2\pi f_0t)$, avec $f_0>\theta/2$ (pour que les deux motifs du spectre ne se recouvrent pas) -- ci-dessous, pour $\theta=2$, $f_0=4$ : la porteuse (bleu) au sein de l'enveloppe $\pm|\sinc(\pi\theta t)|$ (pointillés), un signal qui ne s'annule identiquement sur aucun intervalle, si loin de l'origine soit-on. En utilisant la propriété de dualité, calculer $\mathcal F[z]$. Quelle fraction de l'énergie de $z$ est contenue dans son lobe principal ?
-        \begin{center}
-            \begin{tikzpicture}
-                \begin{axis}[
-                    width=7cm, height=4.3cm,
-                    xlabel={$t$},
-                    xmin=-3, xmax=3, ymin=-1.3, ymax=1.3,
-                    axis lines=middle,
-                    xlabel style={at=(current axis.right of origin), anchor=west},
-                    ytick=\empty,
-                ]
-                \addplot[domain=-3:3, samples=200, black!40, dashed] {abs(sin(deg(2*3.14159*x))/(2*3.14159*x))};
-                \addplot[domain=-3:3, samples=200, black!40, dashed] {-abs(sin(deg(2*3.14159*x))/(2*3.14159*x))};
-                \addplot[domain=-3:3, samples=600, niceblue, thick] {sin(deg(2*3.14159*x))/(2*3.14159*x)*cos(deg(2*3.14159*4*x))};
-                \end{axis}
-            \end{tikzpicture}
-        \end{center}
-        \begin{solution}
-            La dualité, appliquée à $\Pi_\theta(t) \overset{\mathcal F}{\longleftrightarrow} \theta\sinc(\pi\theta f)$, donne $\mathcal F[\theta\sinc(\pi\theta\cdot)](f) = \Pi_\theta(-f) = \Pi_\theta(f)$ ($\Pi_\theta$ étant paire), soit
-            $$
-                \sinc(\pi\theta t) \overset{\mathcal F}{\longleftrightarrow} \frac1\theta\,\Pi_\theta(f).
-            $$
-            Par le même argument que pour $y$ (Euler puis décalage fréquentiel) :
-            $$
-                \mathcal F[z](f) = \frac1{2\theta}\Big(\Pi_\theta(f-f_0) + \Pi_\theta(f+f_0)\Big).
-            $$
-            Le module de ce spectre : deux portes exactes, sans aucun lobe secondaire.
-            \begin{center}
-                \begin{tikzpicture}
-                    \begin{axis}[
-                        width=7cm, height=4.3cm,
-                        xlabel={$f$}, ylabel={module},
-                        xmin=-7, xmax=7, ymin=0, ymax=0.35,
-                        axis lines=middle,
-                        xlabel style={at=(current axis.right of origin), anchor=west},
-                        ylabel style={at=(current axis.above origin), anchor=south},
-                    ]
-                    \draw[niceblue,thick] (axis cs:3,0) -- (axis cs:3,0.25) -- (axis cs:5,0.25) -- (axis cs:5,0);
-                    \draw[niceblue,thick] (axis cs:-5,0) -- (axis cs:-5,0.25) -- (axis cs:-3,0.25) -- (axis cs:-3,0);
-                    \end{axis}
-                \end{tikzpicture}
-            \end{center}
+%         \item On considère à présent $z(t) = \sinc(\pi\theta t)\cos(2\pi f_0t)$, avec $f_0>\theta/2$ (pour que les deux motifs du spectre ne se recouvrent pas) -- ci-dessous, pour $\theta=2$, $f_0=4$ : la porteuse (bleu) au sein de l'enveloppe $\pm|\sinc(\pi\theta t)|$ (pointillés), un signal qui ne s'annule identiquement sur aucun intervalle, si loin de l'origine soit-on. En utilisant la propriété de dualité, calculer $\mathcal F[z]$. Quelle fraction de l'énergie de $z$ est contenue dans son lobe principal ?
+%         \begin{center}
+%             \begin{tikzpicture}
+%                 \begin{axis}[
+%                     width=7cm, height=4.3cm,
+%                     xlabel={$t$},
+%                     xmin=-3, xmax=3, ymin=-1.3, ymax=1.3,
+%                     axis lines=middle,
+%                     xlabel style={at=(current axis.right of origin), anchor=west},
+%                     ytick=\empty,
+%                 ]
+%                 \addplot[domain=-3:3, samples=200, black!40, dashed] {abs(sin(deg(2*3.14159*x))/(2*3.14159*x))};
+%                 \addplot[domain=-3:3, samples=200, black!40, dashed] {-abs(sin(deg(2*3.14159*x))/(2*3.14159*x))};
+%                 \addplot[domain=-3:3, samples=600, niceblue, thick] {sin(deg(2*3.14159*x))/(2*3.14159*x)*cos(deg(2*3.14159*4*x))};
+%                 \end{axis}
+%             \end{tikzpicture}
+%         \end{center}
+%         \begin{solution}
+%             La dualité, appliquée à $\Pi_\theta(t) \overset{\mathcal F}{\longleftrightarrow} \theta\sinc(\pi\theta f)$, donne $\mathcal F[\theta\sinc(\pi\theta\cdot)](f) = \Pi_\theta(-f) = \Pi_\theta(f)$ ($\Pi_\theta$ étant paire), soit
+%             $$
+%                 \sinc(\pi\theta t) \overset{\mathcal F}{\longleftrightarrow} \frac1\theta\,\Pi_\theta(f).
+%             $$
+%             Par le même argument que pour $y$ (Euler puis décalage fréquentiel) :
+%             $$
+%                 \mathcal F[z](f) = \frac1{2\theta}\Big(\Pi_\theta(f-f_0) + \Pi_\theta(f+f_0)\Big).
+%             $$
+%             Le module de ce spectre : deux portes exactes, sans aucun lobe secondaire.
+%             \begin{center}
+%                 \begin{tikzpicture}
+%                     \begin{axis}[
+%                         width=7cm, height=4.3cm,
+%                         xlabel={$f$}, ylabel={module},
+%                         xmin=-7, xmax=7, ymin=0, ymax=0.35,
+%                         axis lines=middle,
+%                         xlabel style={at=(current axis.right of origin), anchor=west},
+%                         ylabel style={at=(current axis.above origin), anchor=south},
+%                     ]
+%                     \draw[niceblue,thick] (axis cs:3,0) -- (axis cs:3,0.25) -- (axis cs:5,0.25) -- (axis cs:5,0);
+%                     \draw[niceblue,thick] (axis cs:-5,0) -- (axis cs:-5,0.25) -- (axis cs:-3,0.25) -- (axis cs:-3,0);
+%                     \end{axis}
+%                 \end{tikzpicture}
+%             \end{center}
 
-            Cette fois le spectre est \emph{nul} en dehors de deux bandes de largeur $\theta$ centrées en $\pm f_0$ : il n'y a aucun lobe secondaire, toute l'énergie de $z$ est contenue dans ces deux bandes, soit $100\,\%$ -- contre $90{,}3\,\%$ pour $y$.
-        \end{solution}
+%             Cette fois le spectre est \emph{nul} en dehors de deux bandes de largeur $\theta$ centrées en $\pm f_0$ : il n'y a aucun lobe secondaire, toute l'énergie de $z$ est contenue dans ces deux bandes, soit $100\,\%$ -- contre $90{,}3\,\%$ pour $y$.
+%         \end{solution}
 
-        \item Conclure, en une ou deux phrases, sur ce que ces deux exemples disent de la relation entre la durée d'un signal dans le temps et la largeur de son spectre.
-        \begin{solution}
-            $\Pi_\theta\cos$, de durée bornée dans le temps, a un spectre qui s'étend en réalité sur toutes les fréquences : des lobes secondaires subsistent indéfiniment, même s'ils ne portent que peu d'énergie. À l'inverse, $\sinc(\pi\theta\cdot)\cos$, dont le spectre est borné en fréquence, doit nécessairement s'étendre sur tout l'axe des temps ($\sinc$ ne s'annule identiquement sur aucun intervalle). Un signal ne peut donc pas être simultanément limité en durée \emph{et} en bande : gagner en concentration temporelle se paie en étalement spectral, et réciproquement.
-        \end{solution}
-    \end{enumerate}
-\end{exercice}
+%         \item Conclure, en une ou deux phrases, sur ce que ces deux exemples disent de la relation entre la durée d'un signal dans le temps et la largeur de son spectre.
+%         \begin{solution}
+%             $\Pi_\theta\cos$, de durée bornée dans le temps, a un spectre qui s'étend en réalité sur toutes les fréquences : des lobes secondaires subsistent indéfiniment, même s'ils ne portent que peu d'énergie. À l'inverse, $\sinc(\pi\theta\cdot)\cos$, dont le spectre est borné en fréquence, doit nécessairement s'étendre sur tout l'axe des temps ($\sinc$ ne s'annule identiquement sur aucun intervalle). Un signal ne peut donc pas être simultanément limité en durée \emph{et} en bande : gagner en concentration temporelle se paie en étalement spectral, et réciproquement.
+%         \end{solution}
+%     \end{enumerate}
+% \end{exercice}
 
 
 \end{document}

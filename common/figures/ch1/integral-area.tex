@@ -1,0 +1,15 @@
+%% Aire sous la courbe, cas classique d'une fonction lineaire
+%% f(x) = alpha x, aire du trapeze entre a et b ombree. Consomme par
+%% slides.
+\begin{tikzpicture}
+    \def\alphaslope{0.6}
+    \draw[-Latex] (-0.4,0) -- (6.3,0) node[right] {\small $x$};
+    \draw[-Latex] (0,-0.4) -- (0,4) node[above] {\small $f(x)$};
+    \fill[niceblue, opacity=0.25] (1.5,0) -- (1.5,{\alphaslope*1.5}) -- (4.2,{\alphaslope*4.2}) -- (4.2,0) -- cycle;
+    \draw[thick, domain=0:5.6, variable=\x] plot ({\x},{\alphaslope*\x}) node[right] {\small $f(x)=\alpha x$};
+    \draw[niceblue,thick] (1.5,0) -- (1.5,{\alphaslope*1.5});
+    \draw[niceblue,thick] (4.2,0) -- (4.2,{\alphaslope*4.2});
+    \node[below] at (1.5,0) {\small $a$};
+    \node[below] at (4.2,0) {\small $b$};
+    \node at (2.85,0.9) {\small $\displaystyle\int_a^b f(x)\,\d x$};
+\end{tikzpicture}

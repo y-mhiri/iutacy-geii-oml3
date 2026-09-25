@@ -1,0 +1,17 @@
+%% Cercle unite : point M=(cos theta, sin theta), projections sur les
+%% axes. Illustration de cos^2+sin^2=1. Consomme par slides.
+\begin{tikzpicture}[scale=1.8]
+    \def\ang{35}
+    \draw[-Latex] (-1.4,0) -- (1.5,0);
+    \draw[-Latex] (0,-1.4) -- (0,1.5);
+    \draw[thick] (0,0) circle (1);
+    \draw[thick, niceblue] (0,0) -- (\ang:1) coordinate (P);
+    \draw[dashed] (P) -- ({cos(\ang)},0);
+    \draw[dashed] (P) -- (0,{sin(\ang)});
+    \draw[red, thick] (0,0) -- ({cos(\ang)},0) node[midway, below] {$\cos\theta$};
+    \draw[niceblue, thick] ({cos(\ang)},0) -- (P) node[midway, right] {$\sin\theta$};
+    \draw (0.3,0) arc (0:\ang:0.3);
+    \node at (0.46,0.15) {$\theta$};
+    \fill (P) circle (0.02);
+    \node[above right] at (P) {$M$};
+\end{tikzpicture}

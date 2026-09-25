@@ -17,7 +17,7 @@
 \usetikzlibrary{arrows.meta,positioning,calc}
 \usepgfplotslibrary{groupplots}
 
-\geometry{a4paper, scale=0.8}
+\geometry{a4paper, left=2cm, right=2cm}
 
 %% ─── Colors ──────────────────────────────────────────────────────
 \definecolor{niceblue}{RGB}{0,128,172}
@@ -311,7 +311,7 @@ où $k$ est l'\highlight{indice de sommation} (une variable muette : elle n'appa
 
     La fonction carré est la fonction $T$-périodique telle que
     $$
-        f_{\rm carr\acute{e}}(t) = \begin{cases} 1 & \text{pour} \ t \in [0,\frac{T}{2}[\\ -1 & \text{pour} \ t \in [\frac{T}{2},T[ \end{cases}
+        f_{\rm carr\acute{e}}(t) = \begin{cases} 1 & \text{pour} \ t \in [kT,kT + \frac{T}{2}[, \ k\in\Z\\ -1 & \text{pour} \ t \in [kT + \frac{T}{2},kT[, \ k\in\Z \end{cases}
     $$
 \end{definition}
 
@@ -335,7 +335,7 @@ où $k$ est l'\highlight{indice de sommation} (une variable muette : elle n'appa
 
     La fonction triangle est la fonction $T$-périodique telle que
     $$
-    f_{\rm triangle}(t) = \begin{cases} t & \text{pour} \ t \in [0,\frac{T}{2}]\\ T - t & \text{pour} \ t \in [\frac{T}{2},T] \end{cases}
+    f_{\rm triangle}(t) = \begin{cases} t & \text{pour} \ t - kT \in [kT,kT + \frac{T}{2}], \ k\in\Z\\ (k+1)T - t & \text{pour} \ t \in [kT + \frac{T}{2},kT], \ k\in\Z \end{cases}
     $$
 \end{definition}
 
@@ -357,6 +357,9 @@ où $k$ est l'\highlight{indice de sommation} (une variable muette : elle n'appa
 \begin{definition}[La fonction dents de scie]
 
     La fonction dents de scie est la fonction $T$-périodique définie sur $[0,T[$ par $f_{\rm scie}(t) = t$, prolongée par périodicité en dehors de cet intervalle.
+    $$
+    f_{\rm scie}(t) = t - kT ,\ k\in\Z
+    $$
 \end{definition}
 
 \begin{center}

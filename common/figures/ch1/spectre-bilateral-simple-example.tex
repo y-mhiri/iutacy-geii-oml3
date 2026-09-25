@@ -1,0 +1,18 @@
+%% Spectre bilateral de l'exemple jouet f(t) = 2cos(w0 t) + sin(2 w0 t)
+%% (meme fonction que spectre-simple-example.tex) : c_{\pm1}=1,
+%% |c_{\pm2}|=0.5. Consomme par slides.
+\begin{tikzpicture}
+    \begin{axis}[
+        width=9cm, height=5cm,
+        xlabel={$n$}, ylabel={$|c_n|$},
+        xtick={-2,-1,0,1,2},
+        ytick=\empty,
+        ymin=0, ymax=1.3,
+        axis x line=bottom,
+        axis y line=middle,
+    ]
+    \addplot+[ycomb, niceblue, thick, mark=*, mark options={fill=niceblue}] coordinates {
+        (-2,0.5) (-1,1) (0,0) (1,1) (2,0.5)
+    };
+    \end{axis}
+\end{tikzpicture}

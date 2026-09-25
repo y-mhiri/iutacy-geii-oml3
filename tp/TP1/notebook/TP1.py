@@ -113,8 +113,7 @@ plt.show()
 
 # %%
 carre = make_square(T=1.0, A=1.0)
-t = np.linspace(-10, 10, 4000)
-plot_signal(carre, t, xlim=(-2, 2))  # <- modifiez xlim pour zoomer/dézoomer
+plot_signal(carre, tmin=-2, tmax=2, npts=2000)  # <- modifiez tmin/tmax pour zoomer/dézoomer
 plt.show()
 
 # %% [markdown]
@@ -144,7 +143,8 @@ plt.show()
 t = np.linspace(-2, 2, 2000)
 original = [carre.f(ti) for ti in t]
 N = 10  # <- modifiez cette valeur (essayez 2, 5, 10, 100) et ré-exécutez
-y = reconstruct(t, carre.T, a0, an, bn, orders=range(1, N + 1))
+a0_N, an_N, bn_N = fourier_coeffs(carre, N=N)  # recalculés pour ce N
+y = reconstruct(t, carre.T, a0_N, an_N, bn_N, orders=range(1, N + 1))
 plot_reconstruction(t, {f"N={N}": y}, original=original,
                      xlim=(-0.2, 0.2))  # <- zoomez près d'un saut pour observer Gibbs
 plt.show()
@@ -176,8 +176,7 @@ plt.show()
 
 # %%
 marche = make_random_walk(T=1.0, n_points=25, seed=42)
-t = np.linspace(0, 3, 3000)
-plot_signal(marche, t)  # <- ajoutez xlim=(...) pour zoomer sur un segment
+plot_signal(marche, tmin=0, tmax=3, npts=3000)  # <- resserrez tmin/tmax pour zoomer sur un palier
 plt.show()
 
 # %% [markdown]
@@ -186,8 +185,8 @@ plt.show()
 # %%
 t = np.linspace(0, 1, 2000)
 original = [marche.f(ti) for ti in t]
-a0, an, bn = fourier_coeffs(marche, N=60)
-N = 20  # <- modifiez cette valeur (essayez 5, 20, 60) et ré-exécutez
+N = 20  # <- modifiez cette valeur (essayez 5, 20, 60, ou plus) et ré-exécutez
+a0, an, bn = fourier_coeffs(marche, N=N)  # recalculés pour ce N
 y = reconstruct(t, marche.T, a0, an, bn, orders=range(1, N + 1))
 plot_reconstruction(t, {f"N={N}": y}, original=original, title=marche.name)
 plt.show()
@@ -200,8 +199,9 @@ plt.show()
 
 # %%
 exotique = make_exotique(T=1.0)
-t = np.linspace(0, 3, 3000)
-plot_signal(exotique, t)  # <- essayez xlim=(0, 0.05) pour zoomer près de t=0
+plot_signal(exotique, tmin=0, tmax=3, npts=3000)
+# <- puis resserrez tmin/tmax (essayez 0, 0.05) et augmentez npts pour
+#    zoomer près de t=0 sans perdre en résolution
 plt.show()
 
 # %% [markdown]
@@ -210,8 +210,8 @@ plt.show()
 # %%
 t = np.linspace(0, 1, 2000)
 original = [exotique.f(ti) for ti in t]
-a0, an, bn = fourier_coeffs(exotique, N=60)
-N = 20  # <- modifiez cette valeur (essayez 5, 20, 60) et ré-exécutez
+N = 20  # <- modifiez cette valeur (essayez 5, 20, 60, ou plus) et ré-exécutez
+a0, an, bn = fourier_coeffs(exotique, N=N)  # recalculés pour ce N
 y = reconstruct(t, exotique.T, a0, an, bn, orders=range(1, N + 1))
 plot_reconstruction(t, {f"N={N}": y}, original=original, title=exotique.name)
 plt.show()
@@ -226,8 +226,7 @@ plt.show()
 
 # %%
 scie = make_sawtooth(T=1.0)
-t = np.linspace(-3, 3, 4000)
-plot_signal(scie, t)
+plot_signal(scie, tmin=-3, tmax=3, npts=4000)
 plt.show()
 
 # %% [markdown]
@@ -237,11 +236,12 @@ plt.show()
 # ### D2 : coefficients, reconstruction, zoom sur la jonction
 
 # %%
-a0, an, bn = fourier_coeffs(scie, N=100)
+a0, an, bn = fourier_coeffs(scie, N=100)  # pour le spectre (D3)
 t = np.linspace(-0.5, 1.5, 2000)
 original = [scie.f(ti) for ti in t]
 N = 10  # <- modifiez cette valeur et ré-exécutez
-y = reconstruct(t, scie.T, a0, an, bn, orders=range(1, N + 1))
+a0_N, an_N, bn_N = fourier_coeffs(scie, N=N)  # recalculés pour ce N (reconstruction)
+y = reconstruct(t, scie.T, a0_N, an_N, bn_N, orders=range(1, N + 1))
 plot_reconstruction(t, {f"N={N}": y}, original=original,
                      xlim=(-0.2, 0.2))  # <- zoomez sur la jonction t=0
 plt.show()

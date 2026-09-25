@@ -1,0 +1,382 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+\usepackage{enumerate}
+\usepackage{booktabs}
+\usepackage{tcolorbox}
+\tcbuselibrary{listings,skins,breakable}
+\usepackage{sourcecodepro}
+\usepackage{FiraSans}
+\usepackage{environ}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta,positioning,calc}
+
+\geometry{a4paper, scale=0.8}
+\urlstyle{same}
+
+%% ─── Colors ──────────────────────────────────────────────────────
+\definecolor{modernblue}{RGB}{66,133,244}
+\definecolor{moderngray}{RGB}{95,99,104}
+\definecolor{darkgray}{RGB}{60,64,67}
+\definecolor{accentorange}{RGB}{255,111,0}
+\definecolor{codegreen}{RGB}{15,157,88}
+\definecolor{codeblue}{RGB}{25,118,210}
+\definecolor{codebg}{RGB}{250,250,250}
+\definecolor{codepurple}{RGB}{156,39,176}
+\definecolor{niceblue}{RGB}{0,128,172}
+ 
+%% ─── Code listing: PYTHON ───────────────────────────────────────
+\newtcblisting{pythoncode}[1][]{
+    listing engine=listings, colback=codebg, colframe=moderngray!50,
+    listing only, left=5mm, enhanced, sharp corners=all, boxrule=0.5pt, top=0pt,
+    listing options={
+        language=Python, basicstyle=\ttfamily\scriptsize,
+        keywordstyle=\color{codeblue}\bfseries,
+        commentstyle=\color{codegreen}\itshape,
+        stringstyle=\color{accentorange},
+        numberstyle=\tiny\color{moderngray}, numbers=left, numbersep=8pt,
+        breaklines=true, tabsize=4, showstringspaces=false,
+        keepspaces=true, columns=flexible,
+        literate=
+            {é}{{\'{e}}}1 {è}{{\`{e}}}1 {ê}{{\^{e}}}1 {ë}{{\"{e}}}1
+            {û}{{\^{u}}}1 {ù}{{\`{u}}}1 {î}{{\^{i}}}1 {ï}{{\"{i}}}1
+            {ô}{{\^{o}}}1 {â}{{\^{a}}}1 {à}{{\`{a}}}1 {ä}{{\"{a}}}1
+            {ç}{{\c{c}}}1 {Ç}{{\c{C}}}1
+            {É}{{\'{E}}}1 {È}{{\`{E}}}1 {Ê}{{\^{E}}}1,
+        #1
+    }, breakable
+}
+
+%% ─── Lesson box ──────────────────────────────────────────────────
+\newtcolorbox{lesson}[1][]{
+    enhanced, breakable,
+    colback=modernblue!5, colframe=modernblue!80,
+    colbacktitle=modernblue, coltitle=white,
+    fonttitle=\sffamily\bfseries, fontupper=\sffamily\small,
+    boxrule=0.5pt, arc=3pt, left=8pt, right=8pt, top=8pt, bottom=8pt,
+    attach boxed title to top left={yshift=-2mm, xshift=5mm},
+    boxed title style={sharp corners, boxrule=0.5pt},
+    title={#1}, before skip=1em, after skip=2em
+}
+
+%% ─── Solution toggle ─────────────────────────────────────────────
+\newif\ifshowsolutions
+\showsolutionsfalse
+
+\ifshowsolutions
+    \newtcolorbox{solution}{colback=white, colframe=white, breakable,
+        fontupper=\color{red}}
+\else
+    \NewEnviron{solution}{}{}
+\fi
+
+%% ─── Question command ─────────────────────────────────────────────
+\newcounter{question}[section]
+\newcommand{\q}[1]{%
+    \vspace{0.5em}\noindent
+    {\color{black}\bfseries\stepcounter{question}\Alph{section}\arabic{question}.}
+    \hspace{0.5em}#1\par\vspace{0.3em}
+}
+\renewcommand{\thesection}{{\Alph{section}}}
+
+%% ─── Header / footer ─────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{2025-2026}
+\fancyhead[C]{\textbf{\courseName}}
+\fancyhead[R]{\large GEII -- BUT2}
+\fancyfoot[C]{\thepage}
+\fancyfoot[L]{\includegraphics[height=3em]{../../../common/logos_couleurs/IUTA.png}}
+% \fancyfoot[R]{\href{mailto:prenom.nom@univ-smb.fr}{prenom.nom@univ-smb.fr}}
+
+%% ─── Course metadata ─────────────────────────────────────────────
+\newcommand{\courseName}{Outils Mathématiques et Logiciel --- OML3}
+\newcommand{\chapterTitle}{TP 3 --- Transformée de Fourier}
+
+\makeatletter
+\renewcommand\maketitle{{\raggedright\begin{center}
+    {\Huge\bfseries\@title}
+\end{center}}}
+\makeatother
+
+\input{../../../common/macros.tex}
+
+\title{\chapterTitle}
+\author{}
+\date{}
+
+%% ─────────────────────────────────────────────────────────────────
+\begin{document}
+\fontfamily{bch}\selectfont
+\fontsize{12pt}{14pt}\selectfont
+
+\maketitle
+\thispagestyle{fancy}
+
+
+%% ─── AVANT DE COMMENCER ──────────────────────────────────────────
+\section*{Avant de commencer}
+
+Ce TP est écrit en Python. Les fonctions dont vous aurez besoin sont déjà
+écrites. Votre travail consiste à exécuter les cellules en modifiant ou
+non les paramètres, et à lire les tracés produits.
+
+\textbf{Ce document est le sujet de référence.} Le notebook
+\texttt{TP3.ipynb} est un compagnon d'exécution : il ne reprend que
+l'essentiel de chaque question, repérée par son numéro (A1, A2, B1,
+\dots). Gardez ce PDF ouvert pendant tout le TP.
+
+\textbf{Vos réponses vont sur feuille.}
+
+\subsection*{Configuration de l'environnement}
+\begin{enumerate}
+    \item Ouvrir \texttt{TP3.ipynb} dans VsCode.
+    \item Exécuter la première cellule (import des fonctions fournies,
+          dans \texttt{tp3\_helpers.py}) : rien ne devrait s'afficher,
+          c'est normal.
+    \item Exécuter ensuite les cellules dans l'ordre, en vous référant aux
+          questions ci-dessous.
+\end{enumerate}
+
+\vspace{2em}\hrule\vspace{2em}
+\newpage
+
+
+%% ─── SECTION A ──────────────────────────────────────────────────
+\section{Valeur moyenne et exponentielle complexe}
+
+Soit $\Pi(t)$ la fonction porte de largeur $1$, hauteur $1$, centré en $0$.
+
+\q{Rappeler la définition de la transformée de Fourier appliqué à la fonction porte.}
+\begin{solution}
+    $$X(f) = \int_{-\infty}^{+\infty} \Pi(t) e^{-\complexj 2\pi f t}$$
+\end{solution}
+
+
+\q{Calculer $X(f)$, la transformée de Fourier de la fonction porte.}
+\begin{solution}
+    $\displaystyle\int_{-1/2}^{1/2} e^{-2j\pi f_0 t}\,\mathrm dt
+    = \frac{\sin(\pi f_0)}{\pi f_0} = \sinc(\pi f_0)$.
+\end{solution}
+
+\begin{lesson}[Fonctions \texttt{fourier\_transform}, \texttt{explorer}]
+    \texttt{fourier\_transform(signal, f0)} calcule cette même intégrale
+    par intégration numérique, pour un \texttt{Signal} et une fréquence
+    \texttt{f0} quelconques. \texttt{explorer(f0)} affiche, pour la porte,
+    le produit avec $\cos(2\pi f_0t)$ (et avec $\sin(2\pi f_0t)$ si
+    \texttt{montrer\_sin=True}), l'aire signée sous chaque produit, sa
+    moyenne, et compare celle-ci à la valeur théorique de la question A1.
+\end{lesson}
+
+\q{Exécuter la cellule \texttt{explorer(f0=1)}. Elle affiche, pour la
+porte, le produit avec $\cos(2\pi f_0t)$ et avec $\sin(2\pi f_0t)$,
+$$
+    A\Pi_\theta(t) \times \cos(2\pi f_0 t) \quad \text{et} \quad A\Pi_\theta(t) \times \sin(2\pi f_0 t).
+$$
+L'aire est coloriée (positive en bleu et négative en rouge), la valeur moyenne (qui correspond à l'aire sous la courbe) apparait en pointillés.
+\textbf{Identifier ces deux moyennes comme la partie réelle et (l'opposé de) la partie imaginaire de} $X(f_0)$. \textbf{Pourquoi la moyenne du produit en sinus est-elle nulle ici ?}
+}
+\begin{solution}
+    Par définition,
+    $X(f_0)=\int f(t)e^{-2j\pi f_0t}\,\mathrm dt = \int f(t)\cos(2\pi f_0t)\,\mathrm dt - j\int f(t)\sin(2\pi f_0t)\,\mathrm dt$ :
+    les deux moyennes affichées sont exactement $\mathrm{Re}(X(f_0))$ et
+    $-\mathrm{Im}(X(f_0))$. La moyenne en sinus est nulle ici car la
+    porte est paire et $\sin$ est impair : leur produit est impair,
+    d'intégrale nulle sur un intervalle symétrique.
+\end{solution}
+
+\q{Reprendre \texttt{explorer} (partie en cosinus seule) pour
+$$f_0=0.1, f_0=1, f_0=1.43 ,f_0=2.$$ Comparer, à chaque fois,
+la valeur théorique (formule de A2) et la valeur numérique. Que se
+passe-t-il en $f_0=1$ et $f_0=2$ ? Que remarquez-vous sur le signe de la
+moyenne en $f_0=1.43$, comparé à $f_0=0.1$ ?}
+\begin{solution}
+    Les valeurs théorique et numérique coïncident à chaque fois (aux
+    erreurs d'arrondi près), confirmant le calcul de A2. En $f_0=1$ et
+    $f_0=2$, la moyenne est nulle : la porte contient alors un nombre
+    entier de périodes du cosinus, et les lobes positifs et négatifs du
+    produit se compensent exactement. En $f_0=1.43$, la moyenne est non
+    nulle mais de signe opposé à celle de $f_0=0.1$ : on a franchi un
+    zéro et changé de lobe. Ces quatre valeurs sont respectivement dans
+    le lobe principal, sur le premier zéro, sur le maximum du premier
+    lobe secondaire, et sur le second zéro de $X(f)$ -- leur observation
+    trace déjà la forme du spectre étudié formellement en B.
+\end{solution}
+
+%% ─── SECTION B ──────────────────────────────────────────────────
+\section{La transformée de Fourier}
+
+\q{Que devient la transformée de Fourier de la porte pour une largeur $\theta$ quelconque, une hauteur de 1 et centrée en 0 ? 
+On notera la fonction $\Pi_\theta(t)$.}
+\begin{solution}
+    $X(f)=\displaystyle\int_{-\infty}^{+\infty}x(t)\,e^{-2j\pi ft}\,\mathrm dt$.
+    Pour $\Pi_\theta$ :
+    $X(f) = \theta\,\sinc(\pi f\theta)$, réelle (et paire), car $\Pi_\theta$
+    est réelle et paire.
+\end{solution}
+
+\begin{lesson}[Fonctions \texttt{spectrum}, \texttt{plot\_spectrum}]
+    \texttt{spectrum(signal, freqs)} calcule $X(f)$ (tableau complexe)
+    pour chaque fréquence de \texttt{freqs}. \texttt{plot\_spectrum(freqs,
+    X)} trace $|X(f)|$ (ou sa partie réelle/imaginaire avec
+    \texttt{kind="re"}/\texttt{"im"}).
+\end{lesson}
+
+\q{Tracer, superposées, les transformées de portes de plusieurs largeurs
+$\theta$. Comment la largeur du lobe principal évolue-t-elle avec
+$\theta$ ? Où le spectre s'annule-t-il ?}
+\begin{solution}
+    Le lobe principal a une largeur $\propto1/\theta$ : plus la porte est
+    étroite (temps), plus son spectre est étalé (fréquence), et
+    inversement. $X(f)=0 \iff \sin(\pi f\theta)=0$ et $f\neq0$, soit
+    $f=k/\theta$, $k\in\Z^*$.
+\end{solution}
+
+\q{Rétrécir $\theta$ tout en gardant l'aire de la porte égale à $1$
+en fixant la hauteur à $1/\theta$. Vers quel objet le signal temporel converge-t-il ?
+Et son spectre ?}
+\begin{solution}
+    Le signal temporel converge vers l'impulsion de Dirac $\delta(t)$
+    (aire $1$, largeur nulle). Son spectre,
+    $\frac1\theta\cdot\theta\sinc(\pi f\theta)=\sinc(\pi f\theta)$,
+    converge vers la constante $1$ pour tout $f$.
+\end{solution}
+
+\q{Quel est le support (l'ensemble des $t$ où le signal est non nul) de
+de la fonction porte ? Quel est le support de son spectre ? Comment évolue-t-il quand la largeur de la porte rétrécie et inversement ?
+Qu'en déduisez-vous, plus généralement, sur le lien entre support temporel fini et support
+fréquentiel ?}
+\begin{solution}
+    Support de $\delta$ : $\{0\}$, réduit à un point. Support de son
+    spectre (constant, non nul) : $\R$ tout entier. Un signal
+    concentré dans le temps a nécessairement un spectre étalé en
+    fréquence, et réciproquement : un support temporel fini interdit un
+    support fréquentiel fini (sauf le signal nul).
+\end{solution}
+
+\q{On tronque le spectre de $\Pi_\theta$ en le multipliant par une porte
+fréquentielle de largeur $B$.
+Exprimer $X_{\text{tronqué}}(f)$ à partir de $X(f)$.
+
+\emph{Indice : $X_{\text{tronqué}}$ ne
+peut être non nul que là où la porte fréquentielle vaut $1$.}}
+\begin{solution}
+    $X_{\text{tronqué}}(f) = X(f)$ pour $|f|<B/2$, $0$ sinon, avec
+    $X(f)=\theta\sinc(\pi f\theta)$ (B1).
+\end{solution}
+\q{Exprimer $x_{\text{tronqué}}(t)$ le signal reconstruit comme étant le produit de convolution de deux signaux.}
+\begin{solution}
+    Le produit en fréquentiel devient convolution en temporel, d'où 
+    $$
+        x_{\textbf{tronqué}}(t) = x(t) * k(t) 
+    $$
+    où $k(t)$ est la transformée de Fourier inverse de la porte fréquentielle qui par dualité vaut 
+    $$
+        k(t) = B\sinc(\pi t B)
+    $$
+\end{solution}
+
+\begin{lesson}[Fonction \texttt{inverse\_fourier\_transform}]
+    \texttt{inverse\_fourier\_transform(X, t, fmin, fmax)} calcule
+    $\displaystyle\int_{f_{\min}}^{f_{\max}} X(f)\,e^{2j\pi ft}\,\mathrm df$
+    par intégration numérique, pour \texttt{X} une fonction $f\mapsto X(f)$
+    quelconque.
+\end{lesson}
+
+
+\q{Executer la cellule de reconstruction et observé $x_{\text{tronqué}}(t)$ pour plusieurs largeurs de bande $B$. Comment s'appelle le phénomène que l'on observe aux bords ? }
+\begin{solution}
+    Un dépassement apparaît de part et d'autre de chaque bord et ne
+    disparaît pas quand $W$ augmente : il se resserre autour du bord sans
+    que son amplitude relative ne diminue -- le phénomène de Gibbs, ici en
+    temps, causé par une troncature en fréquence (au lieu d'une
+    troncature en temps). Ailleurs, la reconstruction se rapproche de la
+    porte d'origine.
+\end{solution}
+
+
+%% ─── SECTION C ──────────────────────────────────────────────────
+\section{Résolution fréquentielle}
+
+On observe, sur une durée finie $T$, la somme de deux signaux
+sinusoïdaux de fréquences proches $f_1$ et $f_2$ :
+$$x(t) = \Pi_{T}(t)\left[\cos(2\pi f_1 t) + \cos(2\pi f_2 t)\right]$$
+(C'est un battement, comme lorsqu'on accorde deux instruments.)
+
+\q{Afficher $x(t)$ pour $T=3$. Les fréquences $f_1$ et $f_2$
+sont-elles reconnaissables sur ce tracé ?}
+\begin{solution}
+    Le tracé ressemble à une simple sinusoïde unique, de fréquence
+    intermédiaire : sur une durée aussi courte, rien ne distingue à
+    l'œil la somme de deux fréquences proches d'une fréquence unique.
+\end{solution}
+
+\q{Rappeler l'expression de la transformée de Fourier de $\cos(2\pi f_0 t)$ et en déduire la transformée de Fourier de $x(t)$, $X(f)$. }
+\begin{solution}
+    $\mathcal F[\cos(2\pi f_0t)](f) = \frac12\delta(f-f_0)+\frac12\delta(f+f_0)$
+    (rappel du cours). Par linéarité,
+    $$
+        \mathcal F[\cos(2\pi f_1t)+\cos(2\pi f_2t)](f) =
+        \tfrac12\big[\delta(f-f_1)+\delta(f+f_1)+\delta(f-f_2)+\delta(f+f_2)\big].
+    $$
+    $x(t)$ est ce signal multiplié par la porte temporelle $\Pi_T(t)$ :
+    comme en B6 mais dans l'autre sens (c'est ici le temps qui est
+    tronqué), le produit en temps devient une convolution en fréquence
+    par le spectre de $\Pi_T$, soit $T\sinc(\pi fT)$ :
+    $$
+        X(f) = \tfrac12\big[\delta(f-f_1)+\delta(f+f_1)+\delta(f-f_2)+\delta(f+f_2)\big] * T\sinc(\pi fT).
+    $$
+    Convoluer avec un Dirac translate : $X(f)$ est la somme de quatre
+    lobes en $\sinc$, centrés en $\pm f_1,\pm f_2$, chacun de largeur
+    $\propto1/T$ -- exactement ce qui est observé numériquement en
+    C1--C4.
+\end{solution}
+
+\q{Calculer et tracer le spectre pour ce même $T$. Où se situe le pic ?
+Y a-t-il un seul pic ?}
+\begin{solution}
+    Un seul pic apparaît, situé entre $f_1$ et $f_2$ sans coïncider avec
+    aucun des deux : comme en B2/B3, chaque fréquence contribue un lobe
+    spectral de largeur $\propto 1/T$ ; ici $T$ est trop court, les deux
+    lobes se recouvrent et fusionnent en un seul pic.
+\end{solution}
+
+\q{Reprendre C1 et C3 avec $T=8$. Que devient le tracé temporel ? Et le
+spectre ?}
+\begin{solution}
+    Dans le temps, une enveloppe apparaît maintenant clairement (le
+    battement, de période $1/|f_1-f_2|$) -- mais $f_1$ et $f_2$ restent
+    impossibles à lire précisément sur ce tracé. Dans le spectre en
+    revanche, les deux lobes se sont assez rétrécis pour se séparer :
+    deux pics distincts apparaissent, chacun proche de $f_1$ et $f_2$.
+\end{solution}
+
+\q{Comparer le spectre pour plusieurs durées $T$ (cellule suivante). À
+partir de quelle durée les deux pics se séparent-ils clairement ?}
+\begin{solution}
+    Les deux pics restent fusionnés pour $T=3$ et $T=5$, et sont
+    nettement séparés dès $T=8$ : la séparation a lieu quelque part
+    entre $T=5$ et $T=8$.
+\end{solution}
+
+\q{Sur papier, à partir de la largeur des lobes observée en B2, à
+quelle condition sur $T$ peut-on espérer séparer deux pics distants de
+$|f_1-f_2|$ ?}
+\begin{solution}
+    D'après B2, chaque lobe a une largeur $\propto 1/T$. Séparer deux
+    pics distants de $|f_1-f_2|$ demande que cette largeur devienne
+    plus petite que $|f_1-f_2|$, soit $T\gtrsim 1/|f_1-f_2|$ -- ici
+    $|f_1-f_2|=0.2$, donc $T\gtrsim5$, cohérent avec l'observation de
+    C5.
+\end{solution}
+
+\end{document}

@@ -1,0 +1,28 @@
+%% Deux fonctions periodiques discontinues : le signal carre (verifie
+%% Dirichlet : sauts finis, en nombre fini) vs tan (periodique mais
+%% discontinuites non bornees, ne verifie pas Dirichlet). Repris/adapte
+%% du poly (Section 3). Consomme par slides.
+\begin{tikzpicture}[x=0.55cm,y=0.8cm]
+    \draw[-Latex] (-0.3,0) -- (13,0) node[right] {\small $t$};
+    \draw[-Latex] (0,-1.5) -- (0,1.5);
+    \draw[niceblue,thick]
+        (0,1) -- (3,1) -- (3,-1) -- (6,-1) -- (6,1)
+        -- (9,1) -- (9,-1) -- (12,-1);
+    \node at (6,-2.1) {\small $f_{\rm carr\acute{e}}$ : v\'erifie Dirichlet};
+\end{tikzpicture}
+\hspace{1cm}
+\begin{tikzpicture}[x=0.9cm,y=0.4cm]
+    \draw[-Latex] (-2.6,0) -- (5.2,0) node[right] {\small $t$};
+    \draw[-Latex] (0,-3.3) -- (0,3.3);
+    \draw[dashed] (-1.5708,-3.3) -- (-1.5708,3.3);
+    \draw[dashed] (1.5708,-3.3) -- (1.5708,3.3);
+    \draw[dashed] (4.7124,-3.3) -- (4.7124,3.3);
+    \begin{scope}
+        \clip (-2.6,-3.3) rectangle (5.2,3.3);
+        \draw[red,thick,domain=-2.6:-1.45,samples=60,variable=\t] plot ({\t},{tan(\t r)});
+        \draw[red,thick,domain=-1.45:1.45,samples=100,variable=\t] plot ({\t},{tan(\t r)});
+        \draw[red,thick,domain=1.69:4.59,samples=100,variable=\t] plot ({\t},{tan(\t r)});
+        \draw[red,thick,domain=4.87:5.2,samples=40,variable=\t] plot ({\t},{tan(\t r)});
+    \end{scope}
+    \node at (1.3,-4.6) {\small $\tan$ : ne v\'erifie pas Dirichlet};
+\end{tikzpicture}

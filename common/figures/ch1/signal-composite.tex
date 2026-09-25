@@ -1,0 +1,8 @@
+%% Somme de deux sinus (periodique, 2 periodes affichees). Consomme
+%% par slides (teaser de fin de section "Fonctions periodiques").
+\begin{tikzpicture}[x=0.28cm,y=1.1cm]
+    \draw[-Latex] (-0.3,0) -- (25,0) node[right] {$t$};
+    \draw[-Latex] (0,-1.6) -- (0,1.6);
+    \draw[niceblue,thick,domain=0:24,smooth,variable=\t,samples=220]
+        plot ({\t},{sin(30*\t) + 0.5*sin(90*\t)});
+\end{tikzpicture}

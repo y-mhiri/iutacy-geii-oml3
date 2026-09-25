@@ -1,0 +1,11 @@
+%% Schema-bloc d'un systeme S : invariance temporelle. Entree
+%% x(t-t0), sortie y(t-t0)=S(x(t-t0)) -- un decalage en entree produit
+%% exactement le meme decalage en sortie. Consomme par slides.
+\begin{tikzpicture}[>=Stealth, font=\large]
+    \draw[thick] (0,0) rectangle (2,1.4);
+    \node at (1,0.7) {$S$};
+    \draw[-Latex, thick] (-2.6,0.7) -- (0,0.7)
+        node[midway, above] {\normalsize $x_0(t) = x(t-t_0)$};
+    \draw[-Latex, thick] (2,0.7) -- (5.0,0.7)
+        node[right, above] {\normalsize $y_0(t)=S\{x\}(t-t_0) = y(t-t_0)$};
+\end{tikzpicture}

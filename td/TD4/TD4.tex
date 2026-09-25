@@ -27,7 +27,7 @@
 \fancyhead[R]{\large GEII -- BUT2}
 \fancyfoot[C]{\thepage}
 \fancyfoot[L]{\includegraphics[height=3em]{../../common/logos_couleurs/IUTA.png}}
-\fancyfoot[R]{\href{mailto:prenom.nom@univ-smb.fr}{prenom.nom@univ-smb.fr}}
+% \fancyfoot[R]{\href{mailto:prenom.nom@univ-smb.fr}{prenom.nom@univ-smb.fr}}
 
 %% ─── Course metadata ─────────────────────────────────────────────
 \newcommand{\courseName}{Outils Mathématiques et Logiciel --- OML3}
@@ -47,7 +47,7 @@
 
 \ifshowsolutions
     \newtcolorbox{solution}{
-        colback=red!5!white, colframe=red!50!white,
+        colback=white, colframe=white,coltext=red,
         breakable, title=\textbf{Solution :}
     }
 \else
@@ -82,6 +82,21 @@
 %% ─── Helpers ─────────────────────────────────────────────────────
 \definecolor{niceblue}{RGB}{0,128,172}
 \newcommand{\highlight}[1]{{\color{niceblue}\emph{#1}}}
+
+%% ─── Peigne de Dirac (Ш) ─────────────────────────────────────────
+%% Pas de glyphe cyrillique dans les fontes Computer Modern : on le
+%% dessine (trois barres + base), indépendant de toute fonte externe.
+\newcommand{\Sha}{%
+  \mathbin{\vcenter{\hbox{%
+    \begin{tikzpicture}[line width=0.55pt, y=0.62em, x=0.62em]
+      \draw (0,0) -- (0,1);
+      \draw (0.5,0) -- (0.5,1);
+      \draw (1,0) -- (1,1);
+      \draw (0,0) -- (1,0);
+    \end{tikzpicture}%
+  }}%
+  }%
+}
 
 \input{../../common/macros.tex}
 
@@ -141,72 +156,104 @@
 \end{exercice}
 
 
-%% ── Ex 2 : APPLY ─────────────────────────────────────────────────
-\begin{exercice}[Filtrer un signal échantillonné]
-    Soient $f_1,\dots,f_K\in\R$ des fréquences fixées et
-    $$
-        h(t) = \sum_{k=1}^K e^{-2\complexj\pi f_kt}.
-    $$
-    Soient $t_1,\dots,t_N\in\R$ des instants fixés, $a_1,\dots,a_N\in\R$ des coefficients, et
-    $$
-        x(t) = \sum_{n=1}^N a_n\,\delta(t-t_n)
-    $$
-    (un signal \highlight{échantillonné} : une somme pondérée d'impulsions).
-    \begin{enumerate}[\bfseries 1.]
-        \item Calculer $H=\mathcal F[h]$.
-        \begin{solution}
-            D'après le cours (TF de $e^{2\complexj\pi f_0t}$, vue dans l'exemple sur la TF de $\cos$ et $\sin$), $\mathcal F\big[e^{2\complexj\pi f_0t}\big](f) = \delta(f-f_0)$ pour tout $f_0\in\R$. Avec $f_0=-f_k$ : $\mathcal F\big[e^{-2\complexj\pi f_kt}\big](f) = \delta(f+f_k)$. Par linéarité,
-            $$
-                H(f) = \sum_{k=1}^K \delta(f+f_k).
-            $$
-        \end{solution}
+% %% ── Ex 2 : APPLY ─────────────────────────────────────────────────
+% \begin{exercice}[Filtrer un signal échantillonné]
+%     Soient $f_1,\dots,f_K\in\R$ des fréquences fixées et
+%     $$
+%         h(t) = \sum_{k=1}^K e^{-2\complexj\pi f_kt}.
+%     $$
+%     Soient $t_1,\dots,t_N\in\R$ des instants fixés, $a_1,\dots,a_N\in\R$ des coefficients, et
+%     $$
+%         x(t) = \sum_{n=1}^N a_n\,\delta(t-t_n)
+%     $$
+%     (un signal \highlight{échantillonné} : une somme pondérée d'impulsions).
+%     \begin{enumerate}[\bfseries 1.]
+%         \item Calculer $H=\mathcal F[h]$. On rappelle que
+%         $\mathcal F\big[e^{2\complexj\pi f_0t}\big](f) = \delta(f-f_0)$ pour tout $f_0\in\R$.
+%         \begin{solution}
+%             Avec $f_0=-f_k$ : $\mathcal F\big[e^{-2\complexj\pi f_kt}\big](f) = \delta(f+f_k)$. Par linéarité,
+%             $$
+%                 H(f) = \sum_{k=1}^K \delta(f+f_k).
+%             $$
+%         \end{solution}
 
-        \item Un système $T$ (qui à un signal d'entrée $x$ -- une fonction du temps $t\mapsto x(t)$ -- associe un signal de sortie $T(x)$) est dit \highlight{linéaire invariant dans le temps} (LTI) s'il vérifie :
-        \begin{itemize}
-            \item[--] \highlight{linéarité} : $T(\alpha x_1+\beta x_2) = \alpha\,T(x_1)+\beta\,T(x_2)$ pour tous signaux $x_1,x_2$ et tous $\alpha,\beta\in\R$ ;
-            \item[--] \highlight{invariance temporelle} : si $y=T(x)$, et si on retarde l'entrée de $t_0\in\R$ -- c'est-à-dire qu'on remplace le signal $x$ par le signal retardé $t\mapsto x(t-t_0)$ -- alors la sortie est retardée de la même durée : $T$ appliqué à $t\mapsto x(t-t_0)$ redonne le signal $t\mapsto y(t-t_0)$.
-        \end{itemize}
-        Montrer que le système $T:x\mapsto x*h$ est LTI.
-        \begin{solution}
-            Linéarité : $T(\alpha x_1+\beta x_2) = (\alpha x_1+\beta x_2)*h = \alpha(x_1*h)+\beta(x_2*h) = \alpha\,T(x_1)+\beta\,T(x_2)$, par bilinéarité de la convolution (vue en cours).
+%         \item L'objet $x*h$ est-il un nombre ou une fonction de $t$ ? Que représente $u$ dans la définition $$(x*h)(t) = \displaystyle\int_{-\infty}^{+\infty} x(u)\,h(t-u)\,\d u.$$ Est-ce que changer le nom de la variable $u$ en $\tau$ change $x * h$ ?
+%         \begin{solution}
+%             Une fonction de $t$ : la variable $\tau$ disparaît une fois l'intégration effectuée, mais $t$ reste présent (dans $h(t-\tau)$) et n'est pas intégré. Chaque valeur de $t$ donne un nombre, différent en général d'une valeur de $t$ à l'autre : l'ensemble de ces nombres est une fonction de $t$, notée $x*h$.
+%         \end{solution}
 
-            Invariance temporelle : en notant $y=T(x)=x*h$, l'invariance temporelle de la convolution (vue en cours) donne : le signal retardé $t\mapsto x(t-t_0)$, convolué par $h$, redonne le signal retardé $t\mapsto y(t-t_0)$. C'est exactement dire que $T$ appliqué à $t\mapsto x(t-t_0)$ redonne $t\mapsto y(t-t_0)$.
+%         \item Un filtre $T$ (qui à un signal d'entrée $x$ associe un signal de sortie $T(x)$) est dit \highlight{linéaire} si $T(\alpha x_1+\beta x_2) = \alpha\,T(x_1)+\beta\,T(x_2)$ pour tous signaux $x_1,x_2$ et tous $\alpha,\beta\in\R$. Montrer que $T:x\mapsto x*h$ est linéaire, c'est-à-dire que $(\alpha x_1+\beta x_2)*h = \alpha(x_1*h)+\beta(x_2*h)$.
+%         \begin{solution}
+%             $$
+%                 \big[(\alpha x_1+\beta x_2)*h\big](t) = \int_{-\infty}^{+\infty} \big(\alpha x_1(\tau)+\beta x_2(\tau)\big)\,h(t-\tau)\,\d\tau.
+%             $$
+%             Par linéarité de l'intégrale, cette expression se sépare en
+%             $$
+%                 \alpha\int_{-\infty}^{+\infty} x_1(\tau)\,h(t-\tau)\,\d\tau + \beta\int_{-\infty}^{+\infty} x_2(\tau)\,h(t-\tau)\,\d\tau = \alpha\,(x_1*h)(t) + \beta\,(x_2*h)(t).
+%             $$
+%         \end{solution}
 
-            Les deux conditions sont vérifiées : $T$ est donc LTI, de \highlight{réponse impulsionnelle} $h$.
-        \end{solution}
+%         \item $T$ est dite de plus \highlight{invariante dans le temps} si, pour tout $t_0\in\R$, retarder l'entrée de $t_0$ (remplacer $x$ par $t\mapsto x(t-t_0)$) revient à retarder la sortie de la même durée (obtenir $t\mapsto y(t-t_0)$, où $y=T(x)$). Une transformation à la fois linéaire et invariante dans le temps est dite \highlight{LTI}.
 
-        \item Calculer $X=\mathcal F[x]$.
-        \begin{solution}
-            Par linéarité et la TF d'une impulsion décalée (vue en cours),
-            $$
-                X(f) = \sum_{n=1}^N a_n\,e^{-2\complexj\pi ft_n}.
-            $$
-        \end{solution}
+%         On pose $x_0(t)=x(t-t_0)$ et $y=x*h$. On va montrer, en quatre petits pas, que $(x_0*h)(t) = y(t-t_0)$ pour tout $t$ -- c'est-à-dire que $T:x\mapsto x*h$ est bien invariante dans le temps.
+%         \begin{enumerate}[\bfseries a.]
+%             \item Écrire $(x_0*h)(t)$ comme une intégrale, à partir de la définition de la convolution.
+%             \begin{solution}
+%                 $$
+%                     (x_0*h)(t) = \int_{-\infty}^{+\infty} x_0(\tau)\,h(t-\tau)\,\d\tau.
+%                 $$
+%             \end{solution}
+%             \item Remplacer $x_0(\tau)$ par sa définition dans cette intégrale.
+%             \begin{solution}
+%                 $$
+%                     (x_0*h)(t) = \int_{-\infty}^{+\infty} x(\tau-t_0)\,h(t-\tau)\,\d\tau.
+%                 $$
+%             \end{solution}
+%             \item Poser $u=\tau-t_0$ (donc $\tau=u+t_0$, $\d u=\d\tau$) et réécrire l'intégrale en fonction de $u$.
+%             \begin{solution}
+%                 $$
+%                     (x_0*h)(t) = \int_{-\infty}^{+\infty} x(u)\,h\big((t-t_0)-u\big)\,\d u.
+%                 $$
+%             \end{solution}
+%             \item Reconnaître, dans le résultat, l'expression de $y$ en un certain point. Conclure.
+%             \begin{solution}
+%                 L'intégrale obtenue est exactement $(x*h)$ évaluée en $t-t_0$, c'est-à-dire $y(t-t_0)$. Donc $(x_0*h)(t)=y(t-t_0)$ pour tout $t$ : $T$ est invariante dans le temps. Avec la question précédente, $T:x\mapsto x*h$ est LTI, de \highlight{réponse impulsionnelle} $h$.
+%             \end{solution}
+%         \end{enumerate}
 
-        \item En utilisant le théorème produit-convolution (Exercice~\ref{ex:dualite-conv}), calculer $y=h*x$.
-        \begin{solution}
-            $\mathcal F[y](f) = H(f)X(f) = \left(\displaystyle\sum_{k=1}^K \delta(f+f_k)\right) X(f)$. D'après la propriété du produit avec une impulsion (vue en cours, appliquée ici en fréquence), $\delta(f+f_k)\,X(f) = X(-f_k)\,\delta(f+f_k)$, donc
-            $$
-                \mathcal F[y](f) = \sum_{k=1}^K X(-f_k)\,\delta(f+f_k), \qquad X(-f_k) = \sum_{n=1}^N a_n\,e^{2\complexj\pi f_kt_n}.
-            $$
-            En repassant en temporel (même résultat que la question 1, dans l'autre sens) :
-            $$
-                y(t) = \sum_{k=1}^K X(-f_k)\,e^{-2\complexj\pi f_kt}.
-            $$
-            Convoluer $x$ par $h$ ne conserve donc, du signal échantillonné $x$, que les $K$ valeurs de son spectre aux fréquences $-f_1,\dots,-f_K$ : $h$ agit comme un filtre qui ne laisse passer qu'un nombre fini de fréquences.
-        \end{solution}
+%         \item Calculer $X=\mathcal F[x]$. On rappelle que $\mathcal F[\delta(\cdot-t_0)](f) = e^{-2\complexj\pi ft_0}$.
+%         \begin{solution}
+%             Par linéarité,
+%             $$
+%                 X(f) = \sum_{n=1}^N a_n\,e^{-2\complexj\pi ft_n}.
+%             $$
+%         \end{solution}
 
-        \item \textbf{Conclusion.} Que devient le résultat de la question précédente pour $K=1$, c'est-à-dire pour $h(t) = e^{-2\complexj\pi f_1t}$ (une seule fréquence) ? En une phrase, que fait alors $h$ au signal échantillonné $x$ ?
-        \begin{solution}
-            Avec $K=1$, $y(t) = X(-f_1)\,e^{-2\complexj\pi f_1t}$ : convoluer $x$ par une unique exponentielle complexe $h(t)=e^{-2\complexj\pi f_1t}$ extrait donc, à elle seule, la valeur du spectre de $x$ à la fréquence $-f_1$. $h$ agit comme un filtre qui isole une seule composante fréquentielle du signal échantillonné.
-        \end{solution}
-    \end{enumerate}
-\end{exercice}
+%         \item Le théorème produit-convolution énonce que $\mathcal F[u*v] = \mathcal F[u]\,\mathcal F[v]$ pour tous signaux $u,v$. En déduire $\mathcal F[y]$, où $y=h*x$, puis $y(t)$. On rappelle que $\delta(f+f_k)\,X(f) = X(-f_k)\,\delta(f+f_k)$ (multiplier une fonction par une impulsion décalée revient à multiplier l'impulsion par la valeur de la fonction en ce point).
+%         \begin{solution}
+%             $$
+%                 \mathcal F[y](f) = H(f)X(f) = \left(\sum_{k=1}^K \delta(f+f_k)\right) X(f) = \sum_{k=1}^K X(-f_k)\,\delta(f+f_k), \qquad X(-f_k) = \sum_{n=1}^N a_n\,e^{2\complexj\pi f_kt_n}.
+%             $$
+%             En repassant en temporel (même calcul qu'à la question 1, dans l'autre sens) :
+%             $$
+%                 y(t) = \sum_{k=1}^K X(-f_k)\,e^{-2\complexj\pi f_kt}.
+%             $$
+%             Convoler $x$ par $h$ ne conserve donc, du signal échantillonné $x$, que les $K$ valeurs de son spectre aux fréquences $-f_1,\dots,-f_K$ : $h$ agit comme un filtre qui ne laisse passer qu'un nombre fini de fréquences.
+%         \end{solution}
+
+%         \item \textbf{Conclusion.} Que devient le résultat de la question précédente pour $K=1$, c'est-à-dire pour $h(t) = e^{-2\complexj\pi f_1t}$ (une seule fréquence) ? En une phrase, que fait alors $h$ au signal échantillonné $x$ ?
+%         \begin{solution}
+%             Avec $K=1$, $y(t) = X(-f_1)\,e^{-2\complexj\pi f_1t}$ : convoler $x$ par une unique exponentielle complexe $h(t)=e^{-2\complexj\pi f_1t}$ extrait donc, à elle seule, la valeur du spectre de $x$ à la fréquence $-f_1$. $h$ agit comme un filtre qui isole une seule composante fréquentielle du signal échantillonné.
+%         \end{solution}
+%     \end{enumerate}
+% \end{exercice}
 
 
 %% ── Ex 3 : APPLY ─────────────────────────────────────────────────
 \begin{exercice}[Modulation d'un signal à bande limitée]
-    Soit $x$ un signal (une fonction du temps $t\mapsto x(t)$) à bande limitée, c'est-à-dire dont la transformée de Fourier $X$ est nulle en dehors de $[-B,B]$ ($B>0$). Pour $f_0>B$, on pose
+    Soit $x$ un signal (une fonction du temps $t\mapsto x(t)$) à bande limitée, c'est-à-dire dont la transformée de Fourier $X$ est nulle en dehors de $[-B,B]$ ($B>0$).
+    
+    Pour $f_0>B$, on pose
     $$
         m(t) = x(t)\sin(2\pi f_0t).
     $$
@@ -262,16 +309,163 @@
 \end{exercice}
 
 
-%% ── Ex 4–5 : APPLY ───────────────────────────────────────────────
+%% ── Ex 4 : APPLY ─────────────────────────────────────────────────
+\begin{exercice}[Convolution : deux portes]
+    On note $\Pi_\theta$ la fonction porte de largeur $\theta>0$, centrée en $0$ :
+    $$
+        \Pi_\theta(t) = \begin{cases} 1 & \text{si } |t|<\theta/2 \\ 0 & \text{sinon.} \end{cases}
+    $$
+    \begin{enumerate}[\bfseries 1.]
+        \item Tracer $\Pi_\theta$. Que vaut $\displaystyle\int_{-\infty}^{+\infty}\Pi_\theta(t)\,\d t$ ?
+        \begin{solution}
+            Un rectangle de largeur $\theta$ et de hauteur $1$. Son intégrale est l'aire de ce rectangle : $\theta$.
+        \end{solution}
 
-%% ── Ex 6–7 (optional) : EXTEND ───────────────────────────────────
-%% Purpose: harder result not in the CM, for strong students.
-%% Mark clearly as optional difficulty.
-%
-% \begin{exercice}[Approfondissement]
+        \item Calculer $\mathcal F[\Pi_\theta]$.
+        \begin{solution}
+            $$
+                \mathcal F[\Pi_\theta](f) = \int_{-\theta/2}^{\theta/2} e^{-2\complexj\pi ft}\,\d t
+                = \left[\frac{e^{-2\complexj\pi ft}}{-2\complexj\pi f}\right]_{-\theta/2}^{\theta/2}
+                = \frac{e^{\complexj\pi f\theta}-e^{-\complexj\pi f\theta}}{2\complexj\pi f}
+                = \frac{\sin(\pi f\theta)}{\pi f} = \theta\,\sinc(\pi f\theta).
+            $$
+            En $f=0$, $\sinc(0)=1$ donc $\mathcal F[\Pi_\theta](0)=\theta$ : cohérent avec la question 1.
+        \end{solution}
+
+        \item Soit $x$ une fonction quelconque. Calculer $(x*\Pi_\theta)(t)$ et l'interpréter.
+        \begin{solution}
+            $\Pi_\theta(t-\tau)=1$ si et seulement si $|t-\tau|<\theta/2$, soit $\tau\in(t-\theta/2,\,t+\theta/2)$, et vaut $0$ sinon. Donc
+            $$
+                (x*\Pi_\theta)(t) = \int_{-\infty}^{+\infty} x(\tau)\,\Pi_\theta(t-\tau)\,\d\tau = \int_{t-\theta/2}^{t+\theta/2} x(\tau)\,\d\tau.
+            $$
+            C'est l'intégrale de $x$ sur une fenêtre de largeur $\theta$ centrée en $t$ : une aire glissante (une moyenne glissante, à un facteur $1/\theta$ près).
+        \end{solution}
+
+        \item Cas particulier $x=\Pi_\theta$ : calculer $(\Pi_\theta*\Pi_\theta)(t)$ et tracer le résultat.
+        \begin{solution}
+            D'après la question précédente,
+            $$
+                (\Pi_\theta*\Pi_\theta)(t) = \int_{t-\theta/2}^{t+\theta/2} \Pi_\theta(\tau)\,\d\tau,
+            $$
+            c'est-à-dire la longueur du recouvrement entre les intervalles $[-\theta/2,\theta/2]$ et $[t-\theta/2,t+\theta/2]$. Pour $|t|\geq\theta$, ces intervalles ne se recouvrent pas : le résultat est $0$. Pour $|t|<\theta$, le recouvrement vaut $\theta-|t|$. D'où
+            $$
+                (\Pi_\theta*\Pi_\theta)(t) = \begin{cases} \theta-|t| & \text{si } |t|<\theta \\ 0 & \text{sinon,} \end{cases}
+            $$
+            un triangle de base $2\theta$ et de hauteur $\theta$.
+        \end{solution}
+
+        \item En notant $Y=\mathcal F[\Pi_\theta*\Pi_\theta]$, le théorème produit-convolution donne $Y(f) = \mathcal F[\Pi_\theta](f)^2$. Sans calculer $Y$ entièrement, vérifier que $Y(0)$ est cohérent avec l'aire du triangle tracé à la question 4.
+        \begin{solution}
+            D'après la question 2, $\mathcal F[\Pi_\theta](0)=\theta$, donc $Y(0)=\theta^2$. Or $Y(0) = \displaystyle\int_{-\infty}^{+\infty}(\Pi_\theta*\Pi_\theta)(t)\,\d t$ est aussi l'aire du triangle de la question 4, qui vaut $\frac12\times(2\theta)\times\theta=\theta^2$. Les deux valeurs coïncident.
+        \end{solution}
+    \end{enumerate}
+\end{exercice}
+
+
+%% ── Ex 5 : APPLY ─────────────────────────────────────────────────
+\begin{exercice}[Décomposition en portes décalées]
+    On reprend la porte $\Pi_\theta$ définie dans l'exercice précédent, de transformée
+    $\mathcal F[\Pi_\theta](f)=\theta\,\sinc(\pi f\theta)$.
+    \begin{enumerate}[\bfseries 1.]
+        \item Soit $x$ la fonction définie par $x(t)=A_1$ sur $[0,\theta[$, $A_2$ sur $[\theta,2\theta[$, $A_3$ sur $[2\theta,3\theta[$, et $0$ ailleurs, avec $A_1=1$, $A_2=2$, $A_3=-1$. Tracer son graphe et l'exprimer comme une somme de trois portes $\Pi_\theta$ centrées et décalées.
+        \begin{solution}
+            Chaque palier, de largeur $\theta$, est une porte $\Pi_\theta$ décalée pour être centrée en son milieu : le premier en $\theta/2$, le deuxième en $3\theta/2$, le troisième en $5\theta/2$. D'où
+            $$
+                f(t) = \Pi_\theta(t-\theta/2) + 2\,\Pi_\theta(t-3\theta/2) -\Pi_\theta(t-5\theta/2).
+            $$
+        \end{solution}
+
+        \item En déduire $\mathcal F\{x\} (f)$ en reprenant les propriétés de la transformée de Fourier (linéarité, décalage).
+        \begin{solution}
+            Par linéarité, et en décalant $\Pi_\theta$ de $t_0$ (ce qui multiplie sa transformée par $e^{-2\complexj\pi ft_0}$) :
+            $$
+                \mathcal F[x](f) = \theta\,\sinc(\pi f\theta)\left(e^{-\complexj\pi f\theta} + 2\,e^{-3\complexj\pi f\theta} + e^{-5\complexj\pi f\theta}\right).
+            $$
+        \end{solution}
+
+        \item Montrer que $|\mathcal F\{x\}(f)|=0$ en $f=k/\theta$ ($k\in\mathbb Z^*$), quels que soient $A_1,A_2,A_3$ et quelles que soient les positions des trois paliers.
+        \begin{solution}
+            D'après la question 2, $\mathcal F[x](f)$ s'écrit comme le produit de $\theta\,\sinc(\pi f\theta)$ par une somme de termes de la forme $A_k\,e^{-2\complexj\pi ft_k}$. Le premier facteur ne dépend ni des $A_k$ ni des positions $t_k$ : c'est le même dès que les trois portes ont la largeur $\theta$. Or un produit est nul dès que l'un de ses facteurs l'est : $\theta\,\sinc(\pi f\theta)=0$ pour $f=k/\theta$ ($k\in\mathbb Z^*$), donc $\mathcal F[x](f)=0$ en ces points, quelle que soit la valeur du second facteur.
+        \end{solution}
+
+        \item On reprend $(A_1,A_2,A_3)=(1,2,1)$, mais avec des largeurs différentes : $\theta_1=\theta$, $\theta_2=2\theta$, $\theta_3=3\theta$ (paliers toujours consécutifs). Exprimer $x$, puis $\mathcal F\{x\}$. L'argument de la question 3 s'applique-t-il encore ? Justifier.
+        \begin{solution}
+            Les paliers occupent maintenant $[0,\theta)$, $[\theta,3\theta)$, $[3\theta,6\theta)$, centrés respectivement en $\theta/2$, $2\theta$, $4{,}5\,\theta$ :
+            $$
+                x(t) = \Pi_\theta(t-\theta/2) + 2\,\Pi_{2\theta}(t-2\theta) + \Pi_{3\theta}(t-4{,}5\,\theta),
+            $$
+            $$
+                \mathcal F[x](f) = \theta\,\sinc(\pi f\theta)\,e^{-\complexj\pi f\theta} + 4\theta\,\sinc(2\pi f\theta)\,e^{-4\complexj\pi f\theta} + 3\theta\,\sinc(3\pi f\theta)\,e^{-9\complexj\pi f\theta}.
+            $$
+            Non : chaque terme a maintenant sa propre largeur, donc son propre sinus cardinal. Il n'y a plus de facteur commun à mettre en évidence comme à la question 3 : l'argument de factorisation ne s'applique plus. Un zéro de $\mathcal F[x]$ résulterait ici d'une annulation particulière entre trois termes différents, pas d'une propriété structurelle garantie.
+        \end{solution}
+    \end{enumerate}
+\end{exercice}
+
+
+%% ── Ex 6 (optionnel) : EXTEND ─────────────────────────────────────
+% \begin{exercice}[Peigne de Dirac --- approfondissement]
+%     Pour $T>0$, on définit le peigne de Dirac $\Sha_T(t) = \displaystyle\sum_{n=-\infty}^{+\infty}\delta(t-nT)$.
 %     \begin{enumerate}[\bfseries 1.]
-%         \item ...
+%         \item Justifier que $\Sha_T$ est $T$-périodique.
 %         \begin{solution}
+%             $$
+%                 \Sha_T(t+T) = \sum_{n=-\infty}^{+\infty}\delta(t+T-nT) = \sum_{n=-\infty}^{+\infty}\delta\big(t-(n-1)T\big).
+%             $$
+%             En posant $m=n-1$, qui parcourt aussi $\mathbb Z$ tout entier quand $n$ le parcourt, cette somme vaut $\displaystyle\sum_{m=-\infty}^{+\infty}\delta(t-mT) = \Sha_T(t)$.
+%         \end{solution}
+
+%         \item $\Sha_T$ admet donc une décomposition en série de Fourier complexe, de coefficients
+%         $c_n=\dfrac1T\displaystyle\int_{-T/2}^{T/2}\Sha_T(t)\,e^{-\complexj n\omega_0t}\,\d t$ ($\omega_0=2\pi/T$). Sur $[-T/2,T/2)$, un seul terme de la somme définissant $\Sha_T$ contribue à l'intégrale : lequel ? En déduire $c_n$. On rappelle que $\displaystyle\int_{-\infty}^{+\infty} x(t)\,\delta(t)\,\d t = x(0)$ pour toute fonction $x$.
+%         \begin{solution}
+%             Seul le terme $n=0$, $\delta(t)$, a son support (le point $t=0$) dans $[-T/2,T/2)$ ; tout autre terme $\delta(t-kT)$ ($k\neq0$) est concentré en $t=kT$, hors de cet intervalle. Donc
+%             $$
+%                 c_n = \frac1T\int_{-T/2}^{T/2}\delta(t)\,e^{-\complexj n\omega_0t}\,\d t = \frac1T\,e^{-\complexj n\omega_0\times0} = \frac1T, \qquad \text{pour tout } n\in\mathbb Z.
+%             $$
+%         \end{solution}
+
+%         \item Écrire la série de Fourier complexe de $\Sha_T(t)$ obtenue à la question précédente.
+%         \begin{solution}
+%             $$
+%                 \Sha_T(t) = \sum_{n=-\infty}^{+\infty} c_n\,e^{\complexj n\omega_0t} = \frac1T\sum_{n=-\infty}^{+\infty} e^{\complexj n\omega_0t}.
+%             $$
+%         \end{solution}
+
+%         \item On rappelle que $\mathcal F\big[e^{2\complexj\pi f_0t}\big](f) = \delta(f-f_0)$ pour tout $f_0\in\R$. En l'appliquant terme à terme à la question précédente, calculer $\mathcal F[\Sha_T]$.
+%         \begin{solution}
+%             Chaque terme $e^{\complexj n\omega_0t} = e^{2\complexj\pi(n/T)t}$ a pour transformée $\delta(f-n/T)$. Par linéarité,
+%             $$
+%                 \mathcal F[\Sha_T](f) = \frac1T\sum_{n=-\infty}^{+\infty} \delta(f-n/T).
+%             $$
+%             C'est de nouveau un peigne de Dirac, d'espacement $1/T$ et de hauteur $1/T$.
+%         \end{solution}
+
+%         \item Soit $x(t)$ une fonction quelconque et $y(t)=x(t)\cdot\Sha_T(t)$. Le théorème produit-convolution énonce que $\mathcal F[uv]=\mathcal F[u]*\mathcal F[v]$ pour tous signaux $u,v$. En déduire $\mathcal F[y]$ en fonction de $X=\mathcal F[x]$.
+%         \begin{solution}
+%             Avec $u=x$, $v=\Sha_T$ :
+%             $$
+%                 \mathcal F[y](f) = X(f) * \frac1T\sum_{n=-\infty}^{+\infty}\delta(f-n/T).
+%             $$
+%         \end{solution}
+
+%         \item On rappelle que $X*\delta(\cdot-f_0) = X(\cdot-f_0)$ pour toute fonction $X$ et tout $f_0\in\R$. En déduire une expression simplifiée de $Y=\mathcal F[y]$.
+%         \begin{solution}
+%             Par linéarité de la convolution,
+%             $$
+%                 Y(f) = \frac1T\sum_{n=-\infty}^{+\infty} X(f)*\delta(\cdot-n/T) = \frac1T\sum_{n=-\infty}^{+\infty} X(f-n/T).
+%             $$
+%         \end{solution}
+
+%         \item Montrer, en réindexant la somme, que $Y(f+1/T)=Y(f)$ pour tout $f$ : $Y$ est $1/T$-périodique. Cette périodicité dépend-elle d'une périodicité de $X$ ?
+%         \begin{solution}
+%             $$
+%                 Y(f+1/T) = \frac1T\sum_{n=-\infty}^{+\infty} X\big(f+1/T-n/T\big) = \frac1T\sum_{n=-\infty}^{+\infty} X\big(f-(n-1)/T\big).
+%             $$
+%             En posant $m=n-1$, qui parcourt aussi $\mathbb Z$ tout entier quand $n$ le parcourt :
+%             $$
+%                 Y(f+1/T) = \frac1T\sum_{m=-\infty}^{+\infty} X(f-m/T) = Y(f).
+%             $$
+%             Cette égalité ne repose sur aucune propriété de $x$ : $x$ était une fonction quelconque dès le départ. La périodicité de $Y$ vient donc entièrement de la structure du peigne $\Sha_T$, et non d'une éventuelle périodicité de $X$.
 %         \end{solution}
 %     \end{enumerate}
 % \end{exercice}

@@ -1,0 +1,11 @@
+%% Spectre (module) de cos(2 pi f0 t) et de sin(2 pi f0 t) : deux
+%% impulsions de poids 1/2 en +-f0. Repris du poly (section 3).
+%% Consomme par slides.
+\begin{tikzpicture}[x=1.7cm,y=1cm]
+    \draw[-Latex] (-2.3,0) -- (2.3,0) node[right] {$f$};
+    \draw[niceblue,ultra thick,-Latex] (-1,0) -- (-1,1.6) node[above,yshift=2pt] {$\frac12$};
+    \draw[niceblue,ultra thick,-Latex] (1,0) -- (1,1.6) node[above,yshift=2pt] {$\frac12$};
+    \node[below] at (-1,0) {$-f_0$};
+    \node[below] at (1,0) {$f_0$};
+    \node[below left] at (0,0) {$0$};
+\end{tikzpicture}

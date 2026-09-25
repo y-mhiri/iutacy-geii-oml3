@@ -1,0 +1,17 @@
+%% Spectre d'amplitude (unilateral) du signal carre. Repris du poly
+%% (Section 3). Consomme par slides.
+\begin{tikzpicture}
+    \begin{axis}[
+        width=9cm, height=5cm,
+        xlabel={fréquence}, ylabel={$A_n$},
+        xtick={1,2,...,9},
+        xticklabels={$f_0$,$2f_0$,$3f_0$,$4f_0$,$5f_0$,$6f_0$,$7f_0$,$8f_0$,$9f_0$},
+        ytick=\empty,
+        ymin=0, ymax=1.5,
+        axis lines=left,
+    ]
+    \addplot+[ycomb, niceblue, thick, mark=*, mark options={fill=niceblue}] coordinates {
+        (1,1.273) (2,0) (3,0.424) (4,0) (5,0.255) (6,0) (7,0.182) (8,0) (9,0.141)
+    };
+    \end{axis}
+\end{tikzpicture}

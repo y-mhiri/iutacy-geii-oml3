@@ -1,0 +1,25 @@
+%% Somme de Riemann : les rectangles X_T(nf_0)*f_0 (largeur f_0,
+%% hauteur X_T(nf_0)) approchent l'aire sous l'enveloppe continue
+%% X(f). Quand T->infini, f_0->df et la somme devient l'integrale.
+%% Reutilise les memes valeurs que intro-limit-small-T.tex (meme
+%% scenario). Consomme par slides.
+\begin{tikzpicture}[x=0.9cm,y=2cm]
+    \draw[-Latex] (-4.6,0) -- (4.6,0) node[right] {\small $f$};
+    \draw[-Latex] (0,-0.35) -- (0,1.25) node[above] {\small $X_T(f)$};
+
+    % rectangles : somme de Riemann, largeur f_0=1
+    \foreach \n/\h in {-4/-0.0000,-3/-0.2122,-2/0.0000,-1/0.6366,0/1.0000,1/0.6366,2/0.0000,3/-0.2122,4/-0.0000} {
+        \draw[fill=orange, fill opacity=0.35, draw=orange!70!black, thick] (\n-0.5,0) rectangle (\n+0.5,\h);
+    }
+
+    % enveloppe continue X(f), meme fonction que les frames precedentes
+    \draw[niceblue, thick, domain=-4.3:4.3, samples=150, variable=\f]
+        plot ({\f},{sin(1.570795*\f r)/(1.570795*\f)});
+
+    % annotation largeur f_0
+    \draw[latex-latex] (0.5,-0.18) -- (1.5,-0.18) node[midway,below] {\footnotesize $f_0$};
+
+    % annotation aire d'un rectangle
+    \node[align=center, font=\footnotesize] at (2.7,0.95) {aire $=X_T(nf_0)\,f_0$};
+    \draw[-Latex, thick] (2.7,0.83) -- (1.15,0.6);
+\end{tikzpicture}

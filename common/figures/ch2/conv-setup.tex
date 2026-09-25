@@ -1,0 +1,11 @@
+%% Mise en place du produit de convolution : x(u)=u (rampe) et
+%% y(u)=Pi_2(u) (porte de largeur 2), sur le meme axe, avant tout
+%% decalage/reflexion. Consomme par slides.
+\begin{tikzpicture}[x=0.9cm,y=0.6cm]
+    \draw[-Latex] (-3.5,0) -- (3.5,0) node[right] {\small $u$};
+    \draw[-Latex] (0,-3.5) -- (0,3.5);
+    \draw[niceblue, thick, domain=-3:3] plot (\x,\x);
+    \node[niceblue] at (2.5,3.1) {\small $x(u)=u$};
+    \draw[red, thick] (-3,0) -- (-1,0) -- (-1,1) -- (1,1) -- (1,0) -- (3,0);
+    \node[red] at (0,1.5) {\small $y(u)=\Pi_2(u)$};
+\end{tikzpicture}

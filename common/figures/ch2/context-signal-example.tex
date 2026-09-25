@@ -1,0 +1,9 @@
+%% Un signal quelconque, non periodique, borne dans le temps -- pose
+%% visuellement la question d'ouverture du chapitre sans nommer de
+%% categorie particuliere. Consomme par slides.
+\begin{tikzpicture}[x=0.6cm,y=1cm]
+    \draw[-Latex] (-0.3,0) -- (11,0) node[right] {$t$};
+    \draw[-Latex] (0,-1.3) -- (0,1.3);
+    \draw[niceblue,thick,domain=0:10,smooth,variable=\t,samples=200]
+        plot ({\t},{1.1*exp(-((\t-5)*(\t-5))/6)*sin(140*\t)});
+\end{tikzpicture}

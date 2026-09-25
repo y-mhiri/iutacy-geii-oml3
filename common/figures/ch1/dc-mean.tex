@@ -1,0 +1,9 @@
+%% Signal periodique oscillant autour d'une ligne pointillee a0 :
+%% illustre a0 comme valeur moyenne / mesure DC. Consomme par slides.
+\begin{tikzpicture}[x=0.4cm,y=1cm]
+    \draw[-Latex] (-0.3,-0.3) -- (18,-0.3) node[right] {$t$};
+    \draw[-Latex] (0,-1.5) -- (0,2.2);
+    \draw[niceblue,thick,domain=0:17,smooth,variable=\t,samples=150]
+        plot ({\t},{0.5+0.9*sin(30*\t)+0.3*sin(90*\t)});
+    \draw[red,dashed,thick] (0,0.5) -- (17,0.5) node[right]{\small $a_0$};
+\end{tikzpicture}

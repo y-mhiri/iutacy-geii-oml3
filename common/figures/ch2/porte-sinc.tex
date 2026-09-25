@@ -1,0 +1,28 @@
+%% Signal porte Pi_theta (largeur theta, hauteur 1, centre en 0) et sa
+%% TF, theta*sinc(pi f theta) (theta=1 ici). Exemple fil rouge de tout
+%% le chapitre. Repris du poly (Exemple, section 2). Consomme par
+%% slides.
+\begin{tikzpicture}[x=1.2cm,y=1cm]
+    \draw[-Latex] (-2.2,0) -- (2.2,0) node[right] {$t$};
+    \draw[-Latex] (0,-0.2) -- (0,1.5) node[above] {$\Pi_\theta(t)$};
+    \draw[niceblue,thick] (-2,0) -- (-1,0) -- (-1,1) -- (1,1) -- (1,0) -- (2,0);
+    \draw[dashed] (-1,0) -- (-1,1); \draw[dashed] (1,0) -- (1,1);
+    \node[below] at (-1,0) {$-\theta/2$};
+    \node[below] at (1,0) {$\theta/2$};
+    \node[left] at (0,1) {$1$};
+\end{tikzpicture}
+\hspace{0.3cm}
+{\LARGE $\overunderset{\mathcal F}{\mathcal{F}^{-1}}{\rightleftarrows}$}
+\hspace{0.3cm}
+\begin{tikzpicture}
+    \begin{axis}[
+        width=6.5cm, height=4cm,
+        xlabel={$f$}, ylabel={$X(f)$},
+        xmin=-6, xmax=6,
+        axis lines=middle,
+        xlabel style={at=(current axis.right of origin), anchor=west},
+        ylabel style={at=(current axis.above origin), anchor=south},
+    ]
+    \addplot[domain=-6:6, samples=200, niceblue, thick] {sin(deg(3.14159*x))/(3.14159*x)};
+    \end{axis}
+\end{tikzpicture}

@@ -1,0 +1,21 @@
+%% Illustration de l'exemple "somme de fonctions periodiques" :
+%% sin(2 pi t) (T=1), sin(2 pi t/3) (T=3), et leur somme (T=6, ppcm de
+%% 1 et 3), 3 mini-chronogrammes empiles dans une seule image (pour
+%% rester compatible avec \resizebox/\slidefig). Consomme par slides.
+\begin{tikzpicture}[x=1.4cm,y=2cm]
+
+    \draw[niceblue,thick,domain=0:12,smooth,variable=\t,samples=200]
+        plot ({\t},{0.8*sin(180*\t)});
+
+    % sin(2 pi t/3), T=3 (milieu, ligne de base y=3)
+    \draw[red,thick,domain=0:12,smooth,variable=\t,samples=200]
+        plot ({\t},{0.8*sin(120*\t)});
+
+    % somme, T=6 (bas, ligne de base y=0)
+    \draw[thick,domain=0:12,smooth,variable=\t,samples=200]
+        plot ({\t},{0.4*sin(180*\t)+0.4*sin(120*\t)});
+
+
+    \draw[thick,gray,-Triangle] (0,0) -- (12,0);
+    \node[below] at (6,-1) {\small $T=6$};
+\end{tikzpicture}

@@ -1,0 +1,28 @@
+%% Sommes partielles S_N, points discrets (pas de trait continu, pour
+%% bien montrer que S_N est une suite) : sum 1/k (diverge -- affiche
+%% jusqu'a N=60 pour bien voir que ca ne plafonne pas) vs sum 1/k^2
+%% (converge vers pi^2/6, ligne pointillee). Consomme par slides.
+\begin{tikzpicture}[x=0.15cm,y=0.9cm]
+    \draw[-Latex] (-1,0) -- (62,0) node[right] {\small $N$};
+    \draw[-Latex] (0,-0.3) -- (0,5.4) node[above] {\small $S_N$};
+    \node at (30,5.8) {\small $\sum 1/k$ diverge};
+    \pgfmathsetmacro{\Ssum}{0}
+    \foreach \k in {1,...,60}{
+        \pgfmathparse{\Ssum+1/\k}
+        \xdef\Ssum{\pgfmathresult}
+        \fill[niceblue] (\k,\Ssum) circle (1.3pt);
+    }
+\end{tikzpicture}
+\hspace{1.6cm}
+\begin{tikzpicture}[x=0.15cm,y=1.7cm]
+    \draw[-Latex] (-1,0) -- (62,0) node[right] {\small $N$};
+    \draw[-Latex] (0,-0.15) -- (0,2.05) node[above] {\small $S_N$};
+    \node at (30,2.2) {\small $\sum 1/k^2 \to \pi^2/6$};
+    \draw[dashed,gray] (0,{pi*pi/6}) -- (60,{pi*pi/6});
+    \pgfmathsetmacro{\Ssum}{0}
+    \foreach \k in {1,...,60}{
+        \pgfmathparse{\Ssum+1/(\k*\k)}
+        \xdef\Ssum{\pgfmathresult}
+        \fill[red] (\k,\Ssum) circle (1.3pt);
+    }
+\end{tikzpicture}

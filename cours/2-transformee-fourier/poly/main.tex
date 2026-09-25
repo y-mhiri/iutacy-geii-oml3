@@ -29,7 +29,7 @@
 \fancyhead[R]{\large GEII -- BUT2}
 \fancyfoot[C]{\thepage}
 \fancyfoot[L]{\includegraphics[height=3em]{../../../common/logos_couleurs/IUTA.png}}
-\fancyfoot[R]{\href{mailto:prenom.nom@univ-smb.fr}{prenom.nom@univ-smb.fr}}
+% \fancyfoot[R]{\href{mailto:prenom.nom@univ-smb.fr}{prenom.nom@univ-smb.fr}}
 
 %% ─── Course metadata ─────────────────────────────────────────────
 \newcommand{\courseName}{Outils Mathématiques et Logiciel --- OML3}
@@ -72,7 +72,7 @@
 
 \section{Introduction et contexte}
 
-\rappelhead{Notations}
+% \rappelhead{Notations}
 Un \highlight{signal} est modélisé par une fonction $x:\R\to\R$, $t\mapsto x(t)$, où $t$ représente le temps. C'est l'objet d'étude de ce chapitre.
 
 \begin{remark}
@@ -108,10 +108,9 @@ Un \highlight{signal} est modélisé par une fonction $x:\R\to\R$, $t\mapsto x(t
 \end{definition}
 
 \begin{remark}
-    Un signal $T$-périodique non nul a une énergie infinie (l'intégrale de $|x(t)|^2$ se répète indéfiniment) mais une puissance finie : $P_x$ se réduit alors à la moyenne de $|x(t)|^2$ sur une période. À l'inverse, un signal transitoire (nul en dehors d'un intervalle borné, par exemple) est typiquement à énergie finie. La théorie du chapitre~1 (séries de Fourier) s'applique aux signaux périodiques ; ce chapitre s'intéresse aux signaux à énergie finie, non nécessairement périodiques.
+    Un signal $T$-périodique non nul a une énergie infinie (l'intégrale de $|x(t)|^2$ se répète indéfiniment) mais une puissance finie : $P_x$ se réduit alors à la moyenne de $|x(t)|^2$ sur une période. À l'inverse, un signal transitoire (nul en dehors d'un intervalle borné, par exemple) est typiquement à énergie finie. La théorie du chapitre~1 (séries de Fourier) s'applique aux signaux périodiques. Ce chapitre s'intéresse aux signaux à énergie finie, non nécessairement périodiques.
 \end{remark}
 
-On peut se demander si les outils du chapitre~1 s'étendent à ce second cas. L'idée : voir un signal à énergie finie comme la limite d'un signal périodique dont la période $T$ tend vers l'infini.
 
 \begin{figure}[h]
     \centering
@@ -199,10 +198,10 @@ On peut se demander si les outils du chapitre~1 s'étendent à ce second cas. L'
     $$\mathcal F^{-1}[\mathcal F[x]] = x.$$ 
 \end{remark}
 
-\begin{remark}[Condition (simplifiée) d'existence]
-    \label{rem:existence}
-    L'intégrale définissant $X(f)$ n'existe, pour une fréquence $f$ donnée, que si la limite qui la définit existe (au sens du \S1.1). Une condition simple qui garantit cette existence, pour tout $f$ à la fois, est l'intégrabilité de $x$ : $\int_{-\infty}^{+\infty}|x(t)|\,\d t < \infty$ (on note $x\in L^1(\R)$). Cette condition est suffisante mais pas nécessaire ; elle exclut en particulier les signaux qui ne s'atténuent pas à l'infini, comme un signal constant, $\cos$ ou $\sin$, qui n'ont donc pas de TF au sens de la Définition~\ref{def:tf}. On reviendra sur ce point au \S3, où l'impulsion de Dirac permettra d'étendre la TF à ces cas.
-\end{remark}
+% \begin{remark}[Condition (simplifiée) d'existence]
+%     \label{rem:existence}
+%     L'intégrale définissant $X(f)$ n'existe, pour une fréquence $f$ donnée, que si la limite qui la définit existe. Une condition simple qui garantit cette existence, pour tout $f$ à la fois, est l'intégrabilité de $x$ : $\int_{-\infty}^{+\infty}|x(t)|\,\d t < \infty$ (on note $x\in L^1(\R)$). Cette condition est suffisante mais pas nécessaire ; elle exclut en particulier les signaux qui ne s'atténuent pas à l'infini, comme un signal constant, $\cos$ ou $\sin$, qui n'ont donc pas de TF au sens de la Définition~\ref{def:tf}. On reviendra sur ce point au \S3, où l'impulsion de Dirac permettra d'étendre la TF à ces cas.
+% \end{remark}
 
 \begin{exemple}[Signal porte]
     \label{ex:porte}
@@ -252,9 +251,9 @@ On peut se demander si les outils du chapitre~1 s'étendent à ce second cas. L'
     $$
 \end{proposition}
 \begin{proof}
-    Par définition de la TFI, $x(t) = \int X(f')e^{2\complexj\pi f't}\,\d f'$. En évaluant cette égalité en $t=-f$ :
+    Par définition de la TFI, $x(t) = \int X(u)e^{2\complexj\pi ut}\,\d u$. En évaluant cette égalité en $t=-f$ :
     $$
-        x(-f) = \int X(f')e^{-2\complexj\pi f'f}\,\d f' = \mathcal F[X](f),
+        x(-f) = \int X(u)e^{-2\complexj\pi uf}\,\d u = \mathcal F[X](f),
     $$
     la dernière intégrale étant, au nom de la variable d'intégration près, exactement la définition de $\mathcal F[X](f)$.
 \end{proof}
@@ -277,7 +276,7 @@ On peut se demander si les outils du chapitre~1 s'étendent à ce second cas. L'
 \begin{proof}
     Pour le décalage temporel, on pose $u=t-t_0$ :
     $$
-    \mathcal F[x(\cdot-t_0)](f) = \int x(t-t_0)e^{-2\complexj\pi ft}\,\d t = \int x(u)e^{-2\complexj\pi f(u+t_0)}\,\d u = e^{-2\complexj\pi ft_0}X(f).
+    \mathcal F[x(t-t_0)](f) = \int x(t-t_0)e^{-2\complexj\pi ft}\,\d t = \int x(u)e^{-2\complexj\pi f(u+t_0)}\,\d u = e^{-2\complexj\pi ft_0}X(f).
     $$
     Pour le décalage fréquentiel, $\displaystyle\int x(t)e^{2\complexj\pi f_0t}e^{-2\complexj\pi ft}\,\d t = \int x(t)e^{-2\complexj\pi (f-f_0)t}\,\d t = X(f-f_0)$.
 \end{proof}
@@ -295,7 +294,7 @@ On peut se demander si les outils du chapitre~1 s'étendent à ce second cas. L'
     Comprimer un signal dans le temps ($|a|>1$) dilate son spectre, et réciproquement.
 \end{proposition}
 \begin{proof}
-    On pose $u=at$ (donc $\d u = a\,\d t$). Si $a>0$ : $\displaystyle\int x(at)e^{-2\complexj\pi ft}\,\d t = \frac1a\int x(u)e^{-2\complexj\pi (f/a)u}\,\d u = \frac1a X\!\left(\frac fa\right)$. Si $a<0$, le changement de variable inverse aussi les bornes de l'intégrale, ce qui fait apparaître $\frac1{-a}=\frac1{|a|}$ à la place de $\frac1a$. Dans les deux cas, on obtient $\frac1{|a|}X(f/a)$.
+    On pose $u=at$ (donc $\d u = a\,\d t$). Si $a>0$, $$\int_{-\infty}^{+\infty} x(at)e^{-2\complexj\pi ft}\,\d t = \frac1a\int_{-\infty}^{+\infty} x(u)e^{-2\complexj\pi (f/a)u}\,\d u = \frac1a X\!\left(\frac fa\right).$$ Si $a<0$, le changement de variable inverse aussi les bornes de l'intégrale, ce qui fait apparaître $\frac1{-a}=\frac1{|a|}$ à la place de $\frac1a$. Dans les deux cas, on obtient $\frac1{|a|}X(f/a)$.
 \end{proof}
 
 \begin{proposition}[Dérivation]
@@ -306,11 +305,11 @@ On peut se demander si les outils du chapitre~1 s'étendent à ce second cas. L'
     $$
 \end{proposition}
 \begin{proof}
-    Par intégration par parties, $\displaystyle\int x'(t)e^{-2\complexj\pi ft}\,\d t = \Big[x(t)e^{-2\complexj\pi ft}\Big]_{-\infty}^{+\infty} + 2\complexj\pi f\int x(t)e^{-2\complexj\pi ft}\,\d t$. Le terme entre crochets est nul car $x(t)\to0$ en $\pm\infty$, d'où le résultat.
+    Par intégration par parties, $$\int_{-\infty}^{+\infty} x'(t)e^{-2\complexj\pi ft}\,\d t = \Big[x(t)e^{-2\complexj\pi ft}\Big]_{-\infty}^{+\infty} + 2\complexj\pi f\int_{-\infty}^{+\infty}  x(t)e^{-2\complexj\pi ft}\,\d t.$$ Le terme entre crochets est nul car $x(t)\to0$ en $\pm\infty$, d'où le résultat.
 \end{proof}
 
 \begin{remark}
-    Dériver dans le domaine temporel revient donc à multiplier par $2\complexj\pi f$ dans le domaine fréquentiel ; réciproquement, intégrer revient (à une constante près) à diviser par $2\complexj\pi f$.
+    Dériver dans le domaine temporel revient donc à multiplier par $2\complexj\pi f$ dans le domaine fréquentiel. Réciproquement, intégrer revient (à une constante près) à diviser par $2\complexj\pi f$.
 \end{remark}
 
 \begin{proposition}[Parité et TF d'un signal réel]
@@ -322,15 +321,15 @@ On peut se demander si les outils du chapitre~1 s'étendent à ce second cas. L'
         \item si $x$ est impaire, $X$ est imaginaire pure et impaire.
     \end{enumerate}
 \end{proposition}
-\begin{proof}
-    En écrivant $e^{-2\complexj\pi ft} = \cos(2\pi ft) - \complexj\sin(2\pi ft)$, on a $\displaystyle X(f) = \int x(t)\cos(2\pi ft)\,\d t - \complexj\int x(t)\sin(2\pi ft)\,\d t$, les deux intégrales étant réelles puisque $x$ est réelle.
+% \begin{proof}
+%     En écrivant $e^{-2\complexj\pi ft} = \cos(2\pi ft) - \complexj\sin(2\pi ft)$, on a $\displaystyle X(f) = \int x(t)\cos(2\pi ft)\,\d t - \complexj\int x(t)\sin(2\pi ft)\,\d t$, les deux intégrales étant réelles puisque $x$ est réelle.
 
-    a) $\overline{X(f)} = \int x(t)\cos(2\pi ft)\,\d t + \complexj\int x(t)\sin(2\pi ft)\,\d t = X(-f)$ (changer $f$ en $-f$ change le signe du second terme).
+%     a) $\overline{X(f)} = \int x(t)\cos(2\pi ft)\,\d t + \complexj\int x(t)\sin(2\pi ft)\,\d t = X(-f)$ (changer $f$ en $-f$ change le signe du second terme).
 
-    b) Si $x$ est paire, $t\mapsto x(t)\sin(2\pi ft)$ est impaire, donc son intégrale sur $\R$ est nulle : $X(f) = \int x(t)\cos(2\pi ft)\,\d t$ est réelle, et paire en $f$ car $\cos$ l'est.
+%     b) Si $x$ est paire, $t\mapsto x(t)\sin(2\pi ft)$ est impaire, donc son intégrale sur $\R$ est nulle : $X(f) = \int x(t)\cos(2\pi ft)\,\d t$ est réelle, et paire en $f$ car $\cos$ l'est.
 
-    c) Si $x$ est impaire, $t\mapsto x(t)\cos(2\pi ft)$ est impaire, donc $X(f) = -\complexj\int x(t)\sin(2\pi ft)\,\d t$ est imaginaire pure, et impaire en $f$ car $\sin$ l'est.
-\end{proof}
+%     c) Si $x$ est impaire, $t\mapsto x(t)\cos(2\pi ft)$ est impaire, donc $X(f) = -\complexj\int x(t)\sin(2\pi ft)\,\d t$ est imaginaire pure, et impaire en $f$ car $\sin$ l'est.
+% \end{proof}
 
 \begin{remark}
     Cette propriété est l'analogue, pour la TF, du corollaire de parité vu au chapitre~1 pour les coefficients $c_n$ d'un signal périodique réel ($c_{-n}=\overline{c_n}$, $c_n\in\R$ si $x$ paire, $c_n$ imaginaire pur si $x$ impaire) : même énoncé, même structure de preuve, seule la somme discrète est remplacée par une intégrale.
@@ -378,7 +377,8 @@ On peut se demander si les outils du chapitre~1 s'étendent à ce second cas. L'
 \section{Impulsion de Dirac}
 \label{sec:dirac}
 
-On a vu (Remarque~\ref{rem:existence}) que des signaux usuels comme $\cos$, $\sin$ ou un signal constant n'ont pas de TF au sens de la Définition~\ref{def:tf}. L'impulsion de Dirac permet de lever cette limitation.
+Certaines fonctions usuelles, comme $\cos$ et $\sin$, ou un signal constant n'ont pas de TF au sens de la Définition~\ref{def:tf} car l'intégrale de $-\infty$ à $+\infty$ ne converge pas.
+L'impulsion de Dirac permet de lever cette limitation.
 
 \begin{definition}[Impulsion de Dirac]
     \label{def:dirac}
@@ -404,30 +404,31 @@ On a vu (Remarque~\ref{rem:existence}) que des signaux usuels comme $\cos$, $\si
     \caption{Convention graphique pour représenter une impulsion de Dirac : une flèche verticale, dont la hauteur affichée n'a pas de sens quantitatif (seule l'aire, ici $1$, compte).}
 \end{figure}
 
-\begin{proposition}[Produit avec une impulsion]
-    \label{prop:dirac-produit}
-    Pour $x$ continue en $t_0$, $x(t)\,\delta(t-t_0) = x(t_0)\,\delta(t-t_0)$.
-\end{proposition}
 
-\begin{proposition}[Changement d'échelle]
-    \label{prop:dirac-echelle}
-    Pour $a\in\R^*$, $\delta(at) = \dfrac{1}{|a|}\delta(t)$. En particulier $\delta(-t)=\delta(t)$ : $\delta$ est paire.
-\end{proposition}
+
+% \begin{proposition}[Changement d'échelle]
+%     \label{prop:dirac-echelle}
+%     Pour $a\in\R^*$, $\delta(at) = \dfrac{1}{|a|}\delta(t)$. En particulier $\delta(-t)=\delta(t)$ : $\delta$ est paire.
+% \end{proposition}
 
 
 \begin{proposition}[Propriétés intégrales]
     \label{prop:dirac-integrales}
-    \begin{enumerate}[a)]
+    Deux propriétés importantes pour les calculs utilisant une impulsion de Dirac.
+    \begin{enumerate}[(i)]
         \item $\displaystyle\int_{-\infty}^{+\infty}\delta(t)\,\d t = 1$ ;
-        \item (\highlight{propriété d'échantillonnage}) pour $x$ continue en $t_0$, $\displaystyle\int_{-\infty}^{+\infty} x(t)\,\delta(t-t_0)\,\d t = x(t_0)$.
+        \item \highlight{Propriété d'échantillonnage} : pour $x$ continue en $t_0$, $\displaystyle\int_{-\infty}^{+\infty} x(t)\,\delta(t-t_0)\,\d t = x(t_0)$.
     \end{enumerate}
 \end{proposition}
-\begin{proof}
-    a) découle directement de la construction : $\int p_\theta(t)\,\d t = \frac1\theta\times\theta = 1$ pour tout $\theta$, donc aussi à la limite.
+% \begin{proof}
+%     a) découle directement de la construction : $\int p_\theta(t)\,\d t = \frac1\theta\times\theta = 1$ pour tout $\theta$, donc aussi à la limite.
 
-    b) $\displaystyle\int x(t)p_\theta(t-t_0)\,\d t = \frac1\theta\int_{t_0-\theta/2}^{t_0+\theta/2} x(t)\,\d t$, qui est la valeur moyenne de $x$ sur un intervalle de largeur $\theta$ centré en $t_0$ : elle tend vers $x(t_0)$ quand $\theta\to0$ par continuité de $x$ en $t_0$.
-\end{proof}
-
+%     b) $\displaystyle\int x(t)p_\theta(t-t_0)\,\d t = \frac1\theta\int_{t_0-\theta/2}^{t_0+\theta/2} x(t)\,\d t$, qui est la valeur moyenne de $x$ sur un intervalle de largeur $\theta$ centré en $t_0$ : elle tend vers $x(t_0)$ quand $\theta\to0$ par continuité de $x$ en $t_0$.
+% \end{proof}
+\begin{proposition}[Produit avec une impulsion]
+    \label{prop:dirac-produit}
+    Pour $x$ continue en $t_0$, $x(t)\,\delta(t-t_0) = x(t_0)\,\delta(t-t_0)$.
+\end{proposition}
 
 
 \begin{proposition}[TF d'une impulsion]
@@ -436,14 +437,14 @@ On a vu (Remarque~\ref{rem:existence}) que des signaux usuels comme $\cos$, $\si
         \mathcal F[\delta](f) = 1, \qquad\qquad \mathcal F[1](f) = \delta(f).
     $$
 \end{proposition}
-\begin{proof}
-    D'après la propriété d'échantillonnage (Propriété~\ref{prop:dirac-integrales}b, avec $x(t)=e^{-2\complexj\pi ft}$, continue partout) : $\mathcal F[\delta](f) = \int \delta(t)e^{-2\complexj\pi ft}\,\d t = e^{-2\complexj\pi f\times0} = 1$. On en déduit $\mathcal F[1](f)$ par dualité (Propriété~\ref{prop:dualite}, avec $x=\delta$, $X=1$) : $\mathcal F[1](f) = \delta(-f) = \delta(f)$ ($\delta$ étant paire, Propriété~\ref{prop:dirac-echelle}).
-\end{proof}
+% \begin{proof}
+%     D'après la propriété d'échantillonnage (Propriété~\ref{prop:dirac-integrales}b, avec $x(t)=e^{-2\complexj\pi ft}$, continue partout) : $\mathcal F[\delta](f) = \int \delta(t)e^{-2\complexj\pi ft}\,\d t = e^{-2\complexj\pi f\times0} = 1$. On en déduit $\mathcal F[1](f)$ par dualité (Propriété~\ref{prop:dualite}, avec $x=\delta$, $X=1$) : $\mathcal F[1](f) = \delta(-f) = \delta(f)$ ($\delta$ étant paire, Propriété~\ref{prop:dirac-echelle}).
+% \end{proof}
 
 \begin{exemple}[TF d'une impulsion décalée]
     D'après le décalage temporel (Propriété~\ref{prop:decalages}) appliqué à $x=\delta$, $X=1$ (Propriété~\ref{prop:dirac-tf}) :
     $$
-        \mathcal F[\delta(\cdot-t_0)](f) = e^{-2\complexj\pi ft_0}.
+        \mathcal F[\delta(t-t_0)](f) = e^{-2\complexj\pi ft_0}.
     $$
     Le module de ce spectre vaut $1$ pour tout $f$ (Figure~\ref{fig:dirac-tf-decale}) : décaler l'impulsion dans le temps ne change pas la façon dont son énergie se répartit sur les fréquences, seulement leur phase.
 \end{exemple}
@@ -512,7 +513,7 @@ On a vu (Remarque~\ref{rem:existence}) que des signaux usuels comme $\cos$, $\si
     $$
         \mathcal F[\sin(2\pi f_0t)](f) = \frac1{2\complexj}\delta(f-f_0) - \frac1{2\complexj}\delta(f+f_0).
     $$
-    On retrouve les poids $c_1=c_{-1}=\frac12$ obtenus au chapitre~1 pour la série de Fourier de $\cos(\omega_0t)$ (TD, Décalage dans le temps) : un signal non périodique donne, aux mêmes fréquences et avec les mêmes poids, des impulsions plutôt que des raies de hauteur finie.
+    On retrouve les poids $c_1=c_{-1}=\frac12$ obtenus au chapitre~1 pour la série de Fourier de $\cos(\omega_0t)$.
 \end{exemple}
 
 \begin{figure}[h]
@@ -542,29 +543,30 @@ On a vu (Remarque~\ref{rem:existence}) que des signaux usuels comme $\cos$, $\si
 
 \begin{proposition}[Linéarité et commutativité]
     \label{prop:conv-lineaire}
-    Le produit de convolution est bilinéaire : $x*(\alpha y+\beta z) = \alpha(x*y)+\beta(x*z)$ pour $\alpha,\beta\in\R$, et commutatif : $x*y=y*x$.
+    Le produit de convolution est bilinéaire : $$x*(\alpha y+\beta z) = \alpha(x*y)+\beta(x*z)$$ pour $\alpha,\beta\in\R$, et commutatif : $x*y=y*x$.
 \end{proposition}
 
 \begin{proposition}[Invariance temporelle]
     \label{prop:conv-invariance}
-    Si $z=x*y$, alors pour tout $t_0\in\R$, $x(\cdot-t_0)*y = z(\cdot-t_0)$ : décaler une des deux entrées décale le résultat d'autant.
+    Si $z=x*y$, alors pour tout $t_0\in\R$, $x(t-t_0)*y = z(t-t_0)$ : décaler une des deux entrées décale le résultat d'autant.
 \end{proposition}
 
 \begin{remark}
     Cette propriété est la raison pour laquelle la convolution intervient partout en traitement du signal. La sortie $y$ d'un système \highlight{linéaire invariant dans le temps} (LTI, un filtre par exemple) s'obtient en convoluant le signal d'entrée $x$ avec la \highlight{réponse impulsionnelle} $h$ du système (la sortie du système lorsque l'entrée est $\delta$), $y=x*h$. 
 \end{remark}
 
-\begin{proposition}[Convolution avec une porte, avec une impulsion]
+\begin{proposition}
+    Quelques opération de convolution usuelles :
     \label{prop:conv-porte-dirac}
-    \begin{enumerate}[a)]
+    \begin{enumerate}[(i)]
         \item $x*\delta = x$ : $\delta$ est l'élément neutre de la convolution ;
-        \item $x*\delta(\cdot-t_0) = x(\cdot-t_0)$ : convoluer par une impulsion décalée décale le signal ;
+        \item $x*\delta(t-t_0) = x(t-t_0)$ : convoluer par une impulsion décalée décale le signal ;
         \item $x*\Pi_\theta$ effectue un lissage de $x$ : sa valeur en $t$ est (à un facteur $\theta$ près) la moyenne de $x$ sur l'intervalle $[t-\theta/2,\,t+\theta/2]$.
     \end{enumerate}
 \end{proposition}
-\begin{proof}
-    a) et b) découlent immédiatement de la propriété d'échantillonnage (Propriété~\ref{prop:dirac-integrales}b) appliquée dans l'intégrale de convolution. c) $\displaystyle(x*\Pi_\theta)(t) = \int x(\tau)\,\Pi_\theta(t-\tau)\,\d\tau = \int_{t-\theta/2}^{t+\theta/2} x(\tau)\,\d\tau$, qui vaut $\theta$ fois la moyenne de $x$ sur cet intervalle.
-\end{proof}
+% \begin{proof}
+%     a) et b) découlent immédiatement de la propriété d'échantillonnage (Propriété~\ref{prop:dirac-integrales}b) appliquée dans l'intégrale de convolution. c) $\displaystyle(x*\Pi_\theta)(t) = \int x(\tau)\,\Pi_\theta(t-\tau)\,\d\tau = \int_{t-\theta/2}^{t+\theta/2} x(\tau)\,\d\tau$, qui vaut $\theta$ fois la moyenne de $x$ sur cet intervalle.
+% \end{proof}
 
 \begin{figure}[h]
     \centering

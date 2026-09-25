@@ -1,0 +1,26 @@
+%% Illustration de la parite pour l'integrale : deux aires de meme
+%% signe qui se doublent (fonction paire) vs deux aires de signe
+%% oppose qui s'annulent (fonction impaire). Consomme par slides.
+\begin{tikzpicture}[x=0.55cm,y=1.2cm]
+    \draw[-Latex] (-3.6,0) -- (3.6,0) node[right] {\small $t$};
+    \draw[-Latex] (0,-0.3) -- (0,1.8);
+    \fill[niceblue,opacity=0.3] (-3,0) -- plot[domain=-3:0,samples=40,variable=\t] ({\t},{1.3*exp(-\t*\t/6)}) -- (0,0) -- cycle;
+    \fill[red,opacity=0.3] (0,0) -- plot[domain=0:3,samples=40,variable=\t] ({\t},{1.3*exp(-\t*\t/6)}) -- (3,0) -- cycle;
+    \draw[niceblue,thick,domain=-3:3,smooth,variable=\t,samples=80]
+        plot ({\t},{1.3*exp(-\t*\t/6)});
+    \node[below] at (-3,0) {\small $-a$};
+    \node[below] at (3,0) {\small $a$};
+    \node at (0,2.1) {\small paire};
+\end{tikzpicture}
+\hspace{1.4cm}
+\begin{tikzpicture}[x=0.55cm,y=1.2cm]
+    \draw[-Latex] (-3.6,0) -- (3.6,0) node[right] {\small $t$};
+    \draw[-Latex] (0,-1.6) -- (0,1.6);
+    \fill[red,opacity=0.3] (-3,0) -- plot[domain=-3:0,samples=40,variable=\t] ({\t},{1.5*\t*exp(-\t*\t/6)}) -- (0,0) -- cycle;
+    \fill[niceblue,opacity=0.3] (0,0) -- plot[domain=0:3,samples=40,variable=\t] ({\t},{1.5*\t*exp(-\t*\t/6)}) -- (3,0) -- cycle;
+    \draw[niceblue,thick,domain=-3:3,smooth,variable=\t,samples=80]
+        plot ({\t},{1.5*\t*exp(-\t*\t/6)});
+    \node[below] at (-3,-0.15) {\small $-a$};
+    \node[below] at (3,0) {\small $a$};
+    \node at (0,1.9) {\small impaire};
+\end{tikzpicture}

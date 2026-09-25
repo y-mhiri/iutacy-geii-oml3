@@ -1,0 +1,20 @@
+%% Changement d'echelle, cas theta=2 (porte large <-> sinc etroit en
+%% frequence). Consomme par slides.
+\begin{tikzpicture}[x=1.2cm,y=1cm]
+    \draw[-Latex] (-2.2,0) -- (2.2,0) node[right] {\small $t$};
+    \draw[-Latex] (0,-0.2) -- (0,2.4);
+    \draw[niceblue,thick] (-2,0) -- (-1,0) -- (-1,2) -- (1,2) -- (1,0) -- (2,0);
+    \node[above] at (0,2.6) {\small $\theta=2$};
+\end{tikzpicture}
+\hspace{0.6cm}
+\begin{tikzpicture}
+    \begin{axis}[
+        width=6cm, height=3.8cm,
+        xlabel={\small $f$}, ylabel={\small $X(f)$}, ytick=\empty,
+        xmin=-8, xmax=8, ymin=-0.7, ymax=2.2,
+        axis lines=middle,
+        xlabel style={at=(current axis.right of origin), anchor=west},
+    ]
+    \addplot[domain=-8:8, samples=250, niceblue, thick] {2*sin(deg(2*3.14159*x))/(2*3.14159*x)};
+    \end{axis}
+\end{tikzpicture}

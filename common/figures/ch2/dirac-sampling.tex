@@ -1,0 +1,18 @@
+%% Propriete d'echantillonnage : x(t) une fonction continue
+%% quelconque, et representation de x(t)*delta(t-t0) = x(t0)*delta(t-t0)
+%% -- une impulsion en t0, de "poids" x(t0) (guide pointille jusqu'a la
+%% courbe pour bien montrer que la hauteur affichee code x(t0), pas
+%% une valeur arbitraire). Consomme par slides.
+\begin{tikzpicture}[x=1.1cm,y=1cm]
+    \pgfmathsetmacro{\tzero}{1}
+    \pgfmathsetmacro{\xtzero}{1.3+0.4*sin(80*\tzero)-0.15*\tzero}
+    \draw[-Latex] (-2.2,0) -- (2.6,0) node[right] {$t$};
+    \draw[-Latex] (0,-0.3) -- (0,2.3);
+    \draw[niceblue, thick, domain=-2:2.3, samples=120, variable=\t]
+        plot ({\t}, {1.3+0.4*sin(80*\t)-0.15*\t});
+    \node[niceblue] at (-1.5,2.0) {$x(t)$};
+    \draw[dashed] (\tzero,0) -- (\tzero,\xtzero) -- (0,\xtzero);
+    \node[left] at (0,\xtzero) {\small $x(t_0)$};
+    \draw[red, ultra thick, -Latex] (\tzero,0) -- ({\tzero},{\xtzero+0.5}) node[above,yshift=2pt] {\small $x(t_0)\,\delta(t-t_0)$};
+    \node[below] at (\tzero,0) {$t_0$};
+\end{tikzpicture}

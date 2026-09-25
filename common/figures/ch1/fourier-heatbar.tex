@@ -1,0 +1,13 @@
+%% Illustration SIMPLE du probleme de diffusion de la chaleur resolu
+%% par Fourier : barre chaude-a-froide + profil de temperature.
+%% Consomme par slides.
+\begin{tikzpicture}
+    \draw[-Latex] (-0.3,2) -- (8.5,2) node[right] {\small $x$};
+    \draw[-Latex] (0,1.9) -- (0,4.2) node[above] {\small $T$};
+    \draw[thick, domain=0:8, samples=60, variable=\t]
+        plot ({\t},{2 + 1.8*exp(-\t/3)});
+    \shade[left color=red!85!orange, right color=blue!30!white] (0,0) rectangle (8,1.2);
+    \draw (0,0) rectangle (8,1.2);
+    \node[below] at (0,-0.15) {\small chaud};
+    \node[below] at (8,-0.15) {\small froid};
+\end{tikzpicture}

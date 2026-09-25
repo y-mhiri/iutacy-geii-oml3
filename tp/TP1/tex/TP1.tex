@@ -140,15 +140,15 @@
 %% ─── AVANT DE COMMENCER ──────────────────────────────────────────
 \section*{Avant de commencer}
 
-Ce TP n'est pas un TP de programmation : toutes les fonctions dont vous
+Ce TP est écrit en Python. Les fonctions dont vous
 aurez besoin sont déjà écrites. Votre travail consiste à exécuter les
-cellules, lire les tracés produits, et répondre aux questions.
+cellules en modifiant ou non les paramètres, lire les tracés produits, et répondre aux questions.
 
 \textbf{Ce document est le sujet de référence.} Le notebook
 \texttt{TP1.ipynb} est un compagnon d'exécution : il ne reprend que
 l'essentiel de chaque question, repérée par son numéro (A1, A2, B1, \dots)
 correspondant à celui utilisé ici. Gardez ce PDF ouvert pendant tout le TP
-et répondez-y (ou sur feuille) : le notebook seul ne suffit pas.
+et répondez-y (au format numérique ou sur feuille) : le notebook seul ne suffit pas.
 
 \subsection*{Configuration de l'environnement}
 \begin{enumerate}
@@ -164,7 +164,7 @@ et répondez-y (ou sur feuille) : le notebook seul ne suffit pas.
     Un notebook Jupyter est une suite de cellules. Une cellule de code
     s'exécute avec \texttt{Shift+Entrée} ; le résultat (tracé, valeur)
     s'affiche juste en dessous. Une cellule peut être ré-exécutée autant de
-    fois que nécessaire, par exemple après avoir changé une valeur -- c'est
+    fois que nécessaire, par exemple après avoir changé une valeur. C'est
     ce que vous ferez pour la plupart des questions de ce TP.
 \end{lesson}
 
@@ -196,9 +196,15 @@ reconnaître $\cos$ de $\sin$ par lecture graphique ?}
 
 \begin{lesson}[Zoomer sans tracé interactif]
     Les tracés de ce TP ne sont pas interactifs (pas de souris pour
-    zoomer). À la place, les fonctions fournies acceptent des arguments
-    \texttt{xlim=(min,max)} et \texttt{ylim=(min,max)} : changez ces
-    bornes et ré-exécutez la cellule pour "vous déplacer" dans le tracé.
+    zoomer). \texttt{plot\_signal} accepte des arguments \texttt{tmin},
+    \texttt{tmax} (les bornes de temps affichées) et \texttt{npts} (le
+    nombre de points de la grille) : resserrez \texttt{tmin}/\texttt{tmax}
+    pour vous déplacer dans le tracé, et augmentez \texttt{npts} si la
+    zone observée est petite ou que le signal y oscille vite. C'est
+    préférable à un simple recadrage visuel : la courbe est réévaluée à
+    la bonne résolution, pas seulement recadrée. (\texttt{xlim} et
+    \texttt{ylim} restent disponibles pour un ajustement fin de
+    l'affichage, sans changer l'échantillonnage.)
 \end{lesson}
 
 \q{Refaire le tracé à $f=440\,\Hz$. Quelle est la période ? Zoomer sur une
@@ -227,7 +233,7 @@ avec le nombre de termes ? Cette série converge-t-elle ?}
     La période ne change pas : chaque terme est de période $\le 1$, donc la
     somme reste $1$-périodique quel que soit $N$. En revanche la série ne
     converge pas : en $t=0$ chaque terme vaut $1$, donc la somme partielle
-    vaut exactement $N$ -- elle diverge avec $N$ (observable numériquement :
+    vaut exactement $N$. Elle diverge avec $N$ (observable numériquement :
     la valeur en $t=0$ atteint $10^5$ pour $N=10^5$). Ailleurs, la somme
     oscille sans se stabiliser. C'est attendu : rien ne garantit qu'une
     série trigonométrique quelconque converge, ce que les conditions de
@@ -243,8 +249,8 @@ Passer du signal carré à ses coefficients de Fourier, puis reconstruire le
 signal à partir d'un nombre fini de ces coefficients, et observer ce que
 cette troncature change.
 
-\q{Afficher le signal carré entre $-10$ et $10$, de période $1$. Utiliser
-\texttt{xlim} pour observer un ou deux sauts de plus près.}
+\q{Afficher le signal carré entre $-10$ et $10$, de période $1$. Resserrer
+\texttt{tmin} et \texttt{tmax} pour observer un ou deux sauts de plus près.}
 \begin{solution}
     \texttt{make\_square(T=1.0, A=1.0)}, puis \texttt{plot\_signal}.
 \end{solution}
@@ -276,7 +282,7 @@ recommencer avec d'autres valeurs (essayer $N=2,5,10,100$). Zoomer avec
 \begin{solution}
     Plus $N$ augmente, plus la reconstruction se rapproche du signal carré
     loin des sauts. Mais au voisinage de chaque discontinuité, un
-    dépassement d'environ 9\% de l'amplitude du saut persiste quel que soit
+    dépassement de l'amplitude du saut persiste quel que soit
     $N$ : il se resserre autour du saut sans jamais disparaître. C'est le
     phénomène de Gibbs.
 \end{solution}
@@ -303,15 +309,29 @@ l'autre l'inverse. On les étudie l'un après l'autre, en entier.
 
 \subsection*{La marche aléatoire}
 
+Le signal \texttt{marche} est un signal $T$-périodique \emph{constant
+par morceaux} (un signal en escalier irrégulier) construit ainsi : on
+tire aléatoirement $n=25$ instants $0=x_1<x_2<\cdots<x_n<T$ dans
+$[0,T[$, puis $n$ valeurs $y_1,\ldots,y_n$ tirées indépendamment dans
+$[-1,1]$. Le signal est défini sur $[0,T[$ par
+$$
+    f(t) = y_i, \qquad t\in[x_i,\,x_{i+1}[,\ \ i=1,\ldots,n-1,
+    \qquad\text{et}\qquad f(t)=y_n \ \text{sur } [x_n,T[,
+$$
+puis prolongé par $T$-périodicité. Les valeurs $y_i$ sont aléatoires,
+mais le nombre de paliers ($n=25$) est fixé à l'avance : le signal
+\emph{saute} d'une valeur aléatoire à une autre à chaque instant $x_i$
+(y compris à la jonction $t=0/T$).
+
 \q{Afficher le signal \texttt{marche} (\texttt{make\_random\_walk}) sur
 quelques périodes. Est-il périodique ? Respecte-t-il les conditions de
 Dirichlet ? Justifier.}
 \begin{solution}
     Oui, périodique par construction. Il respecte Dirichlet malgré son
-    allure erratique : il est construit à partir d'un nombre \emph{fixe} de
-    sommets (25) reliés par des segments de droite -- donc un nombre fini
-    d'extrema, aucune discontinuité (la dernière valeur est recalée sur la
-    première), et borné.
+    allure erratique : il est construit à partir d'un nombre \emph{fixe}
+    de paliers (25), donc un nombre fini de discontinuités (25 sauts,
+    tous finis puisque les $y_i$ sont bornés), aucun extremum à
+    l'intérieur d'un palier (le signal y est constant), et borné.
 \end{solution}
 
 \q{Calculer ses coefficients de Fourier et reconstruire le signal pour une
@@ -324,9 +344,22 @@ comportement observé est-il cohérent avec la réponse précédente ?}
 
 \subsection*{Le signal exotique}
 
+Le signal \texttt{exotique} est le signal $T$-périodique défini sur
+$[0,T[$ par
+$$
+    f(t) = \begin{cases}
+        \sin\!\left(\dfrac{2\pi}{t}\right) & \text{si } t\neq0, \\
+        0 & \text{si } t=0,
+    \end{cases}
+$$
+puis prolongé par $T$-périodicité. Quand $t\to0^+$, l'argument
+$2\pi/t\to+\infty$ : $f$ oscille entre $-1$ et $1$ de plus en plus vite,
+avec une infinité d'extrema qui s'accumulent au voisinage de $t=0$.
+
 \q{Afficher le signal \texttt{exotique} (\texttt{make\_exotique}) sur
-quelques périodes, puis zoomer avec \texttt{xlim} près de $t=0$. Est-il
-périodique ? Respecte-t-il les conditions de Dirichlet ? Justifier.}
+quelques périodes, puis zoomer en resserrant \texttt{tmin}/\texttt{tmax}
+près de $t=0$. Est-il périodique ? Respecte-t-il les conditions de
+Dirichlet ? Justifier.}
 \begin{solution}
     Périodique, mais il oscille infiniment vite au voisinage de $t=0$ dans
     chaque période ($\sin(2\pi/t)$ a une infinité d'extrema qui
@@ -347,7 +380,7 @@ comportement observé est-il cohérent avec la réponse précédente ?}
 
 
 %% ─── SECTION D (optionnelle) ─────────────────────────────────────
-\section{Optionnel, si le temps le permet --- le signal dents de scie}
+\section{Le signal dents de scie (optionnel, si le temps le permet)}
 
 \q{Afficher le signal \texttt{scie} (\texttt{make\_sawtooth}) sur quelques
 périodes. Où se trouve sa discontinuité, comparée à celle du signal carré ?}
@@ -361,9 +394,9 @@ périodes. Où se trouve sa discontinuité, comparée à celle du signal carré 
 valeur de $N$ de votre choix. Zoomer avec \texttt{xlim} exactement sur la
 jonction de période. Que remarquez-vous ?}
 \begin{solution}
-    Même phénomène que pour le carré : un dépassement d'environ 9\% de
+    Même phénomène que pour le carré : un dépassement de
     l'amplitude du saut apparaît juste avant/après la jonction et ne
-    disparaît pas quand $N$ augmente -- Gibbs, ici localisé au seul endroit
+    disparaît pas quand $N$ augmente, le phénomène de Gibbs ici localisé au seul endroit
     où le signal est discontinu.
 \end{solution}
 

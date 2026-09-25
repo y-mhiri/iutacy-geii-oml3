@@ -1,0 +1,34 @@
+%% Dualite en grille 2x2 : en haut, la porte Pi_theta (temps, variable
+%% t) et sa TF theta*sinc(pi f theta) (frequence, variable f) ; en bas,
+%% en repartant du sinus cardinal vu comme un signal TEMPOREL (variable
+%% t), sa TF redonne une porte, maintenant vue en FREQUENCE (variable
+%% f) -- Pi_theta est paire donc x(-f)=x(f). Meme paire de courbes,
+%% roles temps/frequence inverses : l'axe des abscisses de chaque
+%% sous-figure porte volontairement la bonne variable. Consomme par
+%% slides.
+\begin{tikzpicture}
+    \begin{groupplot}[
+        group style={group name=dualgrid, group size=2 by 2, horizontal sep=1.7cm, vertical sep=1.8cm},
+        width=5.6cm, height=3.5cm,
+        ytick=\empty,
+        axis lines=middle,
+    ]
+    \nextgroupplot[xlabel={$t$}, xmin=-2.2,xmax=2.2, ymin=-0.2,ymax=1.5]
+    \addplot[niceblue, thick] coordinates {(-2,0)(-0.5,0)(-0.5,1)(0.5,1)(0.5,0)(2,0)};
+    \node at (axis cs: 0,1.7) {\small $\Pi_\theta(t)$};
+
+    \nextgroupplot[xlabel={$f$}, xmin=-6,xmax=6, ymin=-0.3,ymax=1.15]
+    \addplot[niceblue, thick, domain=-6:6, samples=200] {sin(deg(3.14159*x))/(3.14159*x)};
+    \node at (axis cs: 0,1.35) {\small $\theta\sinc(\pi f\theta)$};
+
+    \nextgroupplot[xlabel={$t$}, xmin=-6,xmax=6, ymin=-0.3,ymax=1.15]
+    \addplot[red, thick, domain=-6:6, samples=200] {sin(deg(3.14159*x))/(3.14159*x)};
+    \node at (axis cs: 0,1.35) {\small $\theta\sinc(\pi t\theta)$};
+
+    \nextgroupplot[xlabel={$f$}, xmin=-2.2,xmax=2.2, ymin=-0.2,ymax=1.5]
+    \addplot[red, thick] coordinates {(-2,0)(-0.5,0)(-0.5,1)(0.5,1)(0.5,0)(2,0)};
+    \node at (axis cs: 0,1.7) {\small $\Pi_\theta(f)$};
+    \end{groupplot}
+    \node at ($(dualgrid c1r1.south)!0.5!(dualgrid c1r2.north)$)
+        {\LARGE $\overunderset{\mathcal F}{\mathcal F^{-1}}{\rightleftarrows}$};
+\end{tikzpicture}

@@ -1,0 +1,37 @@
+%% Intuition de F[delta]=1 comme limite : a gauche, les 3 impulsions
+%% temporelles (p_theta pour theta=0.5 en gris, theta=0.15 en bleu, et
+%% la limite delta en rouge) ; a droite, leurs TF respectives
+%% (sinc(pi f theta), qui s'aplatit vers la constante 1). Meme code
+%% couleur des deux cotes. Consomme par slides.
+\begin{tikzpicture}[x=0.5cm,y=0.3cm]
+    \draw[-Latex] (-1.3,0) -- (1.3,0) node[right] {\tiny $t$};
+    \draw[gray,thick] (-0.25,0) -- (-0.25,2) -- (0.25,2) -- (0.25,0);
+    \node[below] at (0,-0.4) {\tiny $\theta=0.5$};
+\end{tikzpicture}
+\hspace{0.15cm}
+\begin{tikzpicture}[x=0.5cm,y=0.3cm]
+    \draw[-Latex] (-1.3,0) -- (1.3,0) node[right] {\tiny $t$};
+    \draw[niceblue,thick] (-0.075,0) -- (-0.075,6.7) -- (0.075,6.7) -- (0.075,0);
+    \node[below] at (0,-0.4) {\tiny $\theta=0.15$};
+\end{tikzpicture}
+\hspace{0.15cm}
+\begin{tikzpicture}[x=0.5cm,y=0.3cm]
+    \draw[-Latex] (-1.3,0) -- (1.3,0) node[right] {\tiny $t$};
+    \draw[red,ultra thick,-Latex] (0,0) -- (0,6.7);
+    \node[below] at (0,-0.4) {\tiny $\delta$};
+\end{tikzpicture}
+\hspace{0.5cm}
+\begin{tikzpicture}
+    \begin{axis}[
+        width=7cm, height=4cm,
+        xlabel={$f$}, ylabel={$X(f)$},
+        xmin=-4, xmax=4, ymin=-0.3, ymax=1.3,
+        axis lines=middle,
+        xlabel style={at=(current axis.right of origin), anchor=west},
+        ylabel style={at=(current axis.above origin), anchor=south},
+    ]
+    \addplot[gray, dashed, thick, domain=-4:4, samples=200] {sin(deg(3.14159*0.5*x))/(3.14159*0.5*x)};
+    \addplot[niceblue, dashed, thick, domain=-4:4, samples=200] {sin(deg(3.14159*0.15*x))/(3.14159*0.15*x)};
+    \addplot[red, thick, domain=-4:4, samples=2] {1};
+    \end{axis}
+\end{tikzpicture}

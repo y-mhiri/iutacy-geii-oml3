@@ -1,0 +1,31 @@
+%% Idee cle : signal a energie finie = limite d'un signal periodique
+%% quand T -> +infini. Cas T petit (T=1, theta=0.5) : train
+%% d'impulsions rapproche + coefficients Tc_n (batons) -- SANS
+%% l'enveloppe continue, volontairement, pour bien montrer que ceci
+%% est exactement le spectre discret (raies) du chapitre 1, avant que
+%% l'enveloppe n'apparaisse (frame suivante, T grand). Consomme par
+%% slides.
+\begin{tikzpicture}[x=0.7cm,y=0.7cm]
+    \draw[-Latex] (-4.7,0) -- (4.7,0) node[right] {$t$};
+    \draw[-Latex] (0,-0.2) -- (0,2.7) node[above] {};
+    \foreach \c in {-4,-3,-2,-1,0,1,2,3,4} {
+        \draw[niceblue,thick] (\c-0.25,0) -- (\c-0.25,2) -- (\c+0.25,2) -- (\c+0.25,0);
+    }
+    \node[left] at (0,2.5) {$\frac1\theta$};
+    \node[below] at (1,0) {$T$};
+\end{tikzpicture}
+\hspace{0.5cm}
+\begin{tikzpicture}
+    \begin{axis}[
+        width=6.5cm, height=4.3cm,
+        xlabel={fréquence $f$}, ylabel={$T\,c_n$},
+        xmin=-4, xmax=4, ymin=-0.3, ymax=1.7,
+        axis lines=middle,
+        xlabel style={at=(current axis.right of origin), anchor=west},
+        ylabel style={at=(current axis.above origin), anchor=south},
+    ]
+    \addplot+[ycomb, black!70, thick, mark=*, mark size=1.3pt, mark options={fill=black!70}] coordinates {
+        (-4.0000,-0.0000) (-3.0000,-0.2122) (-2.0000,0.0000) (-1.0000,0.6366) (0.0000,1.0000) (1.0000,0.6366) (2.0000,0.0000) (3.0000,-0.2122) (4.0000,-0.0000)
+    };
+    \end{axis}
+\end{tikzpicture}

@@ -109,8 +109,7 @@ plt.show()
 
 # %%
 carre = make_square(T=1.0, A=1.0)
-t = np.linspace(-10, 10, 4000)
-plot_signal(carre, t, xlim=(-2, 2))
+plot_signal(carre, tmin=-2, tmax=2, npts=2000)
 plt.show()
 
 # %% [markdown]
@@ -141,7 +140,8 @@ plt.show()
 t = np.linspace(-2, 2, 2000)
 original = [carre.f(ti) for ti in t]
 N = 10
-y = reconstruct(t, carre.T, a0, an, bn, orders=range(1, N + 1))
+a0_N, an_N, bn_N = fourier_coeffs(carre, N=N)  # recalculés pour ce N
+y = reconstruct(t, carre.T, a0_N, an_N, bn_N, orders=range(1, N + 1))
 plot_reconstruction(t, {f"N={N}": y}, original=original, xlim=(-0.2, 0.2))
 plt.show()
 
@@ -178,22 +178,21 @@ plt.show()
 
 # %%
 marche = make_random_walk(T=1.0, n_points=25, seed=42)
-t = np.linspace(0, 3, 3000)
-plot_signal(marche, t)
+plot_signal(marche, tmin=0, tmax=3, npts=3000)
 plt.show()
 
 # %% [markdown]
 # _Réponse C1 :_ Oui, périodique par construction. Il respecte Dirichlet
 # malgré son allure erratique : construit à partir d'un nombre **fixe** de
-# sommets (25) reliés par des segments de droite -- donc un nombre fini
-# d'extrema, aucune discontinuité (la dernière valeur est recalée sur la
-# première), et borné.
+# paliers (25) -- donc un nombre fini de discontinuités (25 sauts, tous
+# finis), aucun extremum à l'intérieur d'un palier (le signal y est
+# constant), et borné.
 
 # %%
 t = np.linspace(0, 1, 2000)
 original = [marche.f(ti) for ti in t]
-a0, an, bn = fourier_coeffs(marche, N=60)
 N = 20
+a0, an, bn = fourier_coeffs(marche, N=N)  # recalculés pour ce N
 y = reconstruct(t, marche.T, a0, an, bn, orders=range(1, N + 1))
 plot_reconstruction(t, {f"N={N}": y}, original=original, title=marche.name)
 plt.show()
@@ -207,22 +206,22 @@ plt.show()
 
 # %%
 exotique = make_exotique(T=1.0)
-t = np.linspace(0, 3, 3000)
-plot_signal(exotique, t, xlim=(0, 0.05))
+plot_signal(exotique, tmin=0, tmax=0.05, npts=3000)
 plt.show()
 
 # %% [markdown]
 # _Réponse C3 :_ Périodique, mais il oscille infiniment vite au voisinage
 # de $t=0$ dans chaque période ($\sin(2\pi/t)$ a une infinité d'extrema qui
-# s'accumulent quand $t\to0^+$, bien visible en zoomant avec `xlim`). Il ne
-# respecte donc **pas** les conditions de Dirichlet (nombre fini
-# d'extrema), bien que son tracé à l'échelle globale ait l'air raisonnable.
+# s'accumulent quand $t\to0^+$, bien visible en resserrant `tmin`/`tmax`
+# près de $0$). Il ne respecte donc **pas** les conditions de Dirichlet
+# (nombre fini d'extrema), bien que son tracé à l'échelle globale ait
+# l'air raisonnable.
 
 # %%
 t = np.linspace(0, 1, 2000)
 original = [exotique.f(ti) for ti in t]
-a0, an, bn = fourier_coeffs(exotique, N=60)
 N = 20
+a0, an, bn = fourier_coeffs(exotique, N=N)  # recalculés pour ce N
 y = reconstruct(t, exotique.T, a0, an, bn, orders=range(1, N + 1))
 plot_reconstruction(t, {f"N={N}": y}, original=original, title=exotique.name)
 plt.show()
@@ -241,8 +240,7 @@ plt.show()
 
 # %%
 scie = make_sawtooth(T=1.0)
-t = np.linspace(-3, 3, 4000)
-plot_signal(scie, t)
+plot_signal(scie, tmin=-3, tmax=3, npts=4000)
 plt.show()
 
 # %% [markdown]
@@ -255,11 +253,12 @@ plt.show()
 # ### D2 : coefficients, reconstruction, zoom sur la jonction
 
 # %%
-a0, an, bn = fourier_coeffs(scie, N=100)
+a0, an, bn = fourier_coeffs(scie, N=100)  # pour le spectre (D3)
 t = np.linspace(-0.5, 1.5, 2000)
 original = [scie.f(ti) for ti in t]
 N = 10
-y = reconstruct(t, scie.T, a0, an, bn, orders=range(1, N + 1))
+a0_N, an_N, bn_N = fourier_coeffs(scie, N=N)  # recalculés pour ce N (reconstruction)
+y = reconstruct(t, scie.T, a0_N, an_N, bn_N, orders=range(1, N + 1))
 plot_reconstruction(t, {f"N={N}": y}, original=original, xlim=(-0.2, 0.2))
 plt.show()
 
