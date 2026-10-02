@@ -1,0 +1,12 @@
+%% Panneau fréquentiel de la dualité x discret => Xe périodique :
+%% spectre périodisé (bosses triangulaires répétées). Hauteur de boîte
+%% forcée à 1.8 pour s'aligner avec le panneau temporel jumelé.
+%% Consommé par slides.
+\begin{tikzpicture}[x=1cm,y=1cm]
+    \path (0,1.8);
+    \draw[-{Latex[length=2mm]}] (-2.8,0) -- (2.8,0) node[right] {\small$f$};
+    \foreach \c in {-1.8,0,1.8} {
+        \draw[niceblue,thick] (\c-0.7,0) -- (\c,1) -- (\c+0.7,0);
+    }
+    \node[below] at (0,0) {\small$0$};
+\end{tikzpicture}

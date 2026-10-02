@@ -1,0 +1,23 @@
+%% Série de Fourier d'une porte périodique (theta=0.3, T=1), 4
+%% harmoniques : c_n = (theta/T) sinc(n pi theta/T), calcul vérifié
+%% numériquement (script Python, cf. session-plan.md). Superpose les 4
+%% harmoniques individuelles (bleu clair -> bleu), la porte idéale
+%% (pointillés gris) et la reconstruction à 4 modes (trait plein) --
+%% dépassement de Gibbs visible. Aucun texte : figure d'ouverture pure.
+%% Consommé par slides (beat "Rappel").
+\begin{tikzpicture}[x=2cm,y=2.6cm]
+    \draw[black!35!niceblue,domain=-1.5:1.5,samples=150,smooth]
+        plot (\x,{0.5150*cos(360*1*\x)});
+    \draw[black!50!niceblue,domain=-1.5:1.5,samples=150,smooth]
+        plot (\x,{0.3027*cos(360*2*\x)});
+    \draw[black!65!niceblue,domain=-1.5:1.5,samples=150,smooth]
+        plot (\x,{0.0656*cos(360*3*\x)});
+    \draw[black!80!niceblue,domain=-1.5:1.5,samples=150,smooth]
+        plot (\x,{-0.0935*cos(360*4*\x)});
+    \foreach \k in {-1,0,1} {
+        \draw[black!25!red, very thick]
+            (\k-0.75,0) -- (\k-0.15,0) -- (\k-0.15,1) -- (\k+0.15,1) -- (\k+0.15,0) -- (\k+0.75,0);
+    }
+    % \draw[black,ultra thick,domain=-1.5:1.5,samples=200,smooth]
+        % plot (\x,{0.3+0.5150*cos(360*1*\x)+0.3027*cos(360*2*\x)+0.0656*cos(360*3*\x)-0.0935*cos(360*4*\x)});
+\end{tikzpicture}

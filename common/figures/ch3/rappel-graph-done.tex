@@ -1,0 +1,11 @@
+%% Même graphe que rappel-graph.tex, noeud "TFD" rempli -- utilisé en
+%% conclusion (fin de séance 2). Consommé par slides.
+\begin{tikzpicture}[node distance=0.6cm]
+    \node[beatbox] (a) {Séries de\\Fourier};
+    \node[beatbox, right=of a] (b) {Transformée\\de Fourier};
+    \node[beatbox, right=of b] (c) {Discret $\Leftrightarrow$\\Périodique};
+    \node[beatfilled, right=of c] (d) {TFD};
+    \draw[beatarr] (a) -- (b);
+    \draw[beatarr] (b) -- (c);
+    \draw[beatarr] (c) -- (d);
+\end{tikzpicture}

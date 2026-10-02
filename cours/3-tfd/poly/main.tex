@@ -1,0 +1,522 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A,T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{amsthm}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+\usepackage{enumerate}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta,positioning,calc}
+
+\geometry{a4paper, scale=0.8}
+
+%% ─── Colors ──────────────────────────────────────────────────────
+\definecolor{niceblue}{RGB}{0,128,172}
+
+%% ─── Header / footer ─────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{2025-2026}
+\fancyhead[C]{\textbf{\courseName}}
+\fancyhead[R]{\large GEII -- BUT2}
+\fancyfoot[C]{\thepage}
+\fancyfoot[L]{\includegraphics[height=3em]{../../../common/logos_couleurs/IUTA.png}}
+% \fancyfoot[R]{\href{mailto:prenom.nom@univ-smb.fr}{prenom.nom@univ-smb.fr}}
+
+%% ─── Course metadata ─────────────────────────────────────────────
+\newcommand{\courseName}{Outils Mathématiques et Logiciel --- OML3}
+\newcommand{\chapterTitle}{Chapitre 3 --- Transformée de Fourier Discrète}
+
+%% ─── Custom title ────────────────────────────────────────────────
+\makeatletter
+\renewcommand\maketitle{{\raggedright\begin{center}
+    {\Huge\bfseries\@title}
+\end{center}}}
+\makeatother
+
+%% ─── Theorem environments ────────────────────────────────────────
+\theoremstyle{definition}
+\newtheorem{definition}{Définition}[section]
+\newtheorem{proposition}{Propriété}[section]
+\newtheorem{theorem}{Théorème}[section]
+\newtheorem{corollary}{Corollaire}[section]
+\newtheorem{lemma}{Lemme}[section]
+\newtheorem{exemple}{Exemple}[section]
+\newtheorem{remark}{Remarque}[section]
+
+%% ─── Helpers ─────────────────────────────────────────────────────
+\newcommand{\highlight}[1]{{\color{niceblue}\emph{#1}}}
+\newcommand{\tf}{\overset{\mathcal F}{\longleftrightarrow}}
+
+%% ─── Peigne de Dirac (Ш) ─────────────────────────────────────────
+%% Vrai glyphe cyrillique via l'encodage T2A (cm-super fournit le
+%% dessin) -- même solution que elec-s3/ch2, vérifiée ici aussi.
+\newcommand{\Sha}{\text{\fontencoding{T2A}\selectfont\CYRSH}}
+
+%% ─── Figure placeholder (à remplacer par de vraies figures) ──────
+\newcommand{\figureplaceholder}[1]{%
+    \begin{center}
+    \fbox{\parbox{0.82\linewidth}{\centering\vspace{1.8em}\textit{[FIGURE À VENIR : #1]}\vspace{1.8em}}}
+    \end{center}
+}
+
+\newcommand{\slidefig}[2]{%
+\begin{center}
+\resizebox{#1}{!}{\input{../../../common/figures/ch3/#2}}
+\end{center}
+}
+
+
+\input{../../../common/macros.tex}
+
+\title{\chapterTitle}
+\author{}
+\date{}
+
+%% ─────────────────────────────────────────────────────────────────
+\begin{document}
+\fontfamily{bch}\selectfont
+\fontsize{12pt}{14pt}\selectfont
+
+\maketitle
+\thispagestyle{fancy}
+
+% ═══════════════════════════════════════════════════════════════
+\section{Fonction d'une variable discrète à valeurs réelles}
+
+Ce chapitre introduit les signaux dont la variable est discrète, 
+indexée par un entier plutôt que repérée par un réel. Il introduit l'outil d'analyse spectrale qui
+leur correspond, la transformée de Fourier discrète. L'objet central
+n'est plus une fonction du temps continu, mais une suite de valeurs.
+
+\begin{definition}[Signal discret]
+    Un \highlight{signal discret} est une fonction $x:\Z\to\R$,
+    $n\mapsto x[n]$. L'entier $n$ est l'indice (ou le rang) de
+    l'échantillon $x[n]$.
+\end{definition}
+
+\begin{remark}
+    Un signal discret peut provenir des échantillons d'un signal
+    continu, $x[n] = x_c(nT_e)$ (avec $T_e$ la période d'échantillonnage),
+    mais ce n'est pas la seule origine possible.
+    
+    Une suite de mesures, un compteur, ou tout processus indexé par un entier définit tout
+    aussi un signal discret. Dans ce chapitre, $x[n]$ est étudié
+    pour lui-même, indépendamment de son origine.
+\end{remark}
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[x=0.9cm,y=1cm]
+        \draw[-Latex] (-3,0) -- (6.5,0) node[right] {$n$};
+        \foreach \n/\v in {-2/0.3, -1/0.8, 0/1.5, 1/1.0, 2/-0.5, 3/0.6, 4/0.2, 5/-0.3} {
+            \draw[niceblue,ultra thick,-Latex] (\n,0) -- (\n,\v);
+        }
+        \node[below] at (0,0) {\scriptsize $0$};
+        \node[below] at (5,-0.35) {\scriptsize $5$};
+        \node[below] at (-2,0) {\scriptsize $-2$};
+    \end{tikzpicture}
+    \caption{Un signal discret quelconque $x[n]$, représenté en bâtons : une valeur par entier $n$, rien entre deux entiers consécutifs.}
+    \label{fig:signal-discret}
+\end{figure}
+
+\begin{definition}[Échelon unité discret]
+    $$
+        u[n] = \begin{cases} 1 & \text{si } n\geq0 \\ 0 & \text{si } n<0. \end{cases}
+    $$
+\end{definition}
+
+\begin{definition}[Impulsion unité discrète]
+    $$
+        \delta[n] = \begin{cases} 1 & \text{si } n=0 \\ 0 & \text{si } n\neq0. \end{cases}
+    $$
+\end{definition}
+
+\begin{remark}
+    $\delta[n]$ n'est pas l'impulsion de Dirac $\delta(t)$ du chapitre
+    précédent. $\delta(t)$ est une distribution, définie uniquement par
+    son action sous une intégrale ($\int x(t)\delta(t)\,\d t = x(0)$) :
+    elle n'a pas de valeur ponctuelle propre. $\delta[n]$, au contraire,
+    est une fonction ordinaire, parfaitement définie point par point.
+    Les crochets rappellent cette différence de nature à chaque
+    écriture.
+\end{remark}
+
+\begin{definition}[Signal périodique discret]
+    $x[n]$ est \highlight{périodique} de période $N\in\N^*$ si
+    $$x[n+N]=x[n], \ \text{pour tout} \ n\in\Z.$$ Contrairement au cas continu, où
+    la période $T$ peut être n'importe quel réel strictement positif,
+    la période $N$ d'un signal discret est nécessairement un entier.
+\end{definition}
+
+
+% ═══════════════════════════════════════════════════════════════
+\section{Discret en temps \texorpdfstring{$\Leftrightarrow$}{<=>} périodique en fréquence}
+
+On établit ici le lien entre les fonctions de variable \highlight{discrète} et les fonctions \highlight{périodiques},
+à travers la transformée de Fourier.  
+Ce lien permet de définit une transformée de Fourier discrète et donc une analyse spectrale sur signaux discret.
+
+\begin{definition}[Peigne de Dirac]
+    Pour $T_e>0$, le \highlight{peigne de Dirac} de période $T_e$ est une suite d'impulsion de Dirac, 
+    $$
+       t\in \R, \ \Sha_{T_e}(t) = \sum_{n=-\infty}^{+\infty} \delta(t-nT_e).
+    $$
+    Un signal discret $x[n]$ correspond, en temps continu, à un signal
+    $x_c(t)\times \Sha_{T_e}(t)$, c'est à dire nul partout sauf aux instants $nT_e$,
+            $$x_c(t)= \begin{cases}
+                0 & t\neq nT_e, \ n\in \Z\\
+                x[n] & t = nT_e, \ n\in\Z
+            \end{cases}$$.
+\end{definition}
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[x=1.6cm,y=1.2cm]
+        \draw[-Latex] (-3,0) -- (3,0) node[right] {$t$};
+        \foreach \k in {-2,-1,0,1,2} {
+            \draw[niceblue,ultra thick,-Latex] (\k,0) -- (\k,1);
+        }
+        \node[below] at (0,0) {\scriptsize $0$};
+        \node[below] at (1,0) {\scriptsize $T_e$};
+        \node[below] at (2,0) {\scriptsize $2T_e$};
+        \node[below] at (-1,0) {\scriptsize $-T_e$};
+        \node[below] at (-2,0) {\scriptsize $-2T_e$};
+        \node at (-2.7,0.5) {$\cdots$};
+        \node at (2.7,0.5) {$\cdots$};
+    \end{tikzpicture}
+    \caption{Le peigne de Dirac $\Sha_{T_e}(t)$ : un train d'impulsions de Dirac, toutes de même poids, régulièrement espacées de $T_e$.}
+    \label{fig:peigne}
+\end{figure}
+
+\begin{proposition}[Transformée de Fourier du peigne de Dirac]
+    \label{prop:tfpeigne}
+    $$
+        \Sha_{T_e}(t) \;\tf\; F_e\,\Sha_{F_e}(f), \qquad F_e = 1/T_e.
+    $$
+\end{proposition}
+\begin{proof}
+    $\Sha_{T_e}$ est $T_e$-périodique et ne contient, sur une période,
+    qu'une seule impulsion (en $t=0$). Ses coefficients de Fourier
+    complexes valent donc tous
+    $$
+        c_n = \frac1{T_e}\int_{-T_e/2}^{T_e/2} \Sha_{T_e}(t)\,e^{-2\complexj\pi nF_et}\,\d t
+            = \frac1{T_e}\int_{-T_e/2}^{T_e/2} \delta(t)\,e^{-2\complexj\pi nF_et}\,\d t
+            = \frac1{T_e},
+    $$
+    par propriété d'échantillonnage de $\delta$. La série de Fourier
+    correspondante, $\Sha_{T_e}(t) = \frac1{T_e}\sum_n e^{2\complexj\pi nF_et}$,
+    se transforme terme à terme : chaque exponentielle a pour
+    transformée une impulsion, $\mathcal F[e^{2\complexj\pi nF_et}](f) =
+    \delta(f-nF_e)$ (chapitre précédent). Par linéarité,
+    $$
+        \mathcal F[\Sha_{T_e}](f) = \frac1{T_e}\sum_{n=-\infty}^{+\infty} \delta(f-nF_e) = F_e\,\Sha_{F_e}(f).
+    $$
+\end{proof}
+
+\begin{theorem}[Dualité discret $\Leftrightarrow$ périodique]
+    \label{thm:dualite}
+    Soit $x$ un signal continu, de transformée de Fourier $X$.
+    \begin{enumerate}[a)]
+        \item Si $x$ est rendu discret par $x_e(t)=x(t)\,\Sha_{T_e}(t)$,
+        alors
+        $$
+            X_e(f) = F_e \sum_{k=-\infty}^{+\infty} X(f-kF_e),
+        $$
+        $X_e$ est \highlight{périodique}, de période $F_e$.
+        \item Réciproquement, si $x$ est \highlight{périodique} de
+        période $T$, de coefficients de Fourier complexes $(c_n)$, alors
+        $$
+            X(f) = \sum_{n=-\infty}^{+\infty} c_n\,\delta(f-n/T),
+        $$
+        $X$ est un peigne de Dirac pondéré, d'espacement $1/T$, c'est une fonction discrète.
+    \end{enumerate}
+    Dans les deux cas, la transformée de Fourier échange les rôles de
+    discret et de périodique entre les deux domaines.
+\end{theorem}
+% \begin{proof}
+%     a) $x_e = x\times\Sha_{T_e}$ : un produit en temps devient une
+%     convolution en fréquence (dualité produit/convolution, chapitre
+%     précédent), donc
+%     $$
+%         X_e = X * \mathcal F[\Sha_{T_e}] = X * (F_e\,\Sha_{F_e})
+%     $$
+%     (Propriété~\ref{prop:tfpeigne}). Le peigne $F_e\,\Sha_{F_e}$ est une
+%     somme d'impulsions pondérées par $F_e$ aux fréquences $kF_e$ ;
+%     convoluer $X$ par l'une d'elles la décale de $kF_e$ (chapitre
+%     précédent), et sommer sur $k$ donne
+%     $$
+%         X_e(f) = F_e\sum_{k=-\infty}^{+\infty} X(f-kF_e).
+%     $$
+
+%     b) $x$ périodique de période $T$ s'écrit comme sa série de Fourier
+%     complexe, $x(t) = \sum_n c_n\,e^{2\complexj\pi nt/T}$. Comme dans la
+%     preuve de la Propriété~\ref{prop:tfpeigne}, chaque exponentielle a
+%     pour transformée une impulsion, $\mathcal F[e^{2\complexj\pi
+%     nt/T}](f) = \delta(f-n/T)$ ; par linéarité,
+%     $$
+%         X(f) = \sum_{n=-\infty}^{+\infty} c_n\,\delta(f-n/T).
+%     $$
+% \end{proof}
+
+
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.4\linewidth}
+        \centering
+        \slidefig{.7\textwidth}{periodique-temps.tex}
+      
+         \small  $x$ périodique
+    \end{minipage}
+    \hfill
+    $\longrightarrow$
+    \hfill
+    \begin{minipage}{0.4\linewidth}
+        \centering
+        \slidefig{\textwidth}{periodique-frequence.tex}
+        
+        \small  $X$ peigne de Dirac
+    \end{minipage}
+    \begin{minipage}{0.4\linewidth}
+        \centering
+        \slidefig{.7\textwidth}{echantillonnage-temps.tex}
+      
+         \small $x$ périodique
+    \end{minipage}
+    \hfill
+    $\longrightarrow$
+    \hfill
+    \begin{minipage}{0.4\linewidth}
+        \centering
+        \slidefig{\textwidth}{echantillonnage-frequence.tex}
+        
+        \small $X$ peigne de Dirac
+    \end{minipage}
+    \caption{Les deux volets de la dualité (Théorème~\ref{thm:dualite}) : discrétiser en temps périodise en fréquence (a), périodiser en temps discrétise en fréquence (b).}
+    \label{fig:dualite}
+\end{figure}
+
+\begin{remark}
+    On considère une fonction discrète écrite en temps continu et issue de l'échantillonnage d'une fonction $x(t)$
+    $$
+        x_e(t) =  x(t)\,\Sha_{T_e}(t) = \sum_n
+x[n]\,\delta(t-nT_e),
+    $$
+    avec $x[n] = x_e(nT_e)$. 
+    Sa transformée de Fourier peut alors s'écrire
+    $$
+    X_e(f) = \sum_{n=-\infty}^{+\infty} x[n]\,e^{-2\complexj\pi fnT_e}.
+    $$
+    Cette expression ne dépend de $f$ et $T_e$ qu'à travers leur produit, 
+    la variable pertinente est alors le rapport $\nu=f/F_e=fT_e$ et $X_e(\nu)$ est 1-périodique.
+\end{remark}
+
+
+\begin{definition}[Fréquence normalisée]
+    On appelle \highlight{fréquence normalisée} la quantité sans
+    dimension $\nu = f/F_e$. Pour une fonction discrète $x[n]$, on écrit sa transformée de Fourier en fonction de $\nu$,
+    $$
+        X(\nu) = \sum_{n=-\infty}^{+\infty} x[n]\,e^{-2\complexj\pi\nu n},
+    $$
+    périodique de période $1$ (conséquence directe de la
+    $F_e$-périodicité de $X_e(f)$).
+\end{definition}
+
+
+% ═══════════════════════════════════════════════════════════════
+\section{Transformée de Fourier Discrète}
+
+On dispose maintenant de tous les ingrédients pour construire l'outil
+central de ce chapitre : un signal discret de longueur finie a un
+spectre qui tient dans un nombre fini de valeurs.
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[x=0.55cm,y=0.4cm]
+        \draw[-Latex] (-7,0) -- (13,0) node[right] {$n$};
+        \foreach \n/\v in {-6/1,-5/2,-4/3,-3/4,-2/5,-1/6} {
+            \draw[gray,thick,-Latex] (\n,0) -- (\n,\v);
+        }
+        \foreach \n/\v in {0/1,1/2,2/3,3/4,4/5,5/6} {
+            \draw[niceblue,ultra thick,-Latex] (\n,0) -- (\n,\v);
+        }
+        \foreach \n/\v in {6/1,7/2,8/3,9/4,10/5,11/6} {
+            \draw[gray,thick,-Latex] (\n,0) -- (\n,\v);
+        }
+        \draw[niceblue,dashed] (-0.4,-0.5) rectangle (5.4,7);
+        \node[below] at (0,0) {\scriptsize $0$};
+        \node[below] at (5,0) {\scriptsize $N-1$};
+    \end{tikzpicture}
+    \caption{Une séquence finie $x[n]$, $n=0,\dots,N-1$ (en bleu, ici $N=6$), et son prolongement $N$-périodique implicite (en gris). Le raccord entre deux périodes ($x[N-1]$ suivi de $x[0]$) est ici franchement discontinu -- exactement la situation décrite plus loin (fuite spectrale).}
+    \label{fig:sequence-finie}
+\end{figure}
+
+\begin{corollary}[Spectre d'une séquence finie]
+    Soit une séquence de longueur $N$, $$x[n], \quad  n=0,\dots,N-1,$$ 
+    prolongée en un signal $N$-périodique : 
+    $$\text{pour} \ k\in\Z, n\in[0,N-1], x[n + kN] = x[n].$$
+    
+    Ainsi, $x$ est discret en $n$ et $N$-périodique donc d'après le théorème~\ref{thm:dualite}, 
+    $X(\nu)$ est aussi discret et 1-périodique, d'espacement $1/N$.
+    \textbf{Le spectre d'une séquence de longueur $N$ est donc périodique et tient donc dans exactement
+    $N$ valeurs, aux fréquences normalisées $\nu=k/N$, $k=0,\dots,N-1$.}
+\end{corollary}
+
+\begin{definition}[Transformée de Fourier Discrète]
+    Pour une séquence $x[n]$, $n=0,\dots,N-1$, la
+    \highlight{transformée de Fourier discrète} (TFD) est la séquence
+    $$
+        X[k] = \sum_{n=0}^{N-1} x[n]\,e^{-2\complexj\pi kn/N}, \qquad k=0,\dots,N-1.
+    $$
+    $X[k]$ est la valeur du spectre normalisé prise en $\nu=k/N$ --
+    exactement les $N$ valeurs prédites par le corollaire ci-dessus.
+\end{definition}
+
+\begin{definition}[Transformée de Fourier Discrète inverse]
+    $$
+        x[n] = \frac1N \sum_{k=0}^{N-1} X[k]\,e^{2\complexj\pi kn/N}, \qquad n=0,\dots,N-1.
+    $$
+\end{definition}
+
+\begin{remark}[Convention de normalisation]
+    Le facteur $1/N$ ci-dessus est un choix de convention parmi
+    d'autres : certains ouvrages le placent sur la transformée directe
+    plutôt que sur l'inverse, ou répartissent $1/\sqrt N$ sur les deux.
+    La convention retenue ici place tout le facteur $1/N$ sur la TFD
+    inverse.
+\end{remark}
+
+\begin{exemple}[TFD d'un cosinus échantillonné]
+    Soit $N=8$ et $x[n]=\cos(2\pi\cdot2n/8)=\cos(\pi n/2)$ (deux cycles
+    sur la fenêtre). Avec la formule d'Euler,
+    $x[n]=\tfrac12e^{2\complexj\pi\cdot2n/8}+\tfrac12e^{-2\complexj\pi\cdot2n/8}$,
+    et chaque somme géométrique $\sum_{n=0}^{7}e^{-2\complexj\pi(k\mp2)n/8}$
+    vaut $8$ si $k\mp2\equiv0\ (\mathrm{mod}\ 8)$, et $0$ sinon. D'où
+    $$
+        X[2]=X[6]=4, \qquad X[k]=0 \text{ pour les autres } k.
+    $$
+    Deux valeurs non nulles, symétriques autour de $k=N/2$ : même
+    structure que les deux impulsions de la transformée d'un cosinus
+    continu (chapitre précédent).
+\end{exemple}
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[x=1cm,y=1cm]
+        \draw[-Latex] (-0.5,0) -- (8,0) node[right] {$k$};
+        \filldraw[niceblue] (0,0) circle (1.1pt);
+        \filldraw[niceblue] (1,0) circle (1.1pt);
+        \draw[niceblue,ultra thick,-Latex] (2,0) -- (2,2) node[above] {\scriptsize $4$};
+        \filldraw[niceblue] (3,0) circle (1.1pt);
+        \filldraw[niceblue] (4,0) circle (1.1pt);
+        \filldraw[niceblue] (5,0) circle (1.1pt);
+        \draw[niceblue,ultra thick,-Latex] (6,0) -- (6,2) node[above] {\scriptsize $4$};
+        \filldraw[niceblue] (7,0) circle (1.1pt);
+        \foreach \k in {0,1,2,3,4,5,6,7} \node[below] at (\k,0) {\scriptsize $\k$};
+    \end{tikzpicture}
+    \caption{Spectre du cosinus échantillonné ($N=8$) : deux bâtons non nuls, en $k=2$ et $k=6$, symétriques autour de $k=N/2=4$.}
+    \label{fig:spectre-cosinus}
+\end{figure}
+
+\begin{exemple}[TFD d'une porte discrète]
+    Soit $x[n]=1$ pour $n=0,\dots,M-1$ et $x[n]=0$ pour
+    $n=M,\dots,N-1$ (une porte discrète de largeur $M$ dans une fenêtre
+    de $N$ points). La somme géométrique se calcule directement :
+    $$
+        X[k] = \sum_{n=0}^{M-1} e^{-2\complexj\pi kn/N}
+             = e^{-\complexj\pi k(M-1)/N}\,\frac{\sin(\pi kM/N)}{\sin(\pi k/N)}
+             \quad (k\neq0), \qquad X[0]=M.
+    $$
+    C'est l'analogue discret du sinus cardinal : un lobe principal
+    autour de $k=0$, d'autant plus large que $M$ est petit devant $N$ --
+    même compromis largeur temporelle / largeur spectrale que pour la
+    porte continue du chapitre précédent.
+\end{exemple}
+
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.48\linewidth}
+        \centering
+        \begin{tikzpicture}[x=0.32cm,y=2.4cm]
+            \draw[-Latex] (-0.5,0) -- (17,0) node[right] {\scriptsize $k$};
+            \foreach \k/\v in {0/1.000, 1/0.987, 2/0.949, 3/0.888, 4/0.805, 5/0.704, 6/0.588, 7/0.463, 8/0.333, 9/0.203, 10/0.078, 11/0.037, 12/0.138, 13/0.221, 14/0.283, 15/0.321, 16/0.333} {
+                \draw[niceblue,thick,-Latex] (\k,0) -- (\k,\v);
+            }
+        \end{tikzpicture}
+        \\[0.3em] \small (a) $M=3$ (porte étroite)
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\linewidth}
+        \centering
+        \begin{tikzpicture}[x=0.32cm,y=2.4cm]
+            \draw[-Latex] (-0.5,0) -- (17,0) node[right] {\scriptsize $k$};
+            \foreach \k/\v in {0/1.000, 1/0.848, 2/0.474, 3/0.067, 4/0.185, 5/0.208, 6/0.069, 7/0.088, 8/0.141, 9/0.072, 10/0.046, 11/0.111, 12/0.076, 13/0.020, 14/0.094, 15/0.083, 16/0.000} {
+                \draw[niceblue,thick,-Latex] (\k,0) -- (\k,\v);
+            }
+        \end{tikzpicture}
+        \\[0.3em] \small (b) $M=10$ (porte plus large)
+    \end{minipage}
+    \caption{Spectre (module, normalisé par $M$) de la porte discrète de largeur $M$ dans une fenêtre de $N=32$ points, pour deux valeurs de $M$. Une porte plus étroite (a) donne un lobe principal plus large qu'une porte plus large (b) -- même compromis largeur temporelle / largeur spectrale que pour la porte continue.}
+    \label{fig:spectre-porte-discrete}
+\end{figure}
+
+\begin{remark}[Algorithme de calcul rapide]
+    Calculer $X[k]$ pour tous les $k$ à partir de la définition demande
+    $N^2$ multiplications ($N$ valeurs de $k$, chacune une somme de $N$
+    termes). En séparant les indices pairs et impairs de $x[n]$, chaque
+    TFD de taille $N$ se ramène à deux TFD de taille $N/2$ : répétée
+    récursivement, cette idée ramène le coût total à $N\log_2N$
+    opérations. C'est l'algorithme de \highlight{transformée de Fourier
+    rapide} (FFT), utilisé en pratique dès que $N$ dépasse quelques
+    dizaines de points.
+\end{remark}
+
+\begin{remark}[Discontinuité du prolongement périodique et fuite spectrale]
+    La TFD suppose implicitement que $x[n]$ se prolonge en un signal
+    $N$-périodique (corollaire ci-dessus). Si le signal observé ne
+    boucle pas exactement sur $N$ échantillons -- par exemple un
+    cosinus dont la fréquence n'est pas un multiple entier de $F_e/N$ --,
+    ce prolongement présente une discontinuité au raccord
+    $n=N-1\to n=0$. Or un signal périodique discontinu a des
+    coefficients de Fourier qui décroissent lentement (chapitre 1) : la
+    TFD d'un tel signal n'est plus concentrée sur un ou deux rangs $k$,
+    mais s'étale sur plusieurs -- un phénomène appelé
+    \highlight{fuite spectrale}.
+\end{remark}
+
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.48\linewidth}
+        \centering
+        \begin{tikzpicture}[x=0.4cm,y=0.28cm]
+            \draw[-Latex] (-0.5,0) -- (16,0) node[right] {\scriptsize $k$};
+            \foreach \k/\v in {0/0.000, 1/0.000, 2/0.000, 3/8.000, 4/0.000, 5/0.000, 6/0.000, 7/0.000, 8/0.000, 9/0.000, 10/0.000, 11/0.000, 12/0.000, 13/8.000, 14/0.000, 15/0.000} {
+                \draw[niceblue,thick,-Latex] (\k,0) -- (\k,\v);
+            }
+        \end{tikzpicture}
+        \\[0.3em] \small (a) fréquence exacte ($k_0=3$)
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\linewidth}
+        \centering
+        \begin{tikzpicture}[x=0.4cm,y=0.28cm]
+            \draw[-Latex] (-0.5,0) -- (16,0) node[right] {\scriptsize $k$};
+            \foreach \k/\v in {0/1.000, 1/1.129, 2/1.705, 3/5.025, 4/5.222, 5/1.886, 6/1.271, 7/1.057, 8/1.000, 9/1.057, 10/1.271, 11/1.886, 12/5.222, 13/5.025, 14/1.705, 15/1.129} {
+                \draw[niceblue,thick,-Latex] (\k,0) -- (\k,\v);
+            }
+        \end{tikzpicture}
+        \\[0.3em] \small (b) fréquence non exacte ($k_0=3{,}5$)
+    \end{minipage}
+    \caption{Spectre (module, $N=16$) d'un cosinus dont la fréquence tombe exactement sur un rang $k$ (a) contre une fréquence intermédiaire entre deux rangs (b) : dans le second cas, l'énergie ne se concentre plus sur un seul couple de bâtons mais fuit sur les rangs voisins -- la fuite spectrale.}
+    \label{fig:fuite-spectrale}
+\end{figure}
+
+\end{document}

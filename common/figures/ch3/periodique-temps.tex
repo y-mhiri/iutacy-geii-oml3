@@ -1,0 +1,9 @@
+%% Panneau temporel de la dualité x périodique => X discret : un
+%% signal réellement périodique. Hauteur de boîte forcée à 1.8 pour
+%% s'aligner avec le panneau fréquentiel jumelé. Consommé par slides.
+\begin{tikzpicture}[x=0.35cm,y=1cm]
+    \path (0,1.8);
+    \draw[-{Latex[length=2mm]}] (-0.5,0) -- (10.5,0) node[right] {\small$t$};
+    \draw[niceblue,thick,domain=0:10,samples=100,smooth]
+        plot (\x,{1+0.7*sin(\x*108)});
+\end{tikzpicture}

@@ -1,0 +1,12 @@
+%% Même graphe que rappel-graph.tex, noeud "Discret <=> Périodique"
+%% rempli -- utilisé en fin de séance 1 (bilan) pour marquer la
+%% progression atteinte sans encore la TFD. Consommé par slides.
+\begin{tikzpicture}[node distance=0.6cm]
+    \node[beatbox] (a) {Séries de\\Fourier};
+    \node[beatbox, right=of a] (b) {Transformée\\de Fourier};
+    \node[beatfilled, right=of b] (c) {Discret $\Leftrightarrow$\\Périodique};
+    \node[beatbox, right=of c] (d) {TFD};
+    \draw[beatarr] (a) -- (b);
+    \draw[beatarr] (b) -- (c);
+    \draw[beatarr] (c) -- (d);
+\end{tikzpicture}

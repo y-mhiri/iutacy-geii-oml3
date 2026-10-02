@@ -1,0 +1,23 @@
+%% Panneau fréquentiel : |X(nu)| pour la séquence de
+%% dtft-synthetique-temps.tex, calcul direct (partie réelle et partie
+%% imaginaire, sommes de cosinus/sinus pondérées par les x[n]),
+%% vérifié numériquement au préalable (script Python : valeurs exactes
+%% aux points clés, ex. |X(0.5)|=2.80). Tracée en trait continu et
+%% lisse sur ~2 périodes : périodique de période 1 (comme n'importe
+%% quelle séquence discrète), mais visiblement PAS une simple forme en
+%% lobes -- allure quelconque, PAS discrète. Consommé par slides.
+\begin{tikzpicture}[x=1.7cm,y=0.55cm]
+    \draw[-{Latex[length=2mm]}] (-0.5,0) -- (2.5,0) node[right] {\small$\nu$};
+    \draw[shibuidarkgray,ultra thick,domain=-0.3:2.3,samples=300,smooth]
+    plot (\x,{sqrt((0.6+1.0*cos(360*\x)-0.4*cos(720*\x)+0.8*cos(1080*\x)-0.9*cos(1440*\x)+0.3*cos(1800*\x))^2
+    +(1.0*sin(360*\x)-0.4*sin(720*\x)+0.8*sin(1080*\x)-0.9*sin(1440*\x)+0.3*sin(1800*\x))^2)});
+    \draw[red,dashed,domain=0.3:3.3,samples=300,smooth]
+        plot (0, \x);
+    \draw[red,dashed,domain=0.3:3.3,samples=300,smooth]
+        plot (1, \x);
+    \draw[red,dashed,domain=0.3:3.3,samples=300,smooth]
+        plot (2, \x);
+    \node[below] at (0,0) {\small$0$};
+    \node[below] at (1,0) {\small$1$};
+    \node[below] at (2,0) {\small$2$};
+\end{tikzpicture}

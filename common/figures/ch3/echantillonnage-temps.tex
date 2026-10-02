@@ -1,0 +1,15 @@
+%% Panneau temporel de la dualité x discret => Xe périodique :
+%% enveloppe continue (pointillés gris) et échantillons (bâtons bleus).
+%% Hauteur de boîte forcée à 1.8 (\path invisible) pour s'aligner avec
+%% le panneau fréquentiel jumelé. Consommé par slides.
+\begin{tikzpicture}[x=0.35cm,y=1cm]
+    \path (0,1.8);
+    \draw[-{Latex[length=2mm]}] (-0.5,0) -- (10.5,0) node[right] {\small$t$};
+    \draw[gray,dashed,thick,domain=0:10,samples=80,smooth]
+        plot (\x,{1+0.7*sin(\x*36)});
+    \foreach \n in {0,...,7} {
+        \pgfmathsetmacro{\xx}{1.2*\n+0.3}
+        \pgfmathsetmacro{\yy}{1+0.7*sin(\xx*36)}
+        \draw[niceblue,ultra thick,-{Latex[length=2mm]}] (\xx,0) -- (\xx,\yy);
+    }
+\end{tikzpicture}

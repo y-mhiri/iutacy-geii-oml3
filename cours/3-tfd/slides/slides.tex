@@ -1,0 +1,329 @@
+\documentclass[aspectratio=43,10pt]{beamer}
+
+%% ─── Theme ────────────────────────────────────────────────────────
+\usetheme[iut, sans, progressbar=segmented, nosub]{Shibui}
+
+%% ─── Packages ────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T2A,T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{mathtools}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta,positioning,calc}
+
+\input{../../../common/macros.tex}
+
+%% ─── Metadata ─────────────────────────────────────────────────────
+\title{OML3}
+\subtitle{Chapitre 3 \\ La Transformée de Fourier Discrète}
+\author{\textbf{BUT2} -- Génie Électrique et Informatique Industrielle}
+\date{2025-2026}
+
+%% ─── Theorem environments ─────────────────────────────────────────
+\newtheorem{proposition}{Propriété}
+\newtheorem{remark}{Remarque}
+
+%% ─── Text helpers (mirrors poly/main.tex) ──────────────────────────
+\newcommand{\highlight}[1]{{\color{niceblue}\emph{#1}}}
+\newcommand{\tf}{\overset{\mathcal F}{\longleftrightarrow}}
+\definecolor{niceblue}{RGB}{0,128,172}
+
+%% ─── Peigne de Dirac (Ш) ────────────────────────────────────────────
+%% Real Cyrillic Sha via T2A encoding (cm-super provides the outline),
+%% same approach as elec-s3/ch2 -- confirmed working here too.
+\newcommand{\Sha}{\text{\fontencoding{T2A}\selectfont\CYRSH}}
+
+%% ─── Placeholder for live-tool captures (Ableton/Audacity) ─────────
+\newcommand{\captureplaceholder}[1]{%
+    \begin{center}
+    \fbox{\parbox{0.75\linewidth}{\centering\vspace{1.5em}\textit{[CAPTURE À VENIR : #1]}\vspace{1.5em}}}
+    \end{center}
+}
+
+%% ─── Beat graph styles (rappel-graph*.tex figures rely on these) ───
+%% Native Shibui (iut palette) colors, not niceblue : shibuidarkgray is
+%% the theme's blue, used as the neutral box/arrow color ; red is kept
+%% for its own sake, reserved for actually highlighting the "current
+%% position" node (beatfilled), not used anywhere else.
+\tikzset{
+    beatbox/.style={draw=shibuidarkgray, thick, rounded corners, minimum height=1.4cm,
+                text width=2.4cm, align=center, font=\small},
+    beatfilled/.style={beatbox, draw=red, fill=white!85!red},
+    beatarr/.style={-{Latex[length=2.5mm]}, shibuidarkgray, thick}
+}
+
+%% ─── Figure helper : fit any \input'd figure to a target width ────
+\newcommand{\slidefig}[2]{%
+\begin{center}
+\resizebox{#1}{!}{\input{../../../common/figures/ch3/#2}}
+\end{center}
+}
+
+%% ─────────────────────────────────────────────────────────────────
+\begin{document}
+
+\maketitle
+
+%% ═══════════════════════════════════════════════════════════════
+\section{Rappel}
+
+\begin{frame}{Décomposition spectrale}
+    \slidefig{0.65\textwidth}{decompose-porte-fourier.tex}
+\end{frame}
+
+\begin{frame}{}
+    \slidefig{\textwidth}{rappel-graph.tex}
+    \vspace{1em}
+    % \begin{center}
+    %     \small Aujourd'hui : discret $\Leftrightarrow$ périodique, appliqué deux fois.
+    % \end{center}
+\end{frame}
+
+\begin{frame}{Séries de Fourier}
+    \begin{center}
+        \small fonctions \highlight{périodiques} (période $T$)
+    \end{center}
+    \vspace{0.8em}
+    \begin{center}
+        \resizebox{\textwidth}{!}{%
+        $x(t) = \displaystyle\sum_{n=-\infty}^{+\infty} c_n\,e^{2\complexj\pi nt/T}, \qquad
+          c_n = \dfrac1T\displaystyle\int_T x(t)\,e^{-2\complexj\pi nt/T}\,\mathrm dt$%
+        }
+    \end{center}
+\end{frame}
+
+\begin{frame}{Transformée de Fourier}
+    \begin{center}
+        \small fonctions \highlight{non périodiques}
+    \end{center}
+    \vspace{0.8em}
+    \begin{center}
+        \Large
+        $$X(f) = \int_{-\infty}^{+\infty} x(t)\,e^{-2\complexj\pi ft}\,\mathrm dt$$
+    \end{center}
+\end{frame}
+
+\begin{frame}{L'impulsion de Dirac}
+    \slidefig{0.55\textwidth}{dirac-sifting.tex}
+    \begin{center}
+        $$\int_{-\infty}^{+\infty} x(t)\,\delta(t-t_0)\,\mathrm dt = x(t_0)$$
+    \end{center}
+\end{frame}
+
+\begin{frame}{Produit de convolution}
+    \begin{center}
+        \Large
+        $$(x*y)(t) = \int_{-\infty}^{+\infty} x(\tau)\,y(t-\tau)\,\mathrm d\tau$$
+    \end{center}
+\end{frame}
+
+\begin{frame}{Dualité produit / convolution}
+    \begin{center}
+        \Large
+        $$x(t)\,y(t) \;\tf\; (X*Y)(f)$$
+        \vspace{0.5em}
+        $$(x*y)(t) \;\tf\; X(f)\,Y(f)$$
+    \end{center}
+\end{frame}
+
+%% ═══════════════════════════════════════════════════════════════
+\section{Fonction discrète}
+
+
+\begin{frame}{Définition}
+    \begin{center}
+        \Large
+        $$x:\Z\to\R,\qquad n\mapsto x[n]$$
+    \end{center}
+\end{frame}
+
+\begin{frame}{Deux exemples de fonctions discrètes}
+    \begin{columns}
+        \column{0.5\textwidth}
+        \centering
+        \textbf{Échelon unité}
+        $$u[n] = \begin{cases} 1 & n\geq0 \\ 0 & n<0 \end{cases}$$
+        \column{0.5\textwidth}
+        \centering
+        \textbf{Impulsion unité}
+        $$\delta[n] = \begin{cases} 1 & n=0 \\ 0 & n\neq0 \end{cases}$$
+    \end{columns}
+\end{frame}
+
+%% ═══════════════════════════════════════════════════════════════
+\section{Discret \texorpdfstring{$\Leftrightarrow$}{<=>} périodique}
+
+\begin{frame}{Le peigne de Dirac}
+    \slidefig{0.6\textwidth}{peigne-dirac.tex}
+    \begin{center}
+        \large
+        $$\Sha_{T_e}(t) = \sum_{n=-\infty}^{+\infty}\delta(t-nT_e)$$
+    \end{center}
+\end{frame}
+
+\begin{frame}{À connaître : La transformée de Fourier d'un peigne de Dirac}
+
+     \begin{center}
+        \Large
+        $$\Sha_{T_e}(t) = \sum_{n=-\infty}^{+\infty}\delta(t-nT_e)$$
+    \end{center}
+    \vspace{2em}
+    \begin{center}
+        \Large
+        $$\Sha_{T_e}(t) \;\tf\; F_e\,\Sha_{F_e}(f), \qquad F_e=1/T_e$$
+    \end{center}
+    \vspace{1em}
+\end{frame}
+
+\begin{frame}{$x$ discret $\Rightarrow X_e$ périodique}
+    \begin{columns}
+        \column{0.5\textwidth}
+        \centering
+        \slidefig{\textwidth}{echantillonnage-temps.tex}
+        \begin{center}\small temps : $x_e$ discret\end{center}
+        \onslide<2->{%
+        $$
+        \begin{aligned}
+            x_e(t) &= x(t)\times\Sha_{T_e}(t)  \\ &= \sum_{n=-\infty}^{+\infty} x(nT_e)\, \delta(t-nT_e)
+        \end{aligned}
+        $$
+        }
+
+        \column{0.5\textwidth}
+        \centering
+        \slidefig{\textwidth}{echantillonnage-frequence.tex}
+        \begin{center}\small fréquence : $X_e$ périodique\end{center}
+        \onslide<2->{%
+        $$
+        \begin{aligned}
+            X_e(f) &= \int_{-\infty}^{+\infty} x_e(t)\, e^{-\complexj 2\pi ft}\,\mathrm dt  \\ &= \sum_{n=-\infty}^{+\infty} x(nT_e)\, e^{-\complexj 2\pi f nT_e}
+        \end{aligned}
+        $$
+        }
+    \end{columns}
+\end{frame}
+
+\begin{frame}{$x$ périodique $\Rightarrow X$ discret}
+    \begin{columns}
+        \column{0.5\textwidth}
+        \centering
+        \slidefig{\textwidth}{periodique-temps.tex}
+        \begin{center}\small temps : $x$ périodique\end{center}
+        \onslide<2->{%
+        $$
+        \begin{aligned}
+            x(t) &= x(t+T) \\ &= \sum_{n=-\infty}^{+\infty} c_n\, e^{2\complexj\pi nt/T}
+        \end{aligned}
+        $$
+        }
+
+        \column{0.5\textwidth}
+        \centering
+        \slidefig{\textwidth}{periodique-frequence.tex}
+        \begin{center}\small fréquence : $X$ discret\end{center}
+        \onslide<2->{%
+        $$
+        \begin{aligned}
+            X(f) &= \mathcal F\Big[\sum_{n=-\infty}^{+\infty} c_n\, e^{2\complexj\pi nt/T}\Big](f) \\ &= \sum_{n=-\infty}^{+\infty} c_n\, \delta(f-n/T)
+        \end{aligned}
+        $$
+        }
+    \end{columns}
+\end{frame}
+
+%% ═══════════════════════════════════════════════════════════════
+% \section{Bilan (séance 1)}
+
+\begin{frame}{Où on en est}
+    \slidefig{\textwidth}{rappel-graph-mid.tex}
+    \vspace{1em}
+    \begin{center}
+        Discret $\Leftrightarrow$ périodique : établi dans les deux sens.
+    \end{center}
+\end{frame}
+
+\begin{frame}{Fréquence normalisée}
+
+
+    % \begin{center}
+        $$
+            \Large
+            \begin{aligned}
+            X_e({\color{shibuidarkgray}f}) &= \sum_{n=-\infty}^{+\infty} \red{x(nT_e)}\, e^{-\complexj 2\pi n {\color{red}fT_e}} 
+            \\
+             X(\red{\nu}) &= \sum_{n=-\infty}^{+\infty} \red{x[n]}\,e^{-2\complexj\pi\red{\nu} n}
+            \end{aligned}
+        $$
+
+    % \end{center}
+
+    \begin{center}
+        \Large
+        $$(t,f) \;\longleftrightarrow\; (n,\nu)$$
+    \end{center}
+    \begin{center}
+        \small temps continu / indice discret \hspace{3em} fréquence / fréquence normalisée
+    \end{center}
+    \vspace{1.5em}
+
+\end{frame}
+
+\begin{frame}{Presque...}
+    \begin{columns}
+        \column{0.5\textwidth}
+        \centering
+        \slidefig{\textwidth}{dtft-synthetique-temps.tex}
+        \begin{center}\small temps : $x[n]$ fini (non périodique)\end{center}
+        \column{0.5\textwidth}
+        \centering
+        \slidefig{\textwidth}{dtft-synthetique-frequence.tex}
+        \begin{center}\small fréquence : $X(\nu)$ périodique... mais continue\end{center}
+    \end{columns}
+    \vspace{0.5em}
+    \begin{center}
+        Support borné $\nu\in[0,1)$ -- mais pas discret.\\[0.3em]
+        \Large Exploitable numériquement ?
+    \end{center}
+\end{frame}
+
+%% ═══════════════════════════════════════════════════════════════
+\section{La TFD}
+
+% \begin{frame}{Fréquence normalisée}
+%     \begin{center}
+%         \Large
+%         $$\nu = f/F_e$$
+%     \end{center}
+%     \vspace{0.5em}
+%     \begin{center}
+%         $$X(\nu) = \sum_{n=-\infty}^{+\infty} x[n]\,e^{-2\complexj\pi\nu n}, \qquad \text{période } 1$$
+%     \end{center}
+% \end{frame}
+
+\begin{frame}{La Transformée de Fourier Discrète (TFD)}
+    \begin{center}
+        \Large
+        $$X[k] = \sum_{n=0}^{N-1} x[n]\,e^{-2\complexj\pi kn/N}, \qquad k=0,\dots,N-1$$
+    \end{center}
+\end{frame}
+
+\begin{frame}{La TFD inverse}
+    \begin{center}
+        \Large
+        $$x[n] = \frac1N\sum_{k=0}^{N-1} X[k]\,e^{2\complexj\pi kn/N}, \qquad n=0,\dots,N-1$$
+    \end{center}
+\end{frame}
+
+% \begin{frame}{Pourquoi c'est important}
+%     \captureplaceholder{écran d'un analyseur de spectre / oscilloscope en mode FFT}
+%     \begin{center}
+%         \small C'est ce calcul, partout.
+%     \end{center}
+% \end{frame}
+
+
+
+\end{document}

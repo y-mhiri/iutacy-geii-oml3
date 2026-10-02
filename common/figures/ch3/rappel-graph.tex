@@ -1,0 +1,20 @@
+%% Graphe orienté du fil conducteur du chapitre : Séries de Fourier ->
+%% Transformée de Fourier -> TFD, chaque noeud légendé par le type de
+%% fonctions concerné. Le noeud intermédiaire "Discret <=> Périodique"
+%% a été délibérément retiré : le récit est "on part du périodique,
+%% on va vers le discret" -- la périodicité en fréquence est une
+%% conséquence qui apparaît en cours de route (pour obtenir une TFD
+%% finie), pas une étape à part entière sur ce graphe. Requiert les
+%% styles beatbox/beatfilled/beatarr (tikzset dans le préambule de
+%% slides.tex). Variante "plain" -- aucun noeud rempli. Consommé par
+%% slides (beat "Rappel").
+\begin{tikzpicture}[node distance=0.6cm]
+    \node[beatbox] (a) {Séries de\\Fourier};
+    \node[below=of a,font=\small, text width=2.4cm, align=center](a-label){Fonctions continues périodiques};
+    \node[beatbox, right=of a] (b) {Transformée\\de Fourier};
+    \node[below=of b,font=\small, text width=2.4cm, align=center](b-label){Fonctions continues};
+    \node[beatbox, right=of b] (c) {Transformée de Fourier Discrète};
+    \node[below=of c,font=\small, text width=2.4cm, align=center](c-label){Fonctions discrètes};
+    \draw[beatarr] (a) -- (b);
+    \draw[beatarr] (b) -- (c);
+\end{tikzpicture}

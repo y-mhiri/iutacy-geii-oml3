@@ -1,0 +1,11 @@
+%% Impulsion de Dirac : action sur une fonction continue x(t). Une
+%% courbe quelconque, une flèche de Dirac en t0, une ligne pointillée
+%% vers la valeur extraite x(t0). Consommé par slides (beat "Rappel").
+\begin{tikzpicture}[x=1.6cm,y=1.6cm]
+    \draw[-{Latex[length=2.5mm]}] (-0.3,0) -- (4.3,0) node[right] {\small$t$};
+    \draw[gray,thick,domain=0:4,samples=80,smooth]
+        plot (\x,{1+0.5*sin(\x*70)});
+    \draw[niceblue,ultra thick,-{Latex[length=2.5mm]}] (2,0) -- (2,1.9);
+    \draw[dashed] (2,{1+0.5*sin(2*70)}) -- (-0.3,{1+0.5*sin(2*70)});
+    \node[below] at (2,0) {\small $t_0$};
+\end{tikzpicture}

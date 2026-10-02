@@ -1,0 +1,12 @@
+%% Peigne de Dirac : train d'impulsions régulièrement espacées de Te.
+%% Repris (en plus dense) du poly, simplifié pour projection. Consommé
+%% par slides (beat "Discret <=> périodique").
+\begin{tikzpicture}[x=2cm,y=1.5cm]
+    \draw[-{Latex[length=2.5mm]}] (-2.2,0) -- (2.2,0) node[right] {$t$};
+    \foreach \k in {-1.5,-1,-0.5,0,0.5,1,1.5} {
+        \draw[niceblue,ultra thick,-{Latex[length=2.5mm]}] (\k,0) -- (\k,1);
+    }
+    \draw[decorate,decoration={brace,amplitude=4pt}] (0,1.15) -- (0.5,1.15)
+        node[midway,above=2pt] {\small $T_e$};
+    \node[below] at (0,0) {\small $0$};
+\end{tikzpicture}
